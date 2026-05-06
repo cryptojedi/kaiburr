@@ -1,0 +1,60 @@
+\documentclass[a4paper,runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\newif\ifpublic
+\publictrue
+
+\input{packages}
+\input{macros}
+
+\title{Scaling ML-KEM to (much) higher security}
+
+\ifpublic
+\author{
+  Swechcha Adhikari\inst{1} 
+  \and
+  Vadim Lyubashevsky\inst{2} 
+  \and
+  Peter Schwabe\inst{3,4}
+}
+
+\institute{
+  Brigham Young University, Provo, USA\\
+  \email{\href{mailto:adhikar6@student.byu.edu}{adhikar6@student.byu.edu}}
+\and
+  IBM Research, Zurich, Switzerland\\
+  \email{\href{mailto:VAD@zurich.ibm.com}{VAD@zurich.ibm.com}}
+\and
+  Max Planck Institute for Security and Privacy, Bochum, Germany\\
+  \email{\href{mailto:peter@cryptojedi.org}{peter@cryptojedi.org}}
+\and
+  Radboud University, Nijmegen, The Netherlands\\
+}
+
+\else
+\author{Anonymized for Submission}
+\fi
+
+
+\begin{document}
+
+\maketitle
+
+\input{abstract}
+
+\input{intro}
+\input{preliminaries}
+\input{warmup}
+\input{distribution}
+\input{changingq}
+\input{benchmarks}
+
+\ifpublic
+\input{acks}
+\fi
+
+\bibliographystyle{splncs04}
+\bibliography{cryptobib/abbrev3,cryptobib/crypto,kaiburr}
+
+\end{document}
