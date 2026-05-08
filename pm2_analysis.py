@@ -10,7 +10,7 @@ def pm2_table(m):
     print(f"{'n':<6} {'Pr[±2]':<12} {'E[#±2] per poly':<20} {'E[#±2] total':<20} {'Pr[no ±2 in poly]':<22} {'failure prob (2^x)'}")
     print("-" * 110)
     
-    for n in [4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30]:
+    for n in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
         pr2 = 0.5**n
         expected_per = 256 * 2 * pr2
         expected_total = total_polys * 256 * 2 * pr2
@@ -26,7 +26,7 @@ def threshold_table(m):
     print("-" * 80)
     
     prev_fail = None
-    for n in range(4, 25):
+    for n in range(4, 21):
         fail = get_failure_exp(m, n)
         e = expected_pm2(n, m)
         above = "above 1" if e >= 1 else "below 1"
@@ -68,34 +68,34 @@ def threshold_formula_table():
         threshold = ceil(log_val)
         print(f"{m:<6} {val:<14} {log_val:<12.4f} {threshold}")
 
-def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
-    n_range = list(range(4, 25))
-    plt.figure(figsize=(9, 5))
+# def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
+#     n_range = list(range(4, 25))
+#     plt.figure(figsize=(9, 5))
 
-    for m in m_values:
-        fail_probs = [get_failure_exp(m, n) for n in n_range]
-        plt.plot(n_range, fail_probs, marker='o', label=f'm = {m}')
+#     for m in m_values:
+#         fail_probs = [get_failure_exp(m, n) for n in n_range]
+#         plt.plot(n_range, fail_probs, marker='o', label=f'm = {m}')
 
-    # security threshold
-    plt.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
-    plt.xlabel('n')
-    plt.ylabel('Failure probability exponent (x in 2^x)')
-    plt.title('Failure probability vs n')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig('failure_prob.png', dpi=150)
-    plt.show()
+#     # security threshold
+#     plt.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
+#     plt.xlabel('n')
+#     plt.ylabel('Failure probability exponent (x in 2^x)')
+#     plt.title('Failure probability vs n')
+#     plt.legend()
+#     plt.grid(True, alpha=0.3)
+#     plt.tight_layout()
+#     plt.savefig('failure_prob.png', dpi=150)
+#     plt.show()
 
 if __name__ == "__main__":
     
     # pm2 table for specific dimensions
-    for m in [24, 29]:
+    for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
         pm2_table(m)
         print()
 
     # threshold table for specific dimensions  
-    for m in [15, 24, 29]:
+    for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
         threshold_table(m)
         print()
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     threshold_formula_table()
 
     # plot of failure probability vs n
-    plot_failure_prob(m_values=[15, 24, 29])
+    # plot_failure_prob(m_values=[15, 24, 29])
 
 
 # # ## why n =n 16?
