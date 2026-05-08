@@ -1,5 +1,6 @@
 from math import log2, ceil
 from utils import get_failure_exp, expected_pm2, n_star_formula
+import matplotlib.pyplot as plt
 
 def pm2_table(m):
     total_polys = (4*m + 1)
@@ -67,6 +68,25 @@ def threshold_formula_table():
         threshold = ceil(log_val)
         print(f"{m:<6} {val:<14} {log_val:<12.4f} {threshold}")
 
+def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
+    n_range = list(range(4, 25))
+    plt.figure(figsize=(9, 5))
+
+    for m in m_values:
+        fail_probs = [get_failure_exp(m, n) for n in n_range]
+        plt.plot(n_range, fail_probs, marker='o', label=f'm = {m}')
+
+    # security threshold
+    plt.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
+    plt.xlabel('n')
+    plt.ylabel('Failure probability exponent (x in 2^x)')
+    plt.title('Failure probability vs n')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('failure_prob.png', dpi=150)
+    plt.show()
+
 if __name__ == "__main__":
     
     # pm2 table for specific dimensions
@@ -87,6 +107,9 @@ if __name__ == "__main__":
     # threshold formula verification
     print("Threshold formula n*(m):")
     threshold_formula_table()
+
+    # plot of failure probability vs n
+    plot_failure_prob(m_values=[15, 24, 29])
 
 
 # # ## why n =n 16?
