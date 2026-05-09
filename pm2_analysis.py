@@ -12,8 +12,8 @@ def pm2_table(m):
     
     for n in [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
         pr2 = 0.5**n
-        expected_per = 256 * 2 * pr2
-        expected_total = total_polys * 256 * 2 * pr2
+        expected_total = expected_pm2(n, m)
+        expected_per = expected_total / total_polys
         pr_no_pm2 = (1 - 2*pr2)**256
         fail = get_failure_exp(m, n)
         print(f"{n:<6} {pr2:<12.8f} {expected_per:<20.4f} {expected_total:<20.4f} {pr_no_pm2:<22.6f} {fail:.1f}")
@@ -65,8 +65,7 @@ def threshold_formula_table():
     for m in range(8, 30):
         val = (4*m + 1) * 512
         log_val = log2(val)
-        threshold = ceil(log_val)
-        print(f"{m:<6} {val:<14} {log_val:<12.4f} {threshold}")
+        print(f"{m:<6} {val:<14} {log_val:<12.4f} {n_star_formula(m)}")
 
 # def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
 #     n_range = list(range(4, 25))
