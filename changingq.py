@@ -28,11 +28,11 @@ def communication_costs(ps):
     return (int(round(A_space))/8., int(round(B_space))/8.)
 
 m = 81
-q1, q2 = 3329, 7629
+q1, q2 = 3329, 7681
 
 print(f"m = {m}, q = {q1} vs q = {q2}")
 print()
-print(f"{'n':<6} {'fail q=3329':>14} {'pk':>9} {'ct':>9}   {'fail q=7629':>14} {'pk':>9} {'ct':>9}")
+print(f"{'n':<6} {'fail q=3329':>14} {'pk':>9} {'ct':>9}   {'fail q=7681':>14} {'pk':>9} {'ct':>9}")
 print("-" * 80)
 
 # NOTE: original kyber security proofs only apply to a variant that does not compress the public key
@@ -49,15 +49,15 @@ for n in range(4, 26):
 # assuming that by n = 20, the probability has most likely already plateaued
 
 n = 20
-q = 7629
-for m in range(75, 86):
+q = 7681
+for m in range(77, 84):
     f = get_failure_exp(m, n, q)
     ps = KyberParameterSet(256, m, n, n, q, 2**13, 2**13, 2**13)
     pk, ct = communication_costs(ps)
     print(f"{m:<6} {'2^'+f'{f:.1f}':>14} {pk:>8.0f} {ct:>8.0f}")
 
-# the highest we can go with q = 7681 is m = 80, at m = 81, 
-# we get an approx max failure of 2^127.4, just below the threshold
+# the highest we can go with q = 7681 is m = 81, at m = 82, 
+# we get an approx max failure of 2^127.1, just below the threshold
 
 # question worth considering: should we go for a lower value of q or keep going higher?
 # how does it change the ciphertext and public key size? 
