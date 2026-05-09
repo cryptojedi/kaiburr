@@ -24,7 +24,7 @@ def chi(i, sig):
 def get_failure_exp(m, n, q=3329):
     ps = KyberParameterSet(256, m, n, n, q, 2**12, 2**12, 2**12)
     F, f = p2_cyclotomic_error_probability(ps)
-    return log(f + 2.**(-300)) / log(2)
+    return log(f + 2.**(-1000)) / log(2)
 
 def expected_pm2(n, m, poly_degree=256):
     """ computes the expected number of ±2 coefficients across ALL polynomials"""
