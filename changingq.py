@@ -23,28 +23,28 @@ for n in range(4, 26):
     pk2, ct2 = communication_costs(ps2)
     print(f"{n:<6} {'2^'+f'{f1:.1f}':>14} {pk1:>8.0f} {ct1:>8.0f} {'2^'+f'{f2:.1f}':>14} {pk2:>8.0f} {ct2:>8.0f}")
 
-# # assuming that by n = 20, the probability has most likely already plateaued
+# assuming that by n = 20, the probability has most likely already plateaued
 
-# n = 20
-# q = 7681
-# rq = 2**ceil(log2(q + 1))
-# for m in range(151, 201):
-#     f = get_failure_exp(m, n, q)
-#     ps = KyberParameterSet(256, m, n, n, q, rq, rq, rq)
-#     pk, ct = communication_costs(ps)
-#     print(f"{m:<6} {'2^'+f'{f:.1f}':>14} {pk:>8.0f} {ct:>8.0f}")
+n = 20
+q = 7681
+rq = 2**ceil(log2(q + 1))
+for m in range(151, 201):
+    f = get_failure_exp(m, n, q)
+    ps = KyberParameterSet(256, m, n, n, q, rq, rq, rq)
+    pk, ct = communication_costs(ps)
+    print(f"{m:<6} {'2^'+f'{f:.1f}':>14} {pk:>8.0f} {ct:>8.0f}")
 
-# # the highest we can go with q = 7681 is m = 157; at m = 158, 
-# # we get an approx max failure of 2^127.6, just below the threshold
+# the highest we can go with q = 7681 is m = 157; at m = 158, 
+# we get an approx max failure of 2^127.6, just below the threshold
 
-# # question worth considering: should we go for a lower value of q or keep going higher?
-# # how does it change the ciphertext and public key size? 
+# question worth considering: should we go for a lower value of q or keep going higher?
+# how does it change the ciphertext and public key size? 
 
-# # n = 16
-# # q = 769
-# # rq = 2**ceil(log2(q + 1))
-# # for m in range(25, 51):
-# #     f = get_failure_exp(m, n, q)
-# #     ps = KyberParameterSet(256, m, n, n, q, rq, rq, rq)
-# #     pk, ct = communication_costs(ps)
-# #     print(f"{m:<6} {'2^'+f'{f:.1f}':>14} {pk:>8.0f} {ct:>8.0f}")
+n = 20
+q = 769
+rq = 2**ceil(log2(q + 1))
+for m in range(25, 51):
+    f = get_failure_exp(m, n, q)
+    ps = KyberParameterSet(256, m, n, n, q, rq, rq, rq)
+    pk, ct = communication_costs(ps)
+    print(f"{m:<6} {'2^'+f'{f:.1f}':>14} {pk:>8.0f} {ct:>8.0f}")
