@@ -21,10 +21,13 @@ def Phi(z):
 def chi(i, sig):
     return Phi((i+.5)/sig) - Phi((i-.5)/sig)
 
-def get_failure_exp(m, n, q=3329):
-    ps = KyberParameterSet(256, m, n, n, q, 2**12, 2**12, 2**12)
+def get_failure_exp(m, n, q=3329, rqk=None, rqc=None, rq2=None):
+    if rqk is None: rqk = 2**ceil(log2(q + 1))
+    if rqc is None: rqc = 2**ceil(log2(q + 1))
+    if rq2 is None: rq2 = 2**ceil(log2(q + 1))
+    ps = KyberParameterSet(256, m, n, n, q, rqk, rqc, rq2)
     F, f = p2_cyclotomic_error_probability(ps)
-    return log(f + 2.**(-1000)) / log(2)
+    return log(f + 2.**(-300)) / log(2)
 
 def expected_pm2(n, m, poly_degree=256):
     """ computes the expected number of ±2 coefficients across ALL polynomials"""
