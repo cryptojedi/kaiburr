@@ -60,9 +60,8 @@ if __name__ == "__main__":
 #         ("256*24, f(8)",  256,  24,  8,  8, 3329, 2**12, 2**12, 2**12),
 #     ]
     params = [
-    (f"256*{m}", 256, m, n, n, 3329, 2**12, 2**12, 2**12)
-    for m in range(8, 30)
-    for n in range(4, 20)
+    (f"256*29", 256, 29, n, n, 3329, 2**12, 2**12, 2**12)
+    for n in range(4, 25)
 ]
 
 #     params = [
@@ -107,11 +106,11 @@ if __name__ == "__main__":
         ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
         print(f"{label}:")
         print("--------------------")
-        # print("security:")
-        # MLWE_summarize_attacks(Kyber_to_MLWE(ps))
+        print("security:")
+        MLWE_summarize_attacks(Kyber_to_MLWE(ps))
         F, f = p2_cyclotomic_error_probability(ps)
-        # pk, ct = communication_costs(ps)
+        pk, ct = communication_costs(ps)
         print("failure:  2^%.1f" % (log(f + 2.**(-300))/log(2)))
-        # print("pk size:  %.0f bytes" % pk)
-        # print("ct size:  %.0f bytes" % ct)
+        print("pk size:  %.0f bytes" % pk)
+        print("ct size:  %.0f bytes" % ct)
         print()
