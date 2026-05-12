@@ -67,24 +67,50 @@ def threshold_formula_table():
         log_val = log2(val)
         print(f"{m:<6} {val:<14} {log_val:<12.4f} {n_star_formula(m)}")
 
-# def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
-#     n_range = list(range(4, 25))
-#     plt.figure(figsize=(9, 5))
+def plot_failure_prob(m_values=[15, 24, 29]):  # check for more dimensions later
+    n_range = list(range(4, 25))
+    plt.figure(figsize=(9, 5))
 
-#     for m in m_values:
-#         fail_probs = [get_failure_exp(m, n) for n in n_range]
-#         plt.plot(n_range, fail_probs, marker='o', label=f'm = {m}')
+    for m in m_values:
+        fail_probs = [get_failure_exp(m, n) for n in n_range]
+        plt.plot(n_range, fail_probs, marker='o', label=f'm = {m}')
 
-#     # security threshold
-#     plt.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
-#     plt.xlabel('n')
-#     plt.ylabel('Failure probability exponent (x in 2^x)')
-#     plt.title('Failure probability vs n')
-#     plt.legend()
-#     plt.grid(True, alpha=0.3)
-#     plt.tight_layout()
-#     plt.savefig('failure_prob.png', dpi=150)
-#     plt.show()
+    # security threshold
+    plt.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
+    plt.xlabel('n')
+    plt.ylabel('Failure probability exponent (x in 2^x)')
+    plt.title('Failure probability vs n')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('failure_prob.png', dpi=150)
+    plt.show()
+
+def plot_expected_pm2_and_failure(m_values=[15, 24, 29]):
+    n_range = list(range(4, 25))
+    fig, ax1 = plt.subplots(figsize=(9, 5))
+
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+    for i, m in enumerate(m_values):
+        color = colors[i % len(colors)]
+        e_pm2 = [expected_pm2(n, m) for n in n_range]
+        fail_probs = [get_failure_exp(m, n) for n in n_range]
+
+        ax1.plot(n_range, e_pm2, marker='o', color=color, label=f'E[#±2] m={m}')
+        ax1.plot(n_range, fail_probs, marker='s', linestyle='--', color=color,
+                 alpha=0.5, label=f'failure m={m}')
+
+    ax1.axhline(y=1, color='black', linestyle=':', linewidth=1.2, label='E[#±2] = 1')
+    ax1.axhline(y=-128, color='black', linestyle='--', linewidth=1.2, label='threshold = 2⁻¹²⁸')
+    ax1.set_xlabel('n')
+    ax1.set_ylabel('E[#±2] total  /  failure exponent (2^x)')
+    ax1.set_title('E[#±2] and failure probability vs n')
+    ax1.legend(fontsize=8)
+    ax1.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('expected_pm2_and_failure.png', dpi=150)
+    plt.show()
 
 if __name__ == "__main__":
     
@@ -108,7 +134,8 @@ if __name__ == "__main__":
     threshold_formula_table()
 
     # plot of failure probability vs n
-    # plot_failure_prob(m_values=[15, 24, 29])
+    plot_failure_prob(m_values=[15, 24, 29])
+    plot_expected_pm2_and_failure(m_values=[15, 24, 29])
 
 
 # # ## why n =n 16?
