@@ -1,11 +1,10 @@
 import pickle
 import os.path
 import numpy as np
-from math import sqrt
+from math import sqrt, log2
 
-from gaussian import firstgaussian, moregaussian
 from geometric import firstgeometric, firstgeometricsimple, moregeometric
-from geometric_uneven import firstgeometric_uneven, moregeometric_uneven
+from ourscheme import make_kaiburr_scheme
 
 Grover = lambda alpha, MaxDepth: (alpha**0.5) * max(1, alpha**0.5/MaxDepth)
 
@@ -19,41 +18,29 @@ f_sqrtalphabetagrover = [u'total work to generate a failure (1/β√α)', lambda
 f_sqrtalpha = [u'work to generate one weak sample (1/√α)', lambda a, b, maxdepth: Grover(a, maxdepth)]
 
 def failureboosting(scheme, method, n_failure, recalc=False, targets=1, beta0=None):
-    n = scheme['n'] # dimension of A; We assume square
-    n2 = scheme['n2'] # total coefficients in sAs'
-    thres = scheme['thres'] # threshold for failures; typically q/4.
+    n = scheme['n']
+    n2 = scheme['n2']
+    thres = scheme['thres']
+    s = scheme['s']
+    sprime = scheme['sprime']
+    e = scheme['e']
+    eprime = scheme['eprime']
+    eprimeprime = scheme['eprimeprime']
 
-    s = scheme['s'] # distribution of s
-    sprime = scheme['sprime'] # distribution of s'
-    e = scheme['e'] # distribution of e
-    eprime = scheme['eprime'] # distribution of e'
-    eprimeprime = scheme['eprimeprime'] # distribution of e''
-
-    # load if already generated
     extraname = ""
     if targets > 1 or beta0 != None:
         extraname = f"-T{targets}-beta{int(round(np.log2(beta0)))}"
     name = 'intermediates_fb/'+scheme['name'] + '-' + method + '-' + str(n_failure) + extraname
+
     if os.path.exists(name + '-' + 'beta.txt') and not recalc:
         alpha = np.loadtxt(name + '-' + 'alpha.txt')
         beta = np.loadtxt(name + '-' + 'beta.txt')
     else:
-        if method == 'gaussian':
-            if n_failure == 1:
-                alpha, beta = firstgaussian(n, n2, thres, s, sprime, e, eprime, eprimeprime)
-            else:
-                raise Exception("Did not give accurate results because distribution is too skewed and Gaussian assumption does not hold. Code is still available to help future research.") 
-                alpha, beta = moregaussian(n, n2, thres, s, sprime, e, eprime, eprimeprime)
-        elif method == 'geometric':
+        if method == 'geometric':
             if n_failure == 1:
                 alpha, beta = firstgeometric(n, n2, thres, s, sprime, e, eprime, eprimeprime)
             else:
                 alpha, beta = moregeometric(n, n2, thres, s, sprime, e, eprime, eprimeprime, n_failure, targets=targets, beta0=beta0)
-        elif method == 'geometric-uneven':
-            if n_failure == 1:
-                alpha, beta = firstgeometric_uneven(n, n2, thres, s, sprime, e, eprime, eprimeprime)
-            else:
-                alpha, beta = moregeometric_uneven(n, n2, thres, s, sprime, e, eprime, eprimeprime, n_failure, targets=targets, beta0=beta0)
         elif method == 'geometric-simple':
             if n_failure == 1:
                 alpha, beta = firstgeometricsimple(n, n2, thres, s, sprime, e, eprime, eprimeprime)
@@ -64,3 +51,14 @@ def failureboosting(scheme, method, n_failure, recalc=False, targets=1, beta0=No
         np.savetxt(name + '-' + 'beta.txt', beta)
 
     return alpha, beta
+
+if __name__ == "__main__":
+    q = 3329
+    print(f"{'m':<6} {'n':<6} {'rq2':<8} {'fb cost (2^x)'}")
+    print("-" * 35)
+    for m, rq2_exp in [(24, 12), (24, 11), (24, 10)]:
+        for n in [8, 12, 16, 20]:
+            scheme = make_kaiburr_scheme(m, n, q, 2**rq2_exp)
+            alpha, beta = failureboosting(scheme, 'geometric', 1)
+            costs = [sqrt(a) * b**-1 for a, b in zip(alpha, beta)]
+            print(f"{m:<6} {n:<6} 2^{rq2_exp:<6} {log2(min(costs)):.1f}")
