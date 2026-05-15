@@ -63,6 +63,8 @@ if __name__ == "__main__":
     (f"256*29", 256, 29, n, n, 3329, 2**12, 2**12, 2**12)
     for n in range(4, 20)
 ]
+    
+    # checking how security estimates change with n rn
 
 #     params = [
 #     ("256*24, f(8),  rq2=2^12", 256, 24,  8,  8, 3329, 2**12, 2**12, 2**12),

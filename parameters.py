@@ -9,25 +9,25 @@ from new_distribution_failure import p2_cyclotomic_error_probability
 from utils import n_star_formula
 
 
-# params = [
-#     ("256*6", 256, 6, 5, 5, 3329, 2**12, 2**12, 2**4),
-#     ("256*7", 256, 7, 5, 5, 3329, 2**12, 2**12, 2**6)
-# ]
+params = [
+    ("256*6", 256, 6, 5, 5, 3329, 2**12, 2**12, 2**4),
+    ("256*7", 256, 7, 5, 5, 3329, 2**12, 2**12, 2**6)
+]
 
-# for label, n, m, ks, ke, q, rqk, rqc, rq2 in params:
-#         ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
-#         print(f"{label}:")
-#         print("--------------------")
-#         print("security:")
-#         MLWE_summarize_attacks(Kyber_to_MLWE(ps))
-#         F, f = p2_cyclotomic_error_probability(ps)
-#         pk, ct = communication_costs(ps)
-#         per_ciphertext = log(f + 2.**(-300))/log(2)
-#         per_coefficient = per_ciphertext - log2(ps.n)  # subtract log2(256) = 8
-#         print("failure (per coeff):  2^%.1f" % per_coefficient)
-#         print("pk size:  %.0f bytes" % pk)
-#         print("ct size:  %.0f bytes" % ct)
-#         print()
+for label, n, m, ks, ke, q, rqk, rqc, rq2 in params:
+        ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
+        print(f"{label}:")
+        print("--------------------")
+        print("security:")
+        MLWE_summarize_attacks(Kyber_to_MLWE(ps))
+        F, f = p2_cyclotomic_error_probability(ps)
+        pk, ct = communication_costs(ps)
+        per_ciphertext = log(f + 2.**(-300))/log(2)
+        per_coefficient = per_ciphertext - log2(ps.n)  # subtract log2(256) = 8
+        print("failure (per coeff):  2^%.1f" % per_coefficient)
+        print("pk size:  %.0f bytes" % pk)
+        print("ct size:  %.0f bytes" % ct)
+        print()
 
 # frodo budgets
 frodo_targets = [
