@@ -12,7 +12,7 @@ print()
 print(f"{'n':<6} {'fail q=3329':>14} {'pk':>9} {'ct':>9}   {'fail q=7681':>14} {'pk':>9} {'ct':>9}")
 print("-" * 80)
 
-# NOTE: original kyber security proofs only apply to a variant that does not compress the public key
+# NOTE: original security proofs only apply when you don't compress the public key (?)
 
 for n in range(4, 26):
     f1 = get_failure_exp(m, n, q1)

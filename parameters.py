@@ -38,7 +38,6 @@ frodo_targets = [
 
 qs = [3329, 7681]
 
-print("\n\nSYSTEMATIC PARAMETER SEARCH")
 print("=" * 90)
 print(f"{'target':<12} {'q':<6} {'m':<5} {'n':<5} {'rq2':<8} {'pk':>8} {'ct':>8} {'fail/coeff':>12} {'MLWE_sec':>10}")
 print("-" * 90)
@@ -52,7 +51,7 @@ for label, pk_budget, ct_budget in frodo_targets:
         for m in range(1, 200):
             ps = KyberParameterSet(256, m, 16, 16, q, rqk, rqk, rqk)
             pk, ct = communication_costs(ps)
-            if pk < pk_budget:
+            if pk <= pk_budget:
                 m_best = m
             else:
                 break
@@ -68,7 +67,7 @@ for label, pk_budget, ct_budget in frodo_targets:
         for rq2_exp in range(ceil(log2(q + 1)), 6, -1):
             ps = KyberParameterSet(256, m_best, n, n, q, rqk, rqk, 2**rq2_exp)
             pk, ct = communication_costs(ps)
-            if ct < ct_budget:
+            if ct <= ct_budget:
                 rq2_best = rq2_exp
                 break
 
@@ -81,5 +80,12 @@ for label, pk_budget, ct_budget in frodo_targets:
         decryption_failure = log(f + 2.**(-300))/log(2)
         mlwe = Kyber_to_MLWE(ps)
 
-        print(f"{label:<12} {q:<6} {m_best:<5} {n:<5} 2^{rq2_best:<6} {pk:>8.0f} {ct:>8.0f} {decryption_failure:>12.1f}", end="")
-        print()
+        print(f"{label:<12} {q:<6} {m_best:<5} {n:<5} 2^{rq2_best:<6} {pk:>8.0f} {ct:>8.0f} {decryption_failure - log2(256):>12.1f}")
+
+q = 7681
+rqk = 2**ceil(log2(q + 1))  # 8192
+
+for m in range(20, 25):
+    ps = KyberParameterSet(256, m, 16, 16, q, rqk, rqk, rqk)
+    pk, ct = communication_costs(ps)
+    print(f"m={m}, pk={pk:.0f}, ct={ct:.0f}")
