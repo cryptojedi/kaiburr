@@ -1,5 +1,5 @@
 from math import log2, ceil
-from utils import get_failure_exp, expected_pm2, n_star_formula
+from analysis.utils import get_failure_exp, expected_pm2, n_star_formula
 import matplotlib.pyplot as plt
 
 def pm2_table(m):

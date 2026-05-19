@@ -1,10 +1,14 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import pickle
 import os.path
 import numpy as np
 from math import sqrt, log2
 
 from geometric import firstgeometric, firstgeometricsimple, moregeometric
-from ourscheme import make_kaiburr_scheme
+from ourscheme import make_kaiburr_scheme, target_params
 
 Grover = lambda alpha, MaxDepth: (alpha**0.5) * max(1, alpha**0.5/MaxDepth)
 
@@ -53,12 +57,8 @@ def failureboosting(scheme, method, n_failure, recalc=False, targets=1, beta0=No
     return alpha, beta
 
 if __name__ == "__main__":
-    q = 3329
-    print(f"{'m':<6} {'n':<6} {'rq2':<8} {'fb cost (2^x)'}")
-    print("-" * 35)
-    for m, rq2_exp in [(24, 12), (24, 11), (24, 10)]:
-        for n in [8, 12, 16, 20]:
-            scheme = make_kaiburr_scheme(m, n, q, 2**rq2_exp)
-            alpha, beta = failureboosting(scheme, 'geometric', 1)
-            costs = [sqrt(a) * b**-1 for a, b in zip(alpha, beta)]
-            print(f"{m:<6} {n:<6} 2^{rq2_exp:<6} {log2(min(costs)):.1f}")
+    for m, n, q in target_params:
+        scheme = make_kaiburr_scheme(m, n, q)
+        alpha, beta = failureboosting(scheme, 'geometric', 1)
+        costs = [sqrt(a) * b**-1 for a, b in zip(alpha, beta) if b > 0]
+        print(f"m={m}, n={n}, q={q}: fb cost = 2^{log2(min(costs)):.1f}")

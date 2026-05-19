@@ -1,8 +1,8 @@
 # evaluating how security changes with increase in n for a small parameter
 
-from kaiburr import KyberParameterSet
-from new_distribution_failure import p2_cyclotomic_error_probability
-from kaiburr import MLWE_summarize_attacks, Kyber_to_MLWE
+from analysis.kaiburr import KyberParameterSet
+from analysis.new_distribution_failure import p2_cyclotomic_error_probability
+from analysis.kaiburr import MLWE_summarize_attacks, Kyber_to_MLWE
 from math import log
 from multiprocessing import Pool
 import csv

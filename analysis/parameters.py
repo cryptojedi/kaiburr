@@ -3,10 +3,10 @@
 # (256*7,5,12,6)->(196,2720,2656)
 
 from math import log, log2, ceil
-from kaiburr import KyberParameterSet, Kyber_to_MLWE, communication_costs
-from MLWE_security import MLWE_summarize_attacks
-from new_distribution_failure import p2_cyclotomic_error_probability
-from utils import n_star_formula
+from analysis.kaiburr import KyberParameterSet, Kyber_to_MLWE, communication_costs
+from analysis.MLWE_security import MLWE_summarize_attacks
+from analysis.new_distribution_failure import p2_cyclotomic_error_probability
+from analysis.utils import n_star_formula
 
 
 params = [

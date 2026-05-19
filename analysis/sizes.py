@@ -4,9 +4,9 @@
 # # frodokem1344 43088     21520     21632   32
 
 from math import log, ceil, log2
-from kaiburr import KyberParameterSet, communication_costs
-from new_distribution_failure import p2_cyclotomic_error_probability
-from utils import n_star_formula
+from analysis.kaiburr import KyberParameterSet, communication_costs
+from analysis.new_distribution_failure import p2_cyclotomic_error_probability
+from analysis.utils import n_star_formula
 
 # # pk and ct sizes for n=256, q=3329, no compression, fixing n = 16 because it has no effect on size
 

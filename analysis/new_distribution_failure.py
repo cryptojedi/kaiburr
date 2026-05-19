@@ -1,10 +1,10 @@
-from distribution import sample_f
+from analysis.distribution import sample_f
 
 import operator as op
 from math import factorial as fac
 from math import sqrt, log
 import sys
-from proba_util import *
+from analysis.proba_util import *
 
 def build_exact_distribution(n):
     """exact probability law for f(n)"""

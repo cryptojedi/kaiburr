@@ -1,12 +1,12 @@
+from utils import n_star_formula
+from math import ceil, log2
 from dist import Dist
-from math import sqrt, ceil, log2
+from analysis.new_distribution_failure import build_exact_distribution
+from analysis.proba_util import build_mod_switching_error_law
 
-import sys
-sys.path.append('..')
-from new_distribution_failure import build_exact_distribution
-from proba_util import build_mod_switching_error_law
-
-def make_kaiburr_scheme(m, n, q, rq2):
+def make_kaiburr_scheme(m, n, q, rq2=None):
+    if rq2 is None:
+        rq2 = 2**ceil(log2(q + 1))
     rqk = 2**ceil(log2(q + 1))
     base = Dist(build_exact_distribution(n))
     u_ct = Dist(build_mod_switching_error_law(q, rqk))
@@ -23,3 +23,10 @@ def make_kaiburr_scheme(m, n, q, rq2):
     scheme['n']           = 256 * m
     scheme['n2']          = 256
     return scheme
+
+target_params = [
+    (24, n_star_formula(24), 3329),
+    (22, n_star_formula(22), 7681),
+    (36, n_star_formula(36), 7681),
+    (51, n_star_formula(51), 7681),
+]

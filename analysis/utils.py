@@ -1,7 +1,7 @@
 from math import sqrt, log, log2, ceil
 from scipy.special import erf
-from new_distribution_failure import p2_cyclotomic_error_probability
-from kaiburr import KyberParameterSet
+from analysis.new_distribution_failure import p2_cyclotomic_error_probability
+from analysis.kaiburr import KyberParameterSet
 
 def variance_f(n):
     """
