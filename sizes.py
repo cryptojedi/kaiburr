@@ -1,11 +1,12 @@
-# scheme        sk        pk        c      ss
-# frodokem640  19888     9616      9720    16
-# frodokem976  31296     15632     15744   24
-# frodokem1344 43088     21520     21632   32
+# # scheme        sk        pk        c      ss
+# # frodokem640  19888     9616      9720    16
+# # frodokem976  31296     15632     15744   24
+# # frodokem1344 43088     21520     21632   32
 
 from math import log, ceil, log2
 from kaiburr import KyberParameterSet, communication_costs
 from new_distribution_failure import p2_cyclotomic_error_probability
+from utils import n_star_formula
 
 # # pk and ct sizes for n=256, q=3329, no compression, fixing n = 16 because it has no effect on size
 
@@ -118,4 +119,20 @@ for label, pk_budget, ct_budget, m in frodo_targets:
             prev_fail = fail
         print()
 
+    print()
+
+q = 7681
+rqk = 2**ceil(log2(q + 1))  # 2^13 = 8192
+
+for m in [23, 37]:
+    n = n_star_formula(m)
+    print(f"m = {m}, q = {q}, n*(m) = {n}")
+    print(f"{'rq2':<8} {'failure (2^x)':<18} {'ct (bytes)'}")
+    print("-" * 45)
+    for rq2_exp in range(13, 0, -1):
+        ps = KyberParameterSet(256, m, n, n, q, rqk, rqk, 2**rq2_exp)
+        F, f = p2_cyclotomic_error_probability(ps)
+        failure = log(f + 2.**(-300)) / log(2)
+        pk, ct = communication_costs(ps)
+        print(f"2^{rq2_exp:<6} {failure:<18.1f} {ct:.0f}")
     print()
