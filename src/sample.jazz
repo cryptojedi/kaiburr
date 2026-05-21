@@ -1,2 +1,48 @@
-# sampler for the f(n) distribution
+module SampleF;
 
+extern fn randombytes(uint8* buf, int len);
+
+export fn sample_f(int n, uint8* buf) -> int {
+  var int i;
+  var int bitpos;
+  var int bytepos;
+
+  var int a0;
+  var int an1;
+  var int bit;
+  
+  var int all1;
+  var int sign;
+  var int magnitude;
+
+  bytepos = 0;
+  bitpos = 0;
+  all1 = 1;
+
+  inline fn get_bit() -> int {
+    var int b;
+    b = buf[bytepos];
+    bit = (b >> bitpos) & 1;
+
+    bitpos = bitpos + 1;
+    if (bitpos == 8) {
+      bitpos = 0;
+      bytepos = bytepos + 1;
+    }
+    return bit;
+  }
+
+  a0 = get_bit();
+
+  for (i = 1; i < n - 1; i++) {
+    bit = get_bit();
+    if (bit != 1) all1 = 0;
+  }
+
+  an1 = get_bit();
+
+  sign = (2 * an1) - 1;
+  magnitude = (1 - a0) + (2 * all1);
+
+  return sign * magnitude;
+}
