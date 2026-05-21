@@ -1,48 +1,68 @@
-module SampleF;
-
-extern fn randombytes(uint8* buf, int len);
-
-export fn sample_f(int n, uint8* buf) -> int {
-  var int i;
-  var int bitpos;
-  var int bytepos;
-
-  var int a0;
-  var int an1;
-  var int bit;
-  
-  var int all1;
-  var int sign;
-  var int magnitude;
+export fn sample_f(reg u64 n, reg u64 buf) -> reg u64 {
+  reg u64 i;
+  reg u64 bitpos;
+  reg u64 bytepos;
+  reg u64 a0;
+  reg u64 an1;
+  reg u64 bit;
+  reg u64 all1;
+  reg u64 b;
+  reg u64 mask;
+  reg u64 sign;
+  reg u64 magnitude;
+  reg u64 result;
+  reg u64 n_minus_1;
+  reg u64 addr;
 
   bytepos = 0;
   bitpos = 0;
+  mask = 1;
   all1 = 1;
 
-  inline fn get_bit() -> int {
-    var int b;
-    b = buf[bytepos];
-    bit = (b >> bitpos) & 1;
+  addr = bytepos;
+  addr *= 8;
+  addr += buf;
+  b = [addr];
+  a0 = b;
+  a0 &= mask;
+  mask += mask;
+  bitpos += 1;
+  if (bitpos == 64) { bitpos = 0; bytepos += 1; mask = 1; }
 
-    bitpos = bitpos + 1;
-    if (bitpos == 8) {
-      bitpos = 0;
-      bytepos = bytepos + 1;
-    }
-    return bit;
+  i = 1;
+  n_minus_1 = n;
+  n_minus_1 -= 1;
+  while (i < n_minus_1) {
+    addr = bytepos;
+    addr *= 8;
+    addr += buf;
+    b = [addr];
+    bit = b;
+    bit &= mask;
+    mask += mask;
+    bitpos += 1;
+    if (bitpos == 64) { bitpos = 0; bytepos += 1; mask = 1; }
+    if (bit != 0) { all1 = 0; }
+    i += 1;
   }
 
-  a0 = get_bit();
+  addr = bytepos;
+  addr *= 8;
+  addr += buf;
+  b = [addr];
+  an1 = b;
+  an1 &= mask;
 
-  for (i = 1; i < n - 1; i++) {
-    bit = get_bit();
-    if (bit != 1) all1 = 0;
-  }
+  sign = an1;
+  sign += sign;
+  sign -= 1;
+  magnitude = 1;
+  magnitude -= a0;
+  bit = all1;
+  bit += bit;
+  magnitude += bit;
+  result = sign;
+  result *= magnitude;
 
-  an1 = get_bit();
-
-  sign = (2 * an1) - 1;
-  magnitude = (1 - a0) + (2 * all1);
-
-  return sign * magnitude;
+  return result;
 }
