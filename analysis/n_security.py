@@ -1,8 +1,7 @@
 # evaluating how security changes with increase in n for a small parameter
 
-from analysis.kaiburr import KyberParameterSet
-from analysis.new_distribution_failure import p2_cyclotomic_error_probability
-from analysis.kaiburr import MLWE_summarize_attacks, Kyber_to_MLWE
+from kaiburr import KyberParameterSet, MLWE_summarize_attacks, Kyber_to_MLWE
+from new_distribution_failure import p2_cyclotomic_error_probability
 from math import log
 from multiprocessing import Pool
 import csv
@@ -11,14 +10,14 @@ def run_param(args):
     label, n, m, ks, ke, q, rqk, rqc, rq2 = args
     ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
     F, f = p2_cyclotomic_error_probability(ps)
-    failure = log(f + 2.**(-1000)) / log(2)
+    failure = log(f + 2.**(-300)) / log(2)
     b_pq, c_pc, c_pq, c_pp = MLWE_summarize_attacks(Kyber_to_MLWE(ps))
     return (n, failure, c_pc, c_pq, c_pp)
 
 if __name__ == "__main__":
     params = [
-        (f"256*7, f({n})", 256, 7, n, n, 3329, 2**12, 2**12, 2**12)
-        for n in range(4, 200)
+        (f"256*3, f({n})", 256, 3, n, n, 3329, 2**12, 2**12, 2**12)
+        for n in range(4, 300)
     ]
     with Pool(processes=len(params)) as pool:
         results = pool.map(run_param, params)

@@ -1,7 +1,7 @@
 from math import log
-from analysis.new_distribution_failure import build_exact_distribution, build_limiting_distribution, p2_cyclotomic_error_probability
-from analysis.MLWE_security import MLWE_summarize_attacks, MLWEParameterSet
-from analysis.proba_util import build_mod_switching_error_law
+from new_distribution_failure import build_exact_distribution, build_limiting_distribution, p2_cyclotomic_error_probability
+from MLWE_security import MLWE_summarize_attacks, MLWEParameterSet
+from proba_util import build_mod_switching_error_law
 
 class KyberParameterSet:
     def __init__(self, n, m, ks, ke,  q, rqk, rqc, rq2, ke_ct=None):

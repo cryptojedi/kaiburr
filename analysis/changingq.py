@@ -1,6 +1,6 @@
 from math import log, ceil, log2
-from analysis.kaiburr import KyberParameterSet, communication_costs
-from analysis.utils import get_failure_exp
+from kaiburr import KyberParameterSet, communication_costs
+from utils import get_failure_exp
 
 m = 157
 q1, q2 = 3329, 7681

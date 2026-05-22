@@ -1,6 +1,6 @@
 from math import *
-from analysis.model_BKZ import *
-from analysis.distribution import sample_f
+from model_BKZ import *
+from distribution import sample_f
 
 log_infinity = 9999
 
