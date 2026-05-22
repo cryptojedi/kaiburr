@@ -1,6 +1,6 @@
 from math import log
 from new_distribution_failure import build_exact_distribution, build_limiting_distribution, p2_cyclotomic_error_probability
-from MLWE_security import MLWE_summarize_attacks, MLWEParameterSet
+from MLWE_security import MLWE_summarize_attacks, MLWEParameterSet, variance_f
 from proba_util import build_mod_switching_error_law
 
 class KyberParameterSet:
@@ -9,9 +9,9 @@ class KyberParameterSet:
             ke_ct = ke
         self.n = n
         self.m = m
-        self.ks = ks     # binary distribution for the secret key
-        self.ke = ke    # binary distribution for the ciphertext errors
-        self.ke_ct = ke_ct    # binary distribution for the ciphertext errors
+        self.ks = ks     # n in f(n) for secret key
+        self.ke = ke     # n in f(n) for ciphertext errors
+        self.ke_ct = ke_ct  # n in f(n) for ciphertext errors
         self.q = q
         self.rqk = rqk  # 2^(bits in the public key)
         self.rqc = rqc  # 2^(bits in the first ciphertext)
@@ -26,7 +26,7 @@ def Kyber_to_MLWE(kps):
     Rc = build_mod_switching_error_law(kps.q, kps.rqc)
     var_rounding = sum([i*i*Rc[i] for i in Rc.keys()])
 
-    if kps.ke_ct/2. + var_rounding < kps.ke/2.:
+    if variance_f(kps.ke_ct) + var_rounding < variance_f(kps.ke):
         raise "The security of the ciphertext MLWE may not be stronger than the one of the public key MLWE"    
 
     return MLWEParameterSet(kps.n, kps.m, kps.m + 1, kps.ks, kps.q)

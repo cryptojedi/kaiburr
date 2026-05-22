@@ -13,15 +13,16 @@ def variance_f(n):
     """
     return 2 * 0.25 + 4 * 0.5**n
 
+    # return 0.5 + 2**(3-n)
+
 
 class MLWEParameterSet:
-    def __init__(self, n, d, m, k, q, distr="binomial"):
-        self.n = n          # Ring Dimension
-        self.d = d          # MLWE Dimension (over the ring)
-        self.m = m          # Number of Ring-Samples
-        self.k = k          # Error Parameter (n in f(n) for vadim distribution)
-        self.q = q          # Modulus
-        self.distr = distr  # Type of distribution : binomial, uniform, or vadim
+    def __init__(self, n, d, m, k, q):
+        self.n = n  # Ring Dimension
+        self.d = d  # MLWE Dimension (over the ring)
+        self.m = m  # Number of Ring-Samples
+        self.k = k  # n in f(n) for vadim distribution
+        self.q = q  # Modulus
 
 
 def LWE_primal_cost(q, n, m, s, b, cost_svp=svp_classical, verbose=False):
@@ -95,15 +96,7 @@ def MLWE_summarize_attacks(ps):
     n = ps.n * ps.d
     max_m = ps.n * ps.m
 
-    if ps.distr == "vadim":
-        s = sqrt(variance_f(ps.k))
-    elif ps.distr == "binomial":
-        s = sqrt(ps.k / 2.)
-    elif ps.distr == "uniform":
-        k = ps.k
-        s = sqrt(sum([i**2 for i in range(-k, k+1)])/(2*k+1))
-    else:
-        raise ValueError("Unknown distribution " + ps.distr)
+    s = sqrt(variance_f(ps.k))
 
     (m_pc, b_pc, c_pc) = MLWE_optimize_attack(q, n, max_m, s, cost_attack=LWE_primal_cost, cost_svp=svp_classical, verbose=True)
     (m_pq, b_pq, c_pq) = MLWE_optimize_attack(q, n, max_m, s, cost_attack=LWE_primal_cost, cost_svp=svp_quantum, verbose=False)
