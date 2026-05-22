@@ -10,13 +10,13 @@ def run_param(args):
     label, n, m, ks, ke, q, rqk, rqc, rq2 = args
     ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
     F, f = p2_cyclotomic_error_probability(ps)
-    failure = log(f + 2.**(-300)) / log(2)
+    failure = log(f + 2.**(-1000)) / log(2)
     b_pq, c_pc, c_pq, c_pp = MLWE_summarize_attacks(Kyber_to_MLWE(ps))
     return (ks, failure, c_pc, c_pq, c_pp)
 
 if __name__ == "__main__":
     params = [
-        (f"256*3, f({n})", 256, 13, n, n, 3329, 2**12, 2**12, 2**12)
+        (f"256*3, f({n})", 256, 3, n, n, 3329, 2**12, 2**12, 2**12)
         for n in range(4, 26)
     ]
     with Pool(processes=len(params)) as pool:
