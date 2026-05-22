@@ -16,8 +16,8 @@ def run_param(args):
 
 if __name__ == "__main__":
     params = [
-        (f"256*3, f({n})", 256, 7, n, n, 3329, 2**12, 2**12, 2**12)
-        for n in range(4, 100)
+        (f"256*3, f({n})", 256, 13, n, n, 3329, 2**12, 2**12, 2**12)
+        for n in range(4, 26)
     ]
     with Pool(processes=len(params)) as pool:
         results = pool.map(run_param, params)
