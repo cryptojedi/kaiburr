@@ -8,12 +8,7 @@ STEPS_m = 1 # warning: step size > 1 may not find optimal b or m
 
 
 def variance_f(n):
-    """Exact variance of Vadim's f(n) distribution
-    E[X^2] = 1^2 * 2*0.25 + 2^2 * 2*0.5^n
-    """
-    return 2 * 0.25 + 4 * 0.5**n
-
-    # return 0.5 + 2**(3-n)
+    return 0.5 + 2**(3-n)
 
 
 class MLWEParameterSet:
