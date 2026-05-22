@@ -12,11 +12,11 @@ def run_param(args):
     F, f = p2_cyclotomic_error_probability(ps)
     failure = log(f + 2.**(-300)) / log(2)
     b_pq, c_pc, c_pq, c_pp = MLWE_summarize_attacks(Kyber_to_MLWE(ps))
-    return (n, failure, c_pc, c_pq, c_pp)
+    return (ks, failure, c_pc, c_pq, c_pp)
 
 if __name__ == "__main__":
     params = [
-        (f"256*3, f({n})", 256, 3, n, n, 3329, 2**12, 2**12, 2**12)
+        (f"256*3, f({n})", 256, 7, n, n, 3329, 2**12, 2**12, 2**12)
         for n in range(4, 100)
     ]
     with Pool(processes=len(params)) as pool:
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for row in results:
             writer.writerow([row[0], f"{row[1]:.1f}", row[2], row[3], row[4]])
 
-    print(f"{'n':<6} {'failure':>12} {'classical':>12} {'quantum':>12} {'plausible':>12}")
+    print(f"{'f(n)':<6} {'failure':>12} {'classical':>12} {'quantum':>12} {'plausible':>12}")
     print("-" * 56)
     for row in results:
         print(f"{row[0]:<6} {row[1]:>12.1f} {row[2]:>12} {row[3]:>12} {row[4]:>12}")
