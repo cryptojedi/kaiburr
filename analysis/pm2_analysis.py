@@ -50,7 +50,7 @@ def find_n_failure(m, n_range=range(3, 170), threshold=-128):
 def n_failure_table():
     print(f"{'m':<6} {'n_failure':<12} {'failure prob (2^x)'}")
     print("-" * 35)
-    for m in range(3, 157):
+    for m in range(3, 158):
         n_fail, fp = find_n_failure(m)
         if n_fail:
             print(f"{m:<6} {n_fail:<12} {fp:.1f}")
