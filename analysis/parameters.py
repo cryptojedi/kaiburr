@@ -82,10 +82,10 @@ for label, pk_budget, ct_budget in frodo_targets:
 
         print(f"{label:<12} {q:<6} {m_best:<5} {n:<5} 2^{rq2_best:<6} {pk:>8.0f} {ct:>8.0f} {decryption_failure - log2(256):>12.1f}")
 
-q = 7681
-rqk = 2**ceil(log2(q + 1))  # 8192
+# q = 7681
+# rqk = 2**ceil(log2(q + 1))  # 8192
 
-for m in range(20, 25):
-    ps = KyberParameterSet(256, m, 16, 16, q, rqk, rqk, rqk)
-    pk, ct = communication_costs(ps)
-    print(f"m={m}, pk={pk:.0f}, ct={ct:.0f}")
+# for m in range(20, 25):
+#     ps = KyberParameterSet(256, m, 16, 16, q, rqk, rqk, rqk)
+#     pk, ct = communication_costs(ps)
+#     print(f"m={m}, pk={pk:.0f}, ct={ct:.0f}")

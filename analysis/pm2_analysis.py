@@ -1,5 +1,5 @@
 from math import log2, ceil
-from analysis.utils import get_failure_exp, expected_pm2, n_star_formula
+from utils import get_failure_exp, expected_pm2, n_star_formula
 import matplotlib.pyplot as plt
 
 def pm2_table(m):
@@ -40,19 +40,17 @@ def threshold_table(m):
         
         prev_fail = fail
 
-def find_n_failure(m, n_range=range(4, 25), threshold=-128):
-    prev_fail = None
+def find_n_failure(m, n_range=range(3, 170), threshold=-128):
     for n in n_range:
-        fail = get_failure_exp(m, n)
+        fail = get_failure_exp(m, n, q=7681)
         if fail <= threshold:
             return n, fail
-        prev_fail = fail
     return None, None
 
 def n_failure_table():
     print(f"{'m':<6} {'n_failure':<12} {'failure prob (2^x)'}")
     print("-" * 35)
-    for m in range(8, 30):
+    for m in range(3, 157):
         n_fail, fp = find_n_failure(m)
         if n_fail:
             print(f"{m:<6} {n_fail:<12} {fp:.1f}")
@@ -114,28 +112,28 @@ def plot_expected_pm2_and_failure(m_values=[15, 24, 29]):
 
 if __name__ == "__main__":
     
-    # pm2 table for specific dimensions
-    for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
-        pm2_table(m)
-        print()
+    # # pm2 table for specific dimensions
+    # for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
+    #     pm2_table(m)
+    #     print()
 
-    # threshold table for specific dimensions  
-    for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
-        threshold_table(m)
-        print()
+    # # threshold table for specific dimensions  
+    # for m in [7, 10, 13, 16, 19, 21, 24, 27, 29, 31]:
+    #     threshold_table(m)
+    #     print()
 
     # n_failure for all dimensions
     print("n_failure(m) table:")
     n_failure_table()
     print()
 
-    # threshold formula verification
-    print("Threshold formula n*(m):")
-    threshold_formula_table()
+    # # threshold formula verification
+    # print("Threshold formula n*(m):")
+    # threshold_formula_table()
 
-    # plot of failure probability vs n
-    plot_failure_prob(m_values=[15, 24, 29])
-    plot_expected_pm2_and_failure(m_values=[15, 24, 29])
+    # # plot of failure probability vs n
+    # plot_failure_prob(m_values=[15, 24, 29])
+    # plot_expected_pm2_and_failure(m_values=[15, 24, 29])
 
 
 # # ## why n =n 16?
