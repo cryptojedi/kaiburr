@@ -15,12 +15,6 @@ def f_n(i, n):
     elif abs(i) == 2: return 0.5**n
     else: return 0
 
-def Phi(z):
-    return .5 * (1 + erf(z/sqrt(2)))
-
-def chi(i, sig):
-    return Phi((i+.5)/sig) - Phi((i-.5)/sig)
-
 def get_failure_exp(m, n, q=3329, rqk=None, rqc=None, rq2=None):
     if rqk is None: rqk = 2**ceil(log2(q + 1))
     if rqc is None: rqc = 2**ceil(log2(q + 1))
@@ -36,3 +30,10 @@ def expected_pm2(n, m, poly_degree=256):
 def n_star_formula(m, epsilon=1.0, poly_degree=256):
     """ computes the theoretical threshold; minimum n at which failure probability plateaus"""
     return ceil(log2((4*m + 1) * poly_degree * 2 / epsilon))
+
+def find_min_n(m, q, threshold=-128):
+    for n in range(4, 100):
+        fail = get_failure_exp(m, n, q)
+        if fail <= threshold:
+            return n, fail
+    return None, None

@@ -1,9 +1,9 @@
 import csv
 from math import log, log2, ceil
 from multiprocessing import Pool
-from analysis.kaiburr import KyberParameterSet, communication_costs, MLWE_summarize_attacks, Kyber_to_MLWE
-from analysis.new_distribution_failure import p2_cyclotomic_error_probability
-from analysis.utils import n_star_formula
+from kaiburr import KyberParameterSet, communication_costs, MLWE_summarize_attacks, Kyber_to_MLWE
+from new_distribution_failure import p2_cyclotomic_error_probability
+from utils import n_star_formula
 
 def get_row(args):
     m, q = args
