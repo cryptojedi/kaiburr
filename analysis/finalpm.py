@@ -1,7 +1,7 @@
 import csv
 from math import log, log2, ceil
 from multiprocessing import Pool
-from kaiburr import KyberParameterSet, communication_costs, MLWE_summarize_attacks, Kyber_to_MLWE
+from kaiburr import KyberParameterSet, communication_costs
 from new_distribution_failure import p2_cyclotomic_error_probability
 from utils import find_min_n
 
@@ -13,8 +13,7 @@ def run_param(args):
     F, f = p2_cyclotomic_error_probability(ps)
     failure = log(f + 2.**(-300)) / log(2)
     pk, ct = communication_costs(ps)
-    b_pq, c_pc, c_pq, c_pp = MLWE_summarize_attacks(Kyber_to_MLWE(ps))
-    return (label, round(failure, 1), round(pk), round(ct), c_pc, c_pq, c_pp)
+    return (label, round(failure, 1), round(pk), round(ct))
 
 if __name__ == "__main__":
     params = []
@@ -34,7 +33,7 @@ if __name__ == "__main__":
 
     with open("minn.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["label", "failure (2^x)", "pk (bytes)", "ct (bytes)", "classical", "quantum", "plausible"])
+        writer.writerow(["label", "failure (2^x)", "pk (bytes)", "ct (bytes)"])
         for row in results:
             writer.writerow(row)
 
