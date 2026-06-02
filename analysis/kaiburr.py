@@ -17,7 +17,6 @@ class KyberParameterSet:
         self.rqc = rqc  # 2^(bits in the first ciphertext)
         self.rq2 = rq2  # 2^(bits in the second ciphertext)
 
-
 def Kyber_to_MLWE(kps):
     if kps.ks != kps.ke:
         raise "The security script does not handle different error parameter in secrets and errors (ks != ke) "
@@ -62,7 +61,7 @@ if __name__ == "__main__":
     params = [
         # (label,                      n,   m, ks, ke,   q,    rqk,   rqc,   rq2)
         ("k=24, f(8),  q=3329", 256, 24,  8,  8, 3329, 2**12, 2**12, 2**12),
-        ("k=22, f(4),  q=7681", 256, 22,  4,  4, 7681, 2**13, 2**13, 2**13),
+        # ("k=22, f(4),  q=7681", 256, 22,  4,  4, 7681, 2**13, 2**13, 2**13),
     ]
     
     # checking how security estimates change with n rn
