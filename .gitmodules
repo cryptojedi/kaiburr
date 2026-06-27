@@ -4,3 +4,6 @@
 [submodule "src/kaiburr-jasmin"]
 	path = src/kaiburr-jasmin
 	url = https://github.com/swechchhaad/kaiburr-jasmin
+[submodule "src/kaiburr-acc"]
+	path = src/kaiburr-acc
+	url = https://github.com/swechchhaad/kaiburr-acc.git
