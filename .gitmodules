@@ -7,3 +7,6 @@
 [submodule "src/kaiburr-acc"]
 	path = src/kaiburr-acc
 	url = https://github.com/swechchhaad/kaiburr-acc.git
+[submodule "src/kaiburr-c"]
+	path = src/kaiburr-c
+	url = https://github.com/swechchhaad/kaiburr-c
