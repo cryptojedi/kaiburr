@@ -4,6 +4,12 @@ kaiburr.pdf: *.tex *.bib
 	bibtex kaiburr
 	lualatex kaiburr.tex
 
+draft.pdf: draft.tex *.bib
+	lualatex draft.tex
+	lualatex draft.tex
+	-bibtex draft
+	lualatex draft.tex
+
 .PHONY: clean
 
 clean:
@@ -16,3 +22,9 @@ clean:
 	-rm kaiburr.meta
 	-rm kaiburr.out
 	-rm kaiburr.pdf
+	-rm draft.bbl
+	-rm draft.blg
+	-rm draft.brf
+	-rm draft.log
+	-rm draft.out
+	-rm draft.pdf

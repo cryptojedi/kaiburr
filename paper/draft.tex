@@ -1,0 +1,123 @@
+\documentclass[a4paper,runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\newif\ifpublic
+\publictrue
+
+\usepackage{amsfonts,amsmath,amscd,amssymb,array}
+
+\usepackage{xspace}
+
+\usepackage{xcolor}
+\definecolor{linkcolor}{rgb}{0.65,0,0}
+\definecolor{citecolor}{rgb}{0,0.65,0}
+\definecolor{urlcolor}{rgb}{0,0,0.65}
+\usepackage[colorlinks=true, backref=page, linkcolor=linkcolor, urlcolor=urlcolor, citecolor=citecolor]{hyperref}
+
+\newcommand{\kyberk}{\ensuremath{k}\xspace}
+
+\title{Scaling ML-KEM to (much) higher security}
+
+\ifpublic
+\author{
+  Swechchha Adhikari\inst{1}
+  \and
+  Vadim Lyubashevsky\inst{2}
+  \and
+  Peter Schwabe\inst{3,4}
+}
+
+\institute{
+  Brigham Young University, Provo, USA\\
+  \email{\href{mailto:adhikar6@student.byu.edu}{adhikar6@student.byu.edu}}
+\and
+  IBM Research, Zurich, Switzerland\\
+  \email{\href{mailto:VAD@zurich.ibm.com}{VAD@zurich.ibm.com}}
+\and
+  Max Planck Institute for Security and Privacy, Bochum, Germany\\
+  \email{\href{mailto:peter@cryptojedi.org}{peter@cryptojedi.org}}
+\and
+  Radboud University, Nijmegen, The Netherlands\\
+}
+
+\else
+\author{Anonymized for Submission}
+\fi
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+After a multi-year, three-round public competition, NIST published its first post-quantum standards FIPS-203, FIPS-204 and FIPS-205 in August 2024,
+specifying ML-KEM, ML-DSA and SLH-DSA. Interestingly, four of the schemes in the final NIST PQC round --- Kyber (standardized as ML-KEM), Saber, NTRU LPRime, and FrodoKEM --- share essentially the same (LPR-style) encryption blueprint and differ only in the algebraic structure of the ring over which it is instantiated: 
+from the power-of-two cyclotomic modules of Kyber and Saber, through the prime-degree field of NTRU LPRime, down to FrodoKEM's plain, unstructured LWE.
+This spectrum reflects different design principles, usually framed as structure vs.\ conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a latent attack surface. So most conservative designs shed it entirely. FrodoKEM, for example sits at the unstructured extreme, resting on plain LWE which is the reason bodies such as BSI and ANSSI point to the ISO-standardized FrodoKEM for long-term confidentiality.
+
+We find it useful to separate two notions of conservatism that are often bundled together in the context of KEMs.
+The first one is the assumption a KEM rests on (structured vs.\ unstructured), which hedges against a structure-exploiting break, and 
+the second is the margin it carries above its target security level, which hedges against improvement in known attacks.
+The two are distinct and non-substitutable because no amount of margin protects against a structural break, since such a break would change the asymptotics rather than shave a few bits. 
+
+This second axis is what matters more for long-term-confidentiality. Under harvest-now-decrypt-later, a ciphertext sent today must resist the best attack available at any point across a decades-long confidentiality lifetime, not only today's. 
+Yet concrete security estimates for lattice problems are not hardness proofs but the cost of the best known attack under a chosen cost model, 
+and they have been revised repeatedly as lattice-based cryptanalysis and cost models evolve. 
+A large margin is the standard hedge against such revision, and one an unstructured scheme can buy only at considerable size.
+
+The ring, by contrast, buys it cheaply. Since rank scaling raises MLWE hardness at only linear bandwidth cost, 
+a module scheme can occupy a high-margin point that an unstructured scheme reaches only at far greater size. Our work explores this direction, asking a question that has remained largely unexplored in the literature: how much security can a module KEM deliver at a fixed, modest bandwidth?
+
+We answer this concretely with \textsf{Kaiburr}, a family of module KEMs obtained by scaling ML-KEM's module rank and revisiting its noise distribution.
+Two parameter sets fit within the bandwidth budget of FrodoKEM-640-SHAKE (a $9.6$\,KB public key): \textsf{kaiburr6} ($k=18$) at a $6.9$\,KB public key and \textsf{kaiburr8} ($k=24$) at $9.2$\,KB.
+Within that budget they reach $1162$- and $1557$-bit quantum security, roughly ten to thirteen times FrodoKEM-640's $119$ bits, at comparable decapsulation-failure probability ($<2^{-134}$) and $3$--$5\times$ fewer cycles.
+The module structure thus converts a fixed bandwidth budget into a security margin no unstructured scheme can approach at comparable size.
+
+
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+\section{Warmup: Just changing \kyberk}
+\label{sec:warmup}
+
+\section{Revisiting the noise distribution}
+\label{sec:distribution}
+
+
+\section{Benchmarks}
+\label{sec:benchmarks}
+
+\begin{table}[ht]
+\centering
+\caption{Median cycle counts on an Intel i7-8700 (Coffee Lake, 3.20\,GHz), single core pinned, over $10001$ iterations. Lower is better.}
+\label{tab:bench-8700k}
+\begin{tabular}{l r r r r r}
+\hline
+Implementation & Keypair & Keypair (dr) & Enc & Enc (dr) & Dec \\
+\hline
+\textsf{kaiburr4} (C)      &   155{,}717 &   152{,}009 &   159{,}261 &   156{,}174 &   172{,}733 \\
+\textsf{kaiburr6} (C)      &   806{,}215 &   802{,}954 &   817{,}676 &   816{,}198 &   840{,}896 \\
+\textsf{kaiburr8} (C)      & 1{,}369{,}767 & 1{,}365{,}406 & 1{,}378{,}275 & 1{,}375{,}323 & 1{,}412{,}648 \\
+\hline
+\textsf{kaiburr4} (Jasmin) &   143{,}189 &   140{,}091 &   145{,}080 &   142{,}118 &   150{,}150 \\
+\textsf{kaiburr6} (Jasmin) &   762{,}328 &   759{,}197 &   765{,}429 &   762{,}453 &   780{,}174 \\
+\textsf{kaiburr8} (Jasmin) & 1{,}292{,}426 & 1{,}289{,}153 & 1{,}293{,}985 & 1{,}287{,}178 & 1{,}312{,}900 \\
+\hline
+\end{tabular}
+\end{table}
+
+\ifpublic
+\section*{Acknowledgements}
+Large parts of the work were done while the first author was employed at MPI-SP.
+\fi
+
+\bibliographystyle{splncs04}
+\bibliography{cryptobib/abbrev3,cryptobib/crypto,kaiburr}
+
+\end{document}
