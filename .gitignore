@@ -211,6 +211,10 @@ tempCodeRunnerFile.py
 # PyPI configuration file
 .pypirc
 
+# LaTeX build artifacts (keep .bib source files)
+*.aux
+*.bbl
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

@@ -1,0 +1,167 @@
+%%%% 1. DOCUMENTCLASS %%%%
+\documentclass[journal=tches,preprint,floatrow]{iacrtrans}
+
+%%%% 2. PACKAGES %%%%
+\usepackage{booktabs, siunitx, multirow}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{caption}
+\usepackage{etoolbox}
+
+%%%% 3. AUTHOR, INSTITUTE %%%%
+\author[Adhikari, Lyubashevsky, Schwabe]{%
+  Swechchha Adhikari\inst{1}\thanks{Work done while at MPI-SP, Bochum, Germany.} \and
+  Vadim Lyubashevsky\inst{2} \and
+  Peter Schwabe\inst{3,4}%
+}
+\institute{%
+  Brigham Young University, Provo, USA,
+  \email{adhikar6@byu.edu}
+  \and
+  IBM Research, Zurich, Switzerland,
+  \email{VAD@zurich.ibm.com}
+  \and
+  Max Planck Institute for Security and Privacy, Bochum, Germany,
+  \email{peter@cryptojedi.org}
+  \and
+  Radboud University, Nijmegen, The Netherlands%
+}
+
+%%%% 4. TITLE %%%%
+\title{Evaluating ML-KEM at (much) higher security levels}
+
+%%%% 5. SPACING TWEAKS %%%%
+\geometry{hmargin=1.6cm, vmargin=0.6cm}
+\makeatletter
+% Kill the 2em gap above the title and shrink the title-block gaps further
+\patchcmd{\@maketitle}{\vskip 2em}{\vskip 0pt}{}{}
+\patchcmd{\@maketitle}{\vskip 1.5em}{\vskip 0.3em}{}{}   % title -> authors
+\patchcmd{\@maketitle}{\vskip 1em}{\vskip 0.2em}{}{}      % authors -> institute
+\patchcmd{\@maketitle}{\vskip 1.5em}{\vskip 0.3em}{}{}    % institute -> body
+\makeatother
+% Tighten space around floats and displays
+\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovedisplayskip}{2pt}
+\setlength{\belowdisplayskip}{2pt}
+\captionsetup{skip=2pt}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+``Conservative'' post-quantum security could mean avoiding algebraic structure vulnerable to future attacks \cite{takeoff}, or maintaining a wide security margin
+against improving cryptanalysis. FrodoKEM, standardized by ISO \cite{iso}, provides the first by design, but widening its margin requires scaling parameters that already cost nearly ten times the bandwidth of NIST-standardized ML-KEM at the same security level \cite{fips203, frodo}. We show
+a module scheme can buy this margin cheaply: \textsc{Kaiburr} reaches a large security margin within FrodoKEM's bandwidth while running roughly $3\times$ faster. Starting from ML-KEM-1024 and fixing every other parameter, we vary the rank $k$ and measure the decryption-failure probability using the Kyber scripts~\cite{kyber-estimates}. The $2^{-128}$ bound holds at $k=7$ but fails at $k=8$, so raising $k$ further cannot buy higher security without sacrificing correctness.
+
+Instead of changing the ring dimension $n$ or modulus $q$, we propose a
+parameterized noise distribution $f(t)$ on $\{-2,\dots,2\}$ with
+$\Pr[\pm2]=2^{-t}$, $\Pr[\pm1]=\tfrac14$, $\Pr[0]=\tfrac12-2^{-(t-1)}$. Its
+standard deviation $\sigma(t)=\sqrt{0.5+2^{3-t}}$ decreases from $1$ to
+$\sqrt{0.5}$ as $t$ grows. A sample
+is drawn from uniform bits $a_1,\dots,a_t$ as
+$x=(2a_t-1)\bigl(1-a_1+2\textstyle\prod_{i=1}^{t-1}a_i\bigr)$, which is
+branchless; we machine-check both CT and speculative
+constant-time (SCT) in Jasmin \cite{jasmin}.
+
+Larger $k$ raises decryption error, so we jointly raise $t$ (lower $\sigma$)
+to compensate, while favoring byte-friendly values of $t$. $t=4$ recovers ML-KEM's sampler $\mathrm{CBD}(2)$, $t=8$ allows one-byte-per-coefficient SIMD packing, and $t=6$ gives more security per dimension and fewer PRF bytes at the cost of less regular packing. For each $t$ we take the largest $k$ meeting the failure bound and a communication cost under FrodoKEM-640 (9616 B pk, 9752 B ct).
+
+\begin{table}[H]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{\textsc{Kaiburr} parameter sets. Classical/quantum security (Core-SVP) and failure probability computed with the Kyber scripts~\cite{kyber-estimates}; other parameters as in ML-KEM, compression removed.\protect\footnotemark}
+\label{tab:kaiburr-params}
+  \sisetup{group-separator={,}, group-minimum-digits=4}
+  \begin{tabular}{@{}lcc c
+      S[table-format=3.0] S[table-format=3.0]
+      S[table-format=4.0] S[table-format=4.0]@{}}
+    \toprule
+    Scheme & $k$ & noise & failure & {class.} & {quant.} & {pk (B)} & {ct (B)} \\
+    \midrule
+    kaiburr4 & 7  & $f(4)$ & $2^{-133.7}$ & {479} & {434} & 2720 & 3072 \\
+    kaiburr6 & 18 & $f(6)$ & $2^{-134.1}$ & {1281} & {1162} & 6944 & 7296 \\
+    kaiburr8 & 24 & $f(8)$ & $2^{-139.9}$ & {1717} & {1557} & 9248 & 9600 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\footnotetext{Removing compression allows us to obtain formally verified correctness bounds as in \cite{bound}; this is left as future work.}
+
+\textsc{Kaiburr} has reference and AVX2 implementations in both C and Jasmin, available \href{https://github.com/cryptojedi/kaiburr}{here}. We benchmark on two Intel generations following the methodology of \cite{epiv}: single-core with Hyper-Threading and Turbo Boost disabled, medians over \num{10001} runs with randomness from Linux \texttt{getrandom} (Table ~\ref{tab:kaiburr-cycles}). 
+\begin{table}[H]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+\caption{\textsc{Kaiburr} (AVX2) vs.\ FrodoKEM-640-SHAKE (AVX2), CPU cycles;
+  \textsc{Kaiburr}8 runs ${\sim}2.6$--$3.1\times$ faster than Frodo. Jasmin stays within 17\% of C, faster on Coffee Lake and slower on Raptor Lake.}
+  \label{tab:kaiburr-cycles}
+  \sisetup{group-separator={,}, group-minimum-digits=4}
+  \begin{tabular}{@{}lll
+      S[table-format=7.0]
+      S[table-format=7.0]
+      S[table-format=7.0]@{}}
+    \toprule
+    Microarch. & Scheme & Impl. & {keypair} & {enc} & {dec} \\
+    \midrule
+    \multirow{7}{*}{\shortstack[l]{Coffee L.\\(i7-8700)}}
+      & \multirow{2}{*}{kaiburr4}
+        & C      & 155113  & 159177  & 171924  \\
+      & & Jasmin & 144489  & 145158  & 150135  \\
+      & \multirow{2}{*}{kaiburr6}
+        & C      & 806319  & 815330  & 842327  \\
+      & & Jasmin & 762472  & 770586  & 781276  \\
+      & \multirow{2}{*}{kaiburr8}
+        & C      & 1368794 & 1378658 & 1416170 \\
+      & & Jasmin & 1294067 & 1303213 & 1311650 \\
+    \cmidrule(l){2-6}
+& FrodoKEM-640-SHAKE\footnotemark & \cite{frodo} & 3898666 & 4063179 & 3939567 \\
+\midrule
+    \multirow{7}{*}{\shortstack[l]{Raptor L.\\(i9-13900K)}}
+      & \multirow{2}{*}{kaiburr4}
+        & C      & 120886  & 124488  & 134556  \\
+      & & Jasmin & 141676  & 143442  & 148714  \\
+      & \multirow{2}{*}{kaiburr6}
+        & C      & 647542  & 651956  & 676062  \\
+      & & Jasmin & 746326  & 750672  & 763608  \\
+      & \multirow{2}{*}{kaiburr8}
+        & C      & 1095258 & 1103782 & 1133918 \\
+      & & Jasmin & 1265650 & 1271618 & 1285842 \\
+    \cmidrule(l){2-6}
+      & FrodoKEM-640-SHAKE & \cite{frodo} & 3121248 & 3246262 & 3189934 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\footnotetext{We modified the Frodo harness~(\url{https://github.com/microsoft/PQCrypto-LWEKE})
+to take the median of \num{10001} runs for consistency.}
+
+We also implement and report \textsc{Kaiburr} on Pavona's Asymmetric
+Cryptography Coprocessor (ACC)~\cite{pavona}, which reuses ML-KEM's arithmetic core. Our simulation model raises DMEM from 32 to 128~KiB for large $k$.
+\begin{table}[H]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{0.95}
+\caption{Per-operation cost of \textsc{Kaiburr} on ACC, in clock cycles; single deterministic cycle-accurate simulator run.}\label{tab:kaiburr-acc}
+  \sisetup{group-separator={,}, group-minimum-digits=4}
+  \begin{tabular}{@{}l
+      S[table-format=7.0]
+      S[table-format=7.0]
+      S[table-format=7.0]@{}}
+    \toprule
+    Scheme & {keypair} & {enc} & {dec} \\
+    \midrule
+    kaiburr4 &  240816 &  239348 &  257474 \\
+    kaiburr6 & 1453490 & 1424342 & 1467109 \\
+    kaiburr8 & 2505793 & 2449864 & 2506070 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\textsc{Kaiburr} shows that a structured KEM can reach conservative security margins cheaply and within FrodoKEM's bandwidth, across software and dedicated PQC hardware.
+{\footnotesize
+\bibliographystyle{alpha}
+\bibliography{proposal}
+}
+
+\end{document}

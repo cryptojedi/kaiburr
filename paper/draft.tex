@@ -60,18 +60,18 @@ specifying ML-KEM, ML-DSA and SLH-DSA. Interestingly, four of the schemes in the
 from the power-of-two cyclotomic modules of Kyber and Saber, through the prime-degree field of NTRU LPRime, down to FrodoKEM's plain, unstructured LWE.
 This spectrum reflects different design principles, usually framed as structure vs.\ conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a latent attack surface. So most conservative designs shed it entirely. FrodoKEM, for example sits at the unstructured extreme, resting on plain LWE which is the reason bodies such as BSI and ANSSI point to the ISO-standardized FrodoKEM for long-term confidentiality.
 
-We find it useful to separate two notions of conservatism that are often bundled together in the context of KEMs.
-The first one is the assumption a KEM rests on (structured vs.\ unstructured), which hedges against a structure-exploiting break, and 
-the second is the margin it carries above its target security level, which hedges against improvement in known attacks.
-The two are distinct and non-substitutable because no amount of margin protects against a structural break, since such a break would change the asymptotics rather than shave a few bits. 
+It is useful to separate two kinds of conservatism that this framing bundles together, because they hedge against two independent --- and, today, entirely hypothetical --- classes of attack.
+The first is the choice of assumption: FrodoKEM rests on unstructured LWE to guard against a \emph{structural break}, an attack that would exploit the ring's algebraic structure and would not apply to plain LWE.
+The second is the security margin a scheme carries above its target level, which guards against a different threat: advances in the \emph{best known} attacks --- improved lattice reduction, dual attacks, sharper cost models --- that would erode the concrete security of every lattice scheme at its current parameters, FrodoKEM included.
+The two hedges are distinct and non-substitutable: structural conservatism does nothing against the second class, and no margin protects against the first. Which of the two threats is the more likely to materialize, nobody can say.
 
-This second axis is what matters more for long-term-confidentiality. Under harvest-now-decrypt-later, a ciphertext sent today must resist the best attack available at any point across a decades-long confidentiality lifetime, not only today's. 
-Yet concrete security estimates for lattice problems are not hardness proofs but the cost of the best known attack under a chosen cost model, 
-and they have been revised repeatedly as lattice-based cryptanalysis and cost models evolve. 
-A large margin is the standard hedge against such revision, and one an unstructured scheme can buy only at considerable size.
+Faced with that uncertainty, raising the margin is the historically standard response.
+A concrete security estimate is not a proof but the cost of the best attack known at the time, and such estimates drift as cryptanalysis matures: the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring algorithms and available computation advanced, and estimates for lattice problems have likewise been revised repeatedly~\cite{TODO-lattice-estimates}.
+A large margin is the standard insurance against such revision.
 
-The ring, by contrast, buys it cheaply. Since rank scaling raises MLWE hardness at only linear bandwidth cost, 
-a module scheme can occupy a high-margin point that an unstructured scheme reaches only at far greater size. Our work explores this direction, asking a question that has remained largely unexplored in the literature: how much security can a module KEM deliver at a fixed, modest bandwidth?
+That insurance is costly without structure but cheap with it.
+At matched security, the keys and ciphertexts of an unstructured scheme are already roughly an order of magnitude larger than a module scheme's~\cite{TODO-frodo-ring}; and because raising the module rank leaves the per-polynomial NTT arithmetic untouched, a module scheme can climb to a high margin that an unstructured scheme reaches only at far greater size.
+Our work explores this direction, asking a question that has remained largely unexplored in the literature: how much security can a module KEM deliver at a fixed, modest bandwidth?
 
 We answer this concretely with \textsf{Kaiburr}, a family of module KEMs obtained by scaling ML-KEM's module rank and revisiting its noise distribution.
 Two parameter sets fit within the bandwidth budget of FrodoKEM-640-SHAKE (a $9.6$\,KB public key): \textsf{kaiburr6} ($k=18$) at a $6.9$\,KB public key and \textsf{kaiburr8} ($k=24$) at $9.2$\,KB.
