@@ -1,2 +1,14 @@
 \section{Introduction}
 \label{sec:introduction}
+After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203, FIPS-204,
+and FIPS-205 in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA respectively. Interestingly, four of the schemes in the PQC Round
+3 Submissions—Kyber (standardized as ML-KEM), Saber, NTRU LPRime, and FrodoKEM—are closely related lattice KEMs, spanning a
+spectrum of algebraic structure, from FrodoKEM's unstructured LWE, through Kyber's and Saber's cyclotomic modules, to
+the prime-degree number fields of NTRU Prime. This reflects different design principles, commonly understood as
+structure vs conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
+but is also seen as a potential attack surface, so conservative designs discard it entirely. FrodoKEM, for example,
+is based on a more conservative hardness assumption of plain LWE, which is why bodies such as BSI and ANSSI point
+to FrodoKEM for long-term confidentiality; it was also recently standarized by ISO for this very reason.
+
+
+
