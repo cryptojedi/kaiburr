@@ -10,11 +10,8 @@ draft.pdf: draft.tex *.bib
 	-bibtex draft
 	lualatex draft.tex
 
-proposal.pdf: proposal.tex *.bib
-	lualatex proposal.tex
-	lualatex proposal.tex
-	-bibtex proposal
-	lualatex proposal.tex
+proposal.pdf:
+	$(MAKE) -C proposal proposal.pdf
 
 .PHONY: clean
 
@@ -34,9 +31,4 @@ clean:
 	-rm draft.log
 	-rm draft.out
 	-rm draft.pdf
-	-rm proposal.bbl
-	-rm proposal.blg
-	-rm proposal.brf
-	-rm proposal.log
-	-rm proposal.out
-	-rm proposal.pdf
+	-$(MAKE) -C proposal clean
