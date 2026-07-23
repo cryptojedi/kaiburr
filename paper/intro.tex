@@ -10,5 +10,16 @@ but is also seen as a potential attack surface, so conservative designs discard 
 is based on a more conservative hardness assumption of plain LWE, which is why bodies such as BSI and ANSSI point
 to FrodoKEM for long-term confidentiality; it was also recently standarized by ISO for this very reason.
 
+It is useful to separate the two notions of conservatism this framing bundles together because they concern two independent
+(and today, entirely hypothetical) classes of attack. The first is the choice of assumption. FrodoKEM rests on unstructured
+LWE to protect against a structure break, an attack that would exploit the algebraic structure of ring/module LWE, but not
+apply to plain LWE. The second is the security margin a scheme carries above its target level, which protects against advances 
+in the best known attacks today. This could potentially include improved lattice reduction, dual attacks, or sharper cost models 
+that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM. Both of these 
+hedges are distinct and cannot be substituted: structured conservatism does nothing against the second class of attacks and 
+no security margin protects against the first. On top of that, it's impossible to predict which of the two threats is more likely.
 
-
+Faced with this uncertainty, increasing the margin has been a historically standard response. For computationally secure schemes,
+concrete security estimate is the cost of the best attack known at the time, and such estimates drift as cryptanalysis mature.
+For instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring 
+algorithms and available computation advanced. Lattice estimates are no static either. 
