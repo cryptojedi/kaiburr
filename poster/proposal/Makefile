@@ -9,4 +9,3 @@ proposal.pdf: proposal.tex *.bib
 clean:
 	latexmk -output-directory=$(BUILDDIR) -C proposal.tex
 	-rm -rf $(BUILDDIR)
-	-rm proposal.pdf
