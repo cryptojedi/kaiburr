@@ -1,23 +1,27 @@
 # Kaiburr
 
-## Paper (`paper/`)
+**Evaluating ML-KEM at (much) higher security levels.**
 
-The bibliography uses the `cryptobib` submodule, so clone with submodules:
+See each directory for its own `README.md` with details.
+
+## Cloning
+
+This repo uses git submodules for the paper bibliography (`cryptobib`) and the
+three implementations under `src/`. Clone recursively:
 
 ```bash
 git clone --recurse-submodules https://github.com/cryptojedi/kaiburr.git
-# if already cloned:
-git submodule update --init
+# if already cloned without --recurse-submodules:
+git submodule update --init --recursive
 ```
 
-Build:
+## Building the paper
 
 ```bash
-cd paper && make 
+cd paper && make
 ```
 
-## Proposal (`poster/proposal/`)
+## Building the poster / proposal
 
 ```bash
 cd poster/proposal && make
-```
