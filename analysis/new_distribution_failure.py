@@ -27,13 +27,22 @@ def build_limiting_distribution():
         -2: 0.0,
     }
 
+def _noise_law(ps, param):
+    """ noise law for a f(n) param or a centered binomial law if ps.cbd is set
+    """
+    cbd = getattr(ps, "cbd", None)
+    if cbd is not None:
+        return build_centered_binomial_law(cbd)
+    return build_exact_distribution(param)
+
+
 def p2_cyclotomic_final_error_distribution(ps):
     """ construct the final error distribution in our encryption scheme
     :param ps: parameter set (ParameterSet)
     """
-    chis = build_exact_distribution(ps.ks)           # LWE error law for the key
-    chie = build_exact_distribution(ps.ke_ct)        # LWE error law for the ciphertext
-    chie_pk = build_exact_distribution(ps.ke)
+    chis = _noise_law(ps, ps.ks)           # LWE error law for the key
+    chie = _noise_law(ps, ps.ke_ct)        # LWE error law for the ciphertext
+    chie_pk = _noise_law(ps, ps.ke)
     Rk = build_mod_switching_error_law(ps.q, ps.rqk)    # Rounding error public key
     Rc = build_mod_switching_error_law(ps.q, ps.rqc)    # rounding error first ciphertext
     chiRs = law_convolution(chis, Rk)                   # LWE+Rounding error key

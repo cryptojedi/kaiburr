@@ -4,7 +4,7 @@ from MLWE_security import MLWE_summarize_attacks, MLWEParameterSet, variance_f
 from proba_util import build_mod_switching_error_law
 
 class KyberParameterSet:
-    def __init__(self, n, m, ks, ke,  q, rqk, rqc, rq2, ke_ct=None):
+    def __init__(self, n, m, ks, ke,  q, rqk, rqc, rq2, ke_ct=None, cbd=None):
         if ke_ct is None:
             ke_ct = ke
         self.n = n
@@ -16,6 +16,7 @@ class KyberParameterSet:
         self.rqk = rqk  # 2^(bits in the public key)
         self.rqc = rqc  # 2^(bits in the first ciphertext)
         self.rq2 = rq2  # 2^(bits in the second ciphertext)
+        self.cbd = cbd  # if set, use centered binomial noise CBD(cbd) instead of f(n)
 
 def Kyber_to_MLWE(kps):
     if kps.ks != kps.ke:
@@ -104,15 +105,27 @@ if __name__ == "__main__":
 
 # sizes at m = 25 will be always be higher regardless of which f(n) you use
 
-    for label, n, m, ks, ke, q, rqk, rqc, rq2 in params:
-        ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
-        print(f"{label}:")
-        print("--------------------")
-        print("security:")
-        MLWE_summarize_attacks(Kyber_to_MLWE(ps))
+    # regenerate the warmup table: baseline ML-KEM noise
+    # CBD2, fixed base
+    # ring, modulus q=3329, no ciphertext compression (rqk=rqc=rq2=2^12);
+    # vary only the module rank k.
+    print("Warmup: decryption failure vs module rank k (CBD2, q=3329, no compression)")
+    print("k  | failure")
+    for k in range(3, 9):
+        ps = KyberParameterSet(256, k, 2, 2, 3329, 2**12, 2**12, 2**12, cbd=2)
         F, f = p2_cyclotomic_error_probability(ps)
-        pk, ct = communication_costs(ps)
-        print("failure:  2^%.1f" % (log(f + 2.**(-300))/log(2)))
-        print("pk size:  %.0f bytes" % pk)
-        print("ct size:  %.0f bytes" % ct)
-        print()
+        print("%d  | 2^%.1f" % (k, log(f + 2.**(-300))/log(2)))
+
+    # --- security estimates disabled for now ---
+    # for label, n, m, ks, ke, q, rqk, rqc, rq2 in params:
+    #     ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
+    #     print(f"{label}:")
+    #     print("--------------------")
+    #     print("security:")
+    #     MLWE_summarize_attacks(Kyber_to_MLWE(ps))
+    #     F, f = p2_cyclotomic_error_probability(ps)
+    #     pk, ct = communication_costs(ps)
+    #     print("failure:  2^%.1f" % (log(f + 2.**(-300))/log(2)))
+    #     print("pk size:  %.0f bytes" % pk)
+    #     print("ct size:  %.0f bytes" % ct)
+    #     print()
