@@ -1,7 +1,7 @@
 kaiburr.pdf: *.tex *.bib
 	lualatex kaiburr.tex
-	lualatex kaiburr.tex
 	bibtex kaiburr
+	lualatex kaiburr.tex
 	lualatex kaiburr.tex
 
 draft.pdf: draft.tex *.bib

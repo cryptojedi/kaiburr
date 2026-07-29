@@ -1,11 +1,11 @@
 \section{Warmup: Just changing \kyberk}
 \label{sec:warmup}
-One of the main mechanisms to increase bit security in Kyber is to raise
-the module rank $k$. Fixing the ML-KEM base ring, noise distribution, and
+The main mechanism to increase bit security in Kyber is to raise
+the module rank $k$ \cite{kyberround1}. Fixing the ML-KEM base ring, noise distribution, and
 modulus, and varying only $k$, we measure the decryption-failure
 probability using the scripts provided by \textsc{Kyber} team \footnote{\url{https://github.com/pq-crystals/security-estimates}}.
 Throughout we use the centered binomial noise $\mathrm{CBD}_2$
-(the noise of ML-KEM-768 and -1024; only ML-KEM-512 uses $\mathrm{CBD}_3$).
+(the noise of ML-KEM-768 and -1024; recall that ML-KEM-512 uses $\mathrm{CBD}_3$).
 The ranks $k=3 \text{ and } 4$ recover the standardized sets ML-KEM-768, and -1024,
 while $k \geq 5$ is an extrapolation. Table~\ref{tab:cbd-baseline} reports
 the results. Against the $2^{-128}$ failure bound expected at this
@@ -13,13 +13,12 @@ security level, the bound holds at $k=7$ ($2^{-133.7}$) but fails at $k=8$
 ($2^{-116.8}$), so raising $k$ further cannot buy higher security without
 sacrificing correctness.
 
-These are computed without ciphertext
-compression, and the rounding that Kyber applies to $\mathbf{u}$ and $v$
-produces additional error that can only increase the failure probability.
-The true failure probability at each rank is therefore at least as large
-as shown, and the correctness ceiling on $k$ is if anything tighter than
-the table suggests, in particular, the margin at $k=7$ may itself erode
-once compression is included.
+These values are computed without ciphertext compression, and therefore
+are an optimistic estimate. The rounding applied to $\mathbf{u}$ and
+$v$ in Kyber introduces additional error, which can only increase the true
+failure probability. Hence, the actual failure probabilities are expected to
+be higher than those reported here, and the correctness limit on $k$ may be
+even more restrictive.
 
 \begin{table}[h]
 \centering
@@ -30,14 +29,14 @@ ML-KEM-768, and -1024.}
 \label{tab:cbd-baseline}
 \begin{tabular}{cccc}
 \toprule
-$k$ & Failure probability\\
+$k$ & Failure probability & pk (bytes) & ct (bytes) \\
 \midrule
-3 & $2^{-299.6}$\\
-4 & $2^{-231.1}$\\
-5 & $2^{-186.5}$\\
-6 & $2^{-155.9}$\\
-7 & $2^{-133.7}$\\
-8 & $2^{-116.8}$\\
+3 & $2^{-299.6}$ & 1184  & 1536 \\
+4 & $2^{-231.1}$ & 1568  & 1920 \\
+5 & $2^{-186.5}$ & 1952  & 2304 \\
+6 & $2^{-155.9}$ & 2336  & 2688 \\
+7 & $2^{-133.7}$ & 2720  & 3072 \\
+8 & $2^{-116.8}$ & 3104  & 3456 \\
 \bottomrule
 \end{tabular}
 \end{table}
