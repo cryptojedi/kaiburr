@@ -8,8 +8,8 @@ because the scheme encapsulates a $256$-bit key, so that a single
 coefficient carries a single key bit. A smaller $n$ would require packing
 several key bits per coefficient, forcing lower noise and hence lower
 security, while increasing $n$ would make scaling security through $k$
-less straightforward \cite{kyberround1}. The modulus $q=3329$ is the small prime satisfying the NTT-enabling condition
-$n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect,
+less straightforward \cite{kyberround1}. The modulus $q=3329$ is the small prime satisfying the 
+NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect,
 which Kyber deliberately does not require~\cite{kyberround2}. It was
 reduced from the round-1 value $7681$ to recover the
 bandwidth spent by dropping public-key compression and co-tuned to balance
@@ -69,7 +69,7 @@ $m \gets 1-a_1+2\prod_{i=1}^{t-1}a_i$\;
 
 \subsection{Why thinning the tail is an efficient trade}
 
-The goal of $f(t)$ is not simply to reduce the overall noise, but to
+The goal of $f(t)$ is not to reduce the overall noise, but to
 selectively reduce the part of the distribution that contributes most to
 decryption failures. In Kyber's centered binomial distribution, the size of the
 noise is controlled by a single parameter $\eta$, which changes both the
