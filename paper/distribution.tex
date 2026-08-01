@@ -1,40 +1,43 @@
 \section{Revisiting the noise distribution}
 \label{sec:distribution}
-Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small, 
-increasing $k$ further is not possible without affecting correctness. Instead, we could gain additional security 
-by increasing either the ring dimension $n$ or the modulus $q$. We note that all variants of Kyber fix 
-these parameters to $n=256$ and $q=3329$. The ring dimension is fixed at $n=256$
-because the scheme encapsulates a $256$-bit key, so that a single
-coefficient carries a single key bit. A smaller $n$ would require packing
-several key bits per coefficient, forcing lower noise and hence lower
-security, while increasing $n$ would make scaling security through $k$
-less straightforward \cite{kyberround1}. The modulus $q=3329$ is the small prime satisfying the 
-NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect,
-which Kyber deliberately does not require~\cite{kyberround2}. It was
-reduced from the round-1 value $7681$ to recover the
-bandwidth spent by dropping public-key compression and co-tuned to balance
-ciphertext size, failure probability, and security.
+Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small,
+increasing $k$ further is not possible without affecting correctness. The natural way to
+restore correctness would be to increase the modulus $q$ which allows for larger error growth while
+keeping the decryption-failure probability within the target bound. However, changing $q$
+would require modifying the arithmetic parameters of ML-KEM and prevent direct reuse of its
+optimized software and hardware implementations.
+
+Throughout this work, we therefore keep the ring parameters fixed at their ML-KEM values,
+$n=256$ and $q=3329$, for the same design considerations discussed in the Kyber Round 1
+and Round 2 submissions \cite{kyberround1,kyberround2}.
+ The ring dimension is fixed at $n=256$ because the scheme encapsulates
+a $256$-bit key, so that a single coefficient carries a single key bit. A smaller $n$ would
+require packing several key bits per coefficient, forcing lower noise and hence lower
+security, while increasing $n$ would fundamentally change the design rather than simply
+increase the security margin \cite{kyberround1}. The modulus $q=3329$ is the small prime
+satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the
+$2n \mid (q-1)$ condition one might expect, which Kyber deliberately does not require
+\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the bandwidth
+spent by dropping public-key compression and co-tuned to balance ciphertext size,
+failure probability, and security.
 
 This is not to say that $k$ is the only parameter that can be modified. We
- focus on changes that preserve the core structure of Kyber:
+focus on changes that preserve the core structure of Kyber:
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
 constants, and the existing analysis framework. The module
 rank $k$ qualifies trivially. So does the error distribution. 
 Since the noise only affects the error term and does not interact with the arithmetic structure or the NTT, 
-it can be replaced without modifying the core implementation. What it changes are only the MLWE hardness estimate and 
-the decryption-failure probability, 
-both of which can be recomputed through the same scripts, over the same ring. 
+it can be replaced without modifying the core implementation. What it changes are sampling procedure, the MLWE hardness estimate, and the
+decryption-failure probability, all of which can be analyzed over the same ring
+using the existing security estimation framework.
 
 In this sense the error distribution is the main degree of freedom that moves
-the security and corectness without changing what the scheme is,
-which is exactly what we exploit. Changing $n$ or $q$, however, would require modifying the underlying structure of Kyber, 
-giving a different scheme altogether. This would go beyond our goal of increasing security margin while preserving Kyber's efficiency.
-
-Specifically, to move beyond the warmup security ceiling, we need a noise
+the security and correctness without changing what the essence of the scheme is,
+which is exactly what we exploit. Specifically, to move beyond the warmup security ceiling, we need a noise
 distribution that reduces decryption failures as $k$ increases while
 remaining as efficient to sample as Kyber's centered binomial
 distribution. In particular, it should still admit a simple branchless,
-constant-time sampler. This makes simply adopting a discrete Gaussian, as in FrodoKEM, undesirable due to sampling complexity. 
+constant-time sampler. This makes simply adopting a discrete Gaussian, as in FrodoKEM, less suitable.
 
 \subsection{A parameterized noise distribution}
 We introduce a one-parameter family $f(t)$ on $\{-2,-1,0,1,2\}$, defined by
@@ -82,7 +85,7 @@ A further advantage of the one-parameter family is that it provides a
 continuous range of noise levels. Kyber's centered binomial distributions only provide the two choices
 $\eta=1$ and $\eta=2$, with standard deviations $\sigma\approx\sqrt{0.5}$
 and $\sigma=1$, respectively. By varying $t$, $f(t)$ smoothly fills the range between
-these two extreme values. This allows the noise level to be tuned for each module rank $k$ rather than
+these two extreme values and allows the noise level to be tuned for each module rank $k$ rather than
 selecting a fixed distribution that may be unnecessarily conservative.
 
 \subsection{Limit of the noise family}
@@ -123,7 +126,7 @@ $k$ & Failure probability & pk (bytes) & ct (bytes) \\
 \subsection{Selecting $t$}
 For each rank $k$, correctness and security define an acceptable range of
 values for $t$. We select representative values within this range based on
-implementation efficiency. Since $t$ determines the number of random bits
+vectorization efficiency. Since $t$ determines the number of random bits
 used per sample, small byte-aligned values provide a natural trade-off
 between sampling cost and noise reduction. Some of these values are natural:
 $t=4$ recovers the $\mathrm{CBD}_2$ sampler and serves
