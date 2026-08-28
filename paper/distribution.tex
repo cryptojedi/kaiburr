@@ -1,113 +1,112 @@
 \section{Revisiting the noise distribution}
 \label{sec:distribution}
-Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small,
-increasing $k$ further is not possible without affecting correctness. The natural way to
-restore correctness would be to increase the modulus $q$ which allows for larger error growth while
-keeping the decryption-failure probability within the target bound. However, changing $q$
-would require modifying the arithmetic parameters of ML-KEM and prevent direct reuse of its
-optimized software and hardware implementations.
+Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small, 
+increasing $k$ further is not possible without affecting correctness. Instead, one could reduce the failure probability at large $k$ by increasing the modulus $q$. We note that all variants of Kyber fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
+$q=3329$ is the small prime satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect, which Kyber deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
+bandwidth spent by dropping public-key compression and co-tuned to balance ciphertext size, failure probability, and security. Changing $q$ would mean not being able to reuse any existing optimized routines in software or hardware, which sacrifices an important engineering advantage and results in a different scheme altogether.
 
-Throughout this work, we therefore keep the ring parameters fixed at their ML-KEM values,
-$n=256$ and $q=3329$, for the same design considerations discussed in the Kyber Round 1
-and Round 2 submissions \cite{kyberround1,kyberround2}.
- The ring dimension is fixed at $n=256$ because the scheme encapsulates
-a $256$-bit key, so that a single coefficient carries a single key bit. A smaller $n$ would
-require packing several key bits per coefficient, forcing lower noise and hence lower
-security, while increasing $n$ would fundamentally change the design rather than simply
-increase the security margin \cite{kyberround1}. The modulus $q=3329$ is the small prime
-satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the
-$2n \mid (q-1)$ condition one might expect, which Kyber deliberately does not require
-\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the bandwidth
-spent by dropping public-key compression and co-tuned to balance ciphertext size,
-failure probability, and security.
-
-This is not to say that $k$ is the only parameter that can be modified. We
-focus on changes that preserve the core structure of Kyber:
+This is not to say that $k$ is the only parameter that can be modified. Rather, we focus on changes that preserve the \emph{essence} of Kyber:
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
 constants, and the existing analysis framework. The module
 rank $k$ qualifies trivially. So does the error distribution. 
-Since the noise only affects the error term and does not interact with the arithmetic structure or the NTT, 
-it can be replaced without modifying the core implementation. What it changes are sampling procedure, the MLWE hardness estimate, and the
-decryption-failure probability, all of which can be analyzed over the same ring
-using the existing security estimation framework.
+Since the noise only affects the error term and does not interact with the arithmetic structure or the NTT, it can be replaced without altering the core implementation. What it changes are only the MLWE hardness estimate and the decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
 
-In this sense the error distribution is the main degree of freedom that moves
-the security and correctness without changing what the essence of the scheme is,
-which is exactly what we exploit. Specifically, to move beyond the warmup security ceiling, we need a noise
-distribution that reduces decryption failures as $k$ increases while
-remaining as efficient to sample as Kyber's centered binomial
-distribution. In particular, it should still admit a simple branchless,
-constant-time sampler. This makes simply adopting a discrete Gaussian, as in FrodoKEM, less suitable.
+
+
+In this sense, the error distribution is another degree of freedom that moves both security and corectness without changing what the scheme is at its core. This is the direction we pursue and where our main contribution lies.
+
+Specifically, to climb past the warmup
+wall, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving \textsc{Kyber}'s \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \textsc{Kyber}'s use of a centered binomial in the first place. This requirement rules out simply using a discrete Gaussian, as in FrodoKEM.
 
 \subsection{A parameterized noise distribution}
-We introduce a one-parameter family $f(t)$ on $\{-2,-1,0,1,2\}$, defined by
-$$
-  \Pr[\pm2]=2^{-t},\qquad
-  \Pr[\pm1]=\tfrac14,\qquad
-  \Pr[0]=\tfrac12-2^{-(t-1)}.
-$$
-The probabilities at $\pm1$ remain fixed, while the probability mass at
-$\pm2$ decreases exponentially with $t$.
+We introduce a one-parameter family $f(t)$ on $\{-2,-1,0,1,2\}$, the same
+support as $\mathrm{CBD}_2$, defined by
+\[
+  \Pr[\pm 2] = 2^{-t}, \qquad
+  \Pr[\pm 1] = \tfrac14, \qquad
+  \Pr[0] = \tfrac12 - 2^{-(t-1)}.
+\]
+The error at $\pm 1$ is fixed; the single parameter $t$ acts only on the
+$\pm 2$ tail, thinning it geometrically. A sample is drawn from uniform
+bits $a_1,\dots,a_t$ as
+\[
+  x = (2a_t - 1)\Bigl(1 - a_1 + 2\textstyle\prod_{i=1}^{t-1} a_i\Bigr),
+\]
+which is branchless and therefore samples in constant time; we
+machine-check both constant-time (CT) and speculative constant-time (SCT)
+in Jasmin~\cite{jasmin}. The standard deviation
+$\sigma(t) = \sqrt{0.5 + 2^{3-t}}$ decreases from $1$ at $t=4$ toward
+$\sqrt{0.5}$ as $t$ grows.
 
-Samples from $f(t)$ can be generated using Algorithm~\ref{alg:ft-sampler},
-which requires only uniform random bits and simple bitwise operations.
-The sampler is branchless and therefore runs in constant time. We
-machine-checked both constant-time (CT) and speculative constant-time
-(SCT) in Jasmin~\cite{jasmin}.
+Crucially, $f(t)$ generalizes Kyber's own noise distribution. At $t=4$, the probabilities become
+\[
+  \Pr[\pm 2] = \frac{1}{16}, \qquad
+  \Pr[\pm 1] = \frac14, \qquad
+  \Pr[0] = \frac38,
+\]
+exactly matching $\mathrm{CBD}_2$, the noise distribution used by ML-KEM-768 and -1024. As $t \to \infty$, the $\pm 2$ mass vanishes and $f(t)$ approaches $\mathrm{CBD}_1$.
 
-The standard deviation is $$\sigma(t)=\sqrt{0.5+2^{3-t}},$$
-which decreases from $1$ at $t=4$ toward $\sqrt{0.5}$ as $t$ increases. $f(t)$ can also be seen as a generalization of
- Kyber's noise distribution. In particular,
-$f(4)=\mathrm{CBD}_2$, the distribution used in ML-KEM-768 and ML-KEM-1024,
-and $$\lim_{t\to\infty}f(t)=\mathrm{CBD}_1.$$
+\subsection{Why thinning the tail is the efficient trade}
+The key property of $f(t)$ is that increasing $t$ reduces the probability of the $\pm2$ terms exponentially while leaving the $\pm1$ mass unchanged. As
+defined above, we have
+\[
+\Pr_{f(t)}[\pm2] = 2^{-t},
+\qquad
+\Pr_{f(t)}[\pm1] = \frac14.
+\]
+So, $t$ provides a direct knob for thinning the tail of
+the distribution without changing the bulk $\pm1$ terms. This gives finer control over the noise than the standard centered binomial
+choices. In particular, $\mathrm{CBD}_1$ and $\mathrm{CBD}_2$ have standard deviations $\sqrt{0.5}$ and $1$, respectively, with no centered binomial parameter providing an intermediate distribution. As shown above, $f(t)$ ranges from $\mathrm{CBD}_2$ toward $\mathrm{CBD}_1$ as $t$ increases, giving us finer control over the noise.
 
-\begin{algorithm}[t]
-\caption{Branchless sampler for $f(t)$}
-\label{alg:ft-sampler}
-Sample independent bits $a_1,\ldots,a_t\in\{0,1\}$\;
-$s \gets 2a_t-1$\;
-$m \gets 1-a_1+2\prod_{i=1}^{t-1}a_i$\;
-\Return $s\cdot m$\;
-\end{algorithm}
+This finer control is useful as the module rank $k$ increases. Increasing
+$k$ increases the amount of error accumulated during encryption and
+therefore makes the decryption-failure constraint more restrictive. Rather
+than moving directly from $\mathrm{CBD}_2$ to $\mathrm{CBD}_1$, we can
+increase $t$ as $k$ grows, progressively reducing the $\pm2$ contribution
+while keeping the $\pm1$ contribution fixed. For each $t$, we therefore
+choose the largest $k$ that satisfies the $2^{-128}$ failure bound and fits within the FrodoKEM-640 communication budget.
 
-\subsection{Why thinning the tail is an efficient trade}
+\subsection{Selecting $t$}
+Since $t$ is the number of uniform bits per sample, byte-aligned
+values are natural. $t=4$ recovers the $\mathrm{CBD}_2$ sampler and serves
+as our anchor; $t=8$ admits one-byte-per-coefficient SIMD packing; and
+$t=6$ sits between them, spending fewer PRF bytes and offering more security
+per dimension at the cost of less regular packing. The three parameter sets
+we carry forward are $f(4)$, $f(6)$, and $f(8)$, at $k=7$, $18$, and $24$
+respectively, which follow from this choice
+(Table~\ref{tab:kaiburr-params}). Further details are found in the Implementation section.
 
-The goal of $f(t)$ is not to reduce the overall noise, but to
-selectively reduce the part of the distribution that contributes most to
-decryption failures. In Kyber's centered binomial distribution, the size of the
-noise is controlled by a single parameter $\eta$, which changes both the
-main mass and the tail of the distribution. In contrast, $f(t)$ keeps the
-probability at $\pm1$ fixed while reducing the heavier $\pm2$ tail.
-This lets us decrease the variance that drives failures without removing all of the noise contributing to
-MLWE hardness.
+\begin{table}[H]
+  \centering
+  \caption{\textsc{Kaiburr} parameter sets. Classical/quantum security (Core-SVP) and failure probability computed with the Kyber team's scripts; other parameters as in ML-KEM, compression removed.}
+  \label{tab:kaiburr-params}
+  \begin{tabular}{lccccccc}
+    \toprule
+    Scheme & $k$ & noise & failure & class. & quant. & pk (B) & ct (B) \\
+    \midrule
+    kaiburr-1792 & 7  & $f(4)$ & $2^{-133.7}$ & 479  & 434  & 2720 & 3072 \\
+    kaiburr-4608 & 18 & $f(6)$ & $2^{-134.1}$ & 1281 & 1162 & 6944 & 7296 \\
+    kaiburr-6144 & 24 & $f(8)$ & $2^{-139.9}$ & 1717 & 1557 & 9248 & 9600 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-A further advantage of the one-parameter family is that it provides a
-continuous range of noise levels. Kyber's centered binomial distributions only provide the two choices
-$\eta=1$ and $\eta=2$, with standard deviations $\sigma\approx\sqrt{0.5}$
-and $\sigma=1$, respectively. By varying $t$, $f(t)$ smoothly fills the range between
-these two extreme values and allows the noise level to be tuned for each module rank $k$ rather than
-selecting a fixed distribution that may be unnecessarily conservative.
-
-\subsection{Limit of the noise family}
-
-The flexibility provided by $f(t)$ is not unlimited. The smallest noise
-achievable by this family is the limiting distribution $f(\infty)$, where
-$$
-\Pr[\pm1]=\tfrac14,\qquad
-\Pr[0]=\tfrac12,\qquad
-\Pr[\pm2]=0,
-$$
-with minimum variance $\sigma^2=0.5$. Even at this limit, the accumulated
-error eventually causes the decryption failure probability to exceed the
-$2^{-128}$ threshold. For $n=256$ and $q=3329$, this occurs at $k=30$,
-so $k=29$ is the largest rank supported by the entire family. Beyond this point, 
-further increases in security would require changing other parameters such as $n$ or $q$.
+\subsection{The ceiling of the family}
+The family $f(t)$ is not unbounded. The lightest noise it can
+produce is its limit $f(\infty)$, with $\Pr[\pm 1]=\tfrac14$,
+$\Pr[0]=\tfrac12$, $\Pr[\pm 2]=0$, and minimal variance
+$\sigma^2=0.5$. At $n=256$ and $q=3329$, the failure probability crosses
+$2^{-128}$ at $k=30$, so $k=29$ is the largest rank that $f(t)$ can
+support (Table~\ref{tab:theoretical-ceiling}). Since our parameter sets
+stop at $k=24$, this ceiling does not bind here, but it marks the point
+where further thinning of the $\pm2$ tail is exhausted. Reaching higher
+security would require another change, such as modifying $q$, $n$, or the noise family itself, moving beyond the \textsc{Kyber} structure we seek to preserve.
 
 \begin{table}[h]
 \centering
 \caption{Failure probability under the limiting distribution $f(\infty)$
 (minimum variance $\sigma^2=0.5$) as $k$ increases, uncompressed. The
-$2^{-128}$ bound is first violated at $k=30$, so $k=29$ is the limit of
+$2^{-128}$ bound is first violated at $k=30$, so $k=29$ is the ceiling of
 the $f(t)$ family at $n=256$, $q=3329$.}
 \label{tab:theoretical-ceiling}
 \begin{tabular}{cccc}
@@ -121,36 +120,4 @@ $k$ & Failure probability & pk (bytes) & ct (bytes) \\
 30 & $2^{-126.1}$ & 11552 & 11904 \\
 \bottomrule
 \end{tabular}
-\end{table}
-
-\subsection{Selecting $t$}
-For each rank $k$, correctness and security define an acceptable range of
-values for $t$. We select representative values within this range based on
-vectorization efficiency. Since $t$ determines the number of random bits
-used per sample, small byte-aligned values provide a natural trade-off
-between sampling cost and noise reduction. Some of these values are natural:
-$t=4$ recovers the $\mathrm{CBD}_2$ sampler and serves
-as our anchor; $t=8$ admits one-byte-per-coefficient SIMD packing; and
-$t=6$ sits between them, spending fewer PRF bytes and offering more security
-per dimension at the cost of less regular packing. For each selected value of $t$, 
-we then increase $k$ until reaching the largest rank that satisfies the decryption-failure bound. The theoretical
-limit of the noise family is $k=29$, but these larger ranks are not practical
-because their communication cost exceeds our target FrodoKEM-640 bandwidth (9616 bytes pk, 9720 bytes ct). As a result,
-we choose parameter sets that balance security, correctness, and
-communication: $k=24$ for $t=8$, with analogous choices for $t=6$ and $t=4$ (Table~\ref{tab:kaiburr-params}).
-
-\begin{table}[H]
-  \centering
-  \caption{\textsc{Kaiburr} parameter sets. Classical/quantum security (Core-SVP) and failure probability computed with the Kyber scripts; 
-  other parameters as in ML-KEM, compression removed.}
-  \label{tab:kaiburr-params}
-  \begin{tabular}{lcccrrrr}
-    \toprule
-    Scheme & $k$ & noise & failure & class. & quant. & pk (B) & ct (B) \\
-    \midrule
-    kaiburr4 & 7  & $f(4)$ & $2^{-133.7}$ & 479  & 434  & 2720 & 3072 \\
-    kaiburr6 & 18 & $f(6)$ & $2^{-134.1}$ & 1281 & 1162 & 6944 & 7296 \\
-    kaiburr8 & 24 & $f(8)$ & $2^{-139.9}$ & 1717 & 1557 & 9248 & 9600 \\
-    \bottomrule
-  \end{tabular}
 \end{table}
