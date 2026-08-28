@@ -1,6 +1,22 @@
 \section{Implementation specifics}
 \label{sec:implementation}
 
+We provide three independent implementations of \textsc{Kaiburr}, each derived
+from an existing ML-KEM implementation. This includes a portable and vectorized C reference
+(Section~\ref{sec:impl:c}), a Jasmin implementation carrying constant-time
+checks (Section~\ref{sec:impl:jasmin}) and formal verification of corectness bounds, and an ACC implementation for the
+Pavona hardware root of trust (Section~\ref{sec:impl:acc}). All three apply
+the \emph{same} three modifications to the ML-KEM base:
+\begin{enumerate}
+  \item the module rank $k$ is scaled to $\{7,18,24\}$
+        (parameter sets \texttt{kaiburr4}, \texttt{kaiburr6}, \texttt{kaiburr8};
+        see Table~\ref{tab:kaiburr-params});
+  \item ciphertext and public-key compression are removed, so all coefficients
+        are serialized at full $12$-bit precision; and
+  \item the centered binomial sampler is replaced by the branchless sampler for
+        the noise family $f(t)$, $t\in\{4,6,8\}$.
+\end{enumerate}
+
 \subsection{Portable and vectorized software (C)}
 \label{sec:impl:c}
 
