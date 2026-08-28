@@ -4,7 +4,7 @@
 We provide three independent implementations of \textsc{Kaiburr}, each derived
 from an existing ML-KEM implementation. This includes a portable and vectorized C reference
 (Section~\ref{sec:impl:c}), a Jasmin implementation carrying constant-time
-checks (Section~\ref{sec:impl:jasmin}) and formal verification of corectness bounds, and an ACC implementation for the
+checks (Section~\ref{sec:impl:jasmin}), and an ACC implementation for the
 Pavona hardware root of trust (Section~\ref{sec:impl:acc}). All three apply
 the \emph{same} three modifications to the ML-KEM base:
 \begin{enumerate}
@@ -20,8 +20,58 @@ the \emph{same} three modifications to the ML-KEM base:
 \subsection{Portable and vectorized software (C)}
 \label{sec:impl:c}
 
-\subsection{Formally verified software (Jasmin)}
-\label{sec:impl:jasmin}
+\subsubsection{Provenance and layout.}
+The C implementation is a fork of the pq-crystals ML-KEM 
+reference codebase. \footnote{https://github.com/pq-crystals/kyber} 
+Hence we also split into a portable \texttt{ref/} implementation
+and an AVX2-vectorized \texttt{avx2/} implementation. The three parameter sets are
+selected at compile time by \texttt{$k$}$\in\{7,18,24\}$.
 
-\subsection{Hardware accelerator (ACC)}
-\label{sec:impl:acc}
+\subsubsection{The noise sampler.}
+The centered binomial sampler (\texttt{cbd.c}) is removed and replaced by
+\texttt{fn.c}; this adds a single function \texttt{poly\_fn}. Each coefficient consumes $t$ uniformly random
+bits, read least-significant-bit first, and is computed by the branchless
+expression $(2a_t-1)\,(1-a_1+2\prod_{i<t}a_i)$. The PRF output length is
+correspondingly $\texttt{KYBER\_NOISE\_BYTES}=t\cdot n/8$ bytes, giving $128$,
+$192$, and $256$ bytes per polynomial for $t\in\{4,6,8\}$ respectively.
+
+The portable \texttt{ref} variant implements three functions \texttt{fn4},
+\texttt{fn6}, and \texttt{fn8}, each selected at compile time via the
+\texttt{KYBER\_FN} macro based on the parameter set. Each function directly
+applies the branchless arithmetic by extracting the required $t$ bits per
+coefficient and computing the final value via bit operations and masking.
+
+The AVX2 variant provides three hand-vectorized kernels that use SIMD
+parallelism. The $t=8$ kernel processes 32 coefficients per iteration, with each
+input byte mapping directly to one coefficient; the formula's product naturally
+computes as $\prod_{i=1}^7 a_i$ via $7$ consecutive bitwise-AND operations, which
+can be efficiently checked with a single equality comparison to $0xFF$ after
+masking. The $t=4$ kernel processes 64 coefficients per iteration by extracting
+two coefficients (4 bits each) from each input byte, splitting into low and high
+nibbles and then interleaving with sign extension across four 256-bit lanes. The
+$t=6$ kernel processes 32 coefficients per iteration by handling the 6-bit
+packing via a gather-shuffle pattern adapted from ML-KEM's \texttt{cbd3}: it
+loads 24 bytes, permutes and shuffles to extract four 6-bit fields per 32-bit
+lane, applies the $f(6)$ arithmetic via vectorized comparisons and arithmetic
+operations, and then repacks the coefficients. All three kernels are amenable to
+SIMD because they perform uniform operations across all lanes; the $t=8$
+byte-alignment is the most natural fit for SIMD, requiring no masking or shifting
+of the product term.
+
+\subsubsection{Consequences of removing compression.}
+The compression routines \texttt{poly\_compress}
+\texttt{polyvec\_compress} and their decompress pairs are removed along with the associated size macros. 
+The ciphertext now
+stores both $\mathbf{u}$ and $v$ at full $12$-bit precision. In the
+\texttt{ref} version this reuses the existing standard-order packer
+\texttt{poly\_tobytes}, which packs two coefficients into three bytes. 
+In the AVX2 version, however, \texttt{poly\_tobytes} is
+implemented via \texttt{ntttobytes\_avx} and packs in NTT (bit-reversed)
+order, which is incorrect for the normal-order ciphertext produced by the
+inverse NTT. We therefore add new hand-vectorized
+\texttt{cpoly\_tobytes}/\texttt{cpoly\_frombytes} functions in
+\texttt{indcpa.c} that properly serialize in standard coefficient order. These
+functions use conditional modular reduction and a shuffle pattern (similar to
+the gather operation in $f(6)$ sampling) to interleave 16 coefficients into
+24 bytes per 256-bit lane, then store the result using standard-order byte
+layout.
