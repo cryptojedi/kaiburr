@@ -8,25 +8,38 @@ the prime-degree number fields of NTRU Prime. This spectrum reflects different d
 structure vs. conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
 but is also seen as a potential attack surface, so conservative designs discard it entirely \cite{takeofffrodo}. FrodoKEM, for example,
 is based on a more conservative hardness assumption of plain LWE, which is why bodies such as BSI, ENISA, and NLNCSA point
-to it for long-term confidentiality \cite{frodokem-news}; FrodoKEM was also recently standardized by ISO \cite{frodoiso} for this very reason.
+to it for long-term confidentiality \cite{frodokem-news}; it was also recently standardized by ISO \cite{frodoiso}. HQC, the second 
+KEM standardized by NIST in the fourth round, provides a different point of comparison with its security relying
+ on the hardness of the Quasi-Cyclic Syndrome Decoding (QCSD) problem rather than LWE. While HQC provides cryptographic diversity and was 
+ chosen as a code-based backup to complement ML-KEM, FrodoKEM is understood to be the conservative choice within the lattice-based setting.
 
-It is useful to separate the two notions of conservatism this framing bundles together as they concern two independent
-(and today, entirely hypothetical) classes of attack. The first arises from the choice of hardness assumption. FrodoKEM rests on unstructured
-LWE to protect against a structure break, an attack that would exploit the algebraic structure of ring/module LWE, but not
-apply to plain LWE. The second involves the security margin a scheme carries above its target level, which protects against advances 
+It is useful to separate the two notions of conservatism this framing bundles together as they concern two different
+(and today, entirely hypothetical) classes of attack. The first arises from the choice of hardness assumption. 
+FrodoKEM rests on unstructured LWE to avoid a hypothetical structure break, an attack that would exploit the algebraic structure of 
+ring/module LWE but not apply directly to plain LWE.
+The second involves the security margin a scheme carries above its target level, which protects against advances 
 in the best known attacks today. This could include improved lattice reduction, dual attacks, or sharper cost models 
 that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM. Both of these 
-hedges are distinct and not to be substituted; structured conservatism does nothing against the second class of attacks and no security margin protects against the first. On top of that, it's impossible to predict which of the two threats is more likely.
+hedges are distinct, but not entirely independent: additional parameter margin can also increase the cost of a 
+hypothetical structural attack, while removing structure can affect the cost of known attacks. Introducing a new hardness assumption, such as HQC's QCSD 
+instead of LWE, provides cryptographic diversity, since an attack on one assumption does not automatically imply an attack on the other. 
+However, diversity alone also does not imply complete cryptanalytic independence.
+Recent work has demonstrated connections between lattice and code-based cryptanalysis, including adaptations of lattice-sieving techniques to codes \cite{EC:DEEK24}.
+Moreover, the quasi-cyclic structure of HQC has been noted to have important parallels with the ring and module structures used in structured lattice schemes \cite{hqc-forum}. 
+These approaches address different sources of uncertainty, and it is impossible to predict which is more likely to matter.
 
 Faced with this uncertainty, increasing the margin has been a historically standard response, provided that sufficient bandwidth is available to accommodate the increase.
 For computationally secure schemes,
 concrete security estimate is the cost of the best attack known at the time, and such estimates evolve as cryptanalysis matures.
 For instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring 
 algorithms and available computation advanced \cite{nist-sp800-57pt1r5}. Lattice estimates are not static either. The cost models used for
-estimation and the attacks have evolved over more than a decade \cite{bkz2,estimator}, and the cost of the best known attacks continues to drift in both directions as improvements are proposed \cite{fasterdual,matzov2022lwe}, scrutinized \cite{doesitwork}, and refined \cite{variantofmatzov}.
+estimation and the attacks have evolved over more than a decade \cite{bkz2,estimator}. The core framework for estimating 
+the security of LWE-based schemes has nevertheless remained stable, with BKZ-based lattice reduction at its core. Within this framework, the cost of the best known 
+attacks continues to drift in both directions as improvements are proposed \cite{fasterdual,matzov2022lwe}, scrutinized 
+\cite{doesitwork}, and refined \cite{variantofmatzov}.
 
 If the best known attacks continue to improve, how much margin is required remains open, and the useful question is not whether 
-today's KEMs carry enough but how much margin they can carry at all. This question arises because additional margin comes at a cost, 
+today's KEMs carry enough but how much margin they can carry at all. The second question arises because additional margin comes at a cost, 
 requiring larger parameters and hence higher bandwidth and runtime, so no scheme can indefinitely withstand advances in 
 cryptanalysis simply by scaling its parameters. For LWE-family KEMs there is a further constraint, since the parameters 
 that determine security also control the decryption failure probability, so increasing the noise to gain a larger security 
