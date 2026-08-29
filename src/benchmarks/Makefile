@@ -63,76 +63,79 @@ run-frodokem-avx2: $(FRODOKEM_AVX2)
 run-frodokem: run-frodokem-ref run-frodokem-avx2
 
 # FrodoKEM-640
-bin/benchmark-frodo640-ref:
+bin/benchmark-frodo640-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO640 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO640 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO640 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO640 \
 		../frodokem/src/frodo640.c ../frodokem/src/util.c \
-		../frodokem/common/sha3/fips202.c ../frodokem/common/random/random.c
+		../frodokem/common/sha3/fips202.c \
+		randombytes/librandombytes1.a
 
-bin/benchmark-frodo640-avx2:
+bin/benchmark-frodo640-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO640 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO640 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO640 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO640 \
 		../frodokem/src/frodo640.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
-		../frodokem/common/random/random.c
+		randombytes/librandombytes1.a
 
 # FrodoKEM-976
-bin/benchmark-frodo976-ref:
+bin/benchmark-frodo976-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO976 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO976 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO976 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO976 \
 		../frodokem/src/frodo976.c ../frodokem/src/util.c \
-		../frodokem/common/sha3/fips202.c ../frodokem/common/random/random.c
+		../frodokem/common/sha3/fips202.c \
+		randombytes/librandombytes1.a
 
-bin/benchmark-frodo976-avx2:
+bin/benchmark-frodo976-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO976 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO976 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO976 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO976 \
 		../frodokem/src/frodo976.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
-		../frodokem/common/random/random.c
+		randombytes/librandombytes1.a
 
 # FrodoKEM-1344
-bin/benchmark-frodo1344-ref:
+bin/benchmark-frodo1344-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO1344 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO1344 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO1344 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO1344 \
 		../frodokem/src/frodo1344.c ../frodokem/src/util.c \
-		../frodokem/common/sha3/fips202.c ../frodokem/common/random/random.c
+		../frodokem/common/sha3/fips202.c \
+		randombytes/librandombytes1.a
 
-bin/benchmark-frodo1344-avx2:
+bin/benchmark-frodo1344-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ \
+		-I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO1344 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO1344 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO1344 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO1344 \
 		../frodokem/src/frodo1344.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
-		../frodokem/common/random/random.c
+		randombytes/librandombytes1.a
 
 #-- HQC benchmarks ---------------------------------------------------
 
@@ -166,59 +169,65 @@ build-hqc-avx2:
 	cmake -DHQC_ARCH=x86_64 -DHQC_X86_IMPL=avx256 ../hqc 2>&1 | grep -v "^--" && \
 	$(MAKE) hqc_1_x86_64 hqc_3_x86_64 hqc_5_x86_64 2>&1 | grep -v "Built target"
 
-bin/benchmark-hqc-1-ref: build-hqc-ref
+bin/benchmark-hqc-1-ref: build-hqc-ref randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-1 -I../hqc/src/ref -I../hqc/src/ref/hqc-1 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src -Irandombytes/ \
 		build-hqc-ref/src/CMakeFiles/hqc_1_ref.dir/common/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_1_ref.dir/ref/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_1_ref.dir/ref/hqc-1/*.c.o \
-		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
-bin/benchmark-hqc-1-avx2: build-hqc-avx2
+bin/benchmark-hqc-1-avx2: build-hqc-avx2 randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-1 -I../hqc/src/x86_64/avx256 -I../hqc/src/x86_64/avx256/hqc-1 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src -Irandombytes/ \
 		build-hqc-avx2/src/CMakeFiles/hqc_1_x86_64.dir/common/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_1_x86_64.dir/x86_64/avx256/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_1_x86_64.dir/x86_64/avx256/hqc-1/*.c.o \
-		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
-bin/benchmark-hqc-3-ref: build-hqc-ref
+bin/benchmark-hqc-3-ref: build-hqc-ref randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-3 -I../hqc/src/ref -I../hqc/src/ref/hqc-3 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src -Irandombytes/ \
 		build-hqc-ref/src/CMakeFiles/hqc_3_ref.dir/common/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_3_ref.dir/ref/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_3_ref.dir/ref/hqc-3/*.c.o \
-		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
-bin/benchmark-hqc-3-avx2: build-hqc-avx2
+bin/benchmark-hqc-3-avx2: build-hqc-avx2 randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-3 -I../hqc/src/x86_64/avx256 -I../hqc/src/x86_64/avx256/hqc-3 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src -Irandombytes/ \
 		build-hqc-avx2/src/CMakeFiles/hqc_3_x86_64.dir/common/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_3_x86_64.dir/x86_64/avx256/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_3_x86_64.dir/x86_64/avx256/hqc-3/*.c.o \
-		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
-bin/benchmark-hqc-5-ref: build-hqc-ref
+bin/benchmark-hqc-5-ref: build-hqc-ref randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-5 -I../hqc/src/ref -I../hqc/src/ref/hqc-5 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-ref/src -Irandombytes/ \
 		build-hqc-ref/src/CMakeFiles/hqc_5_ref.dir/common/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_5_ref.dir/ref/*.c.o \
 		build-hqc-ref/src/CMakeFiles/hqc_5_ref.dir/ref/hqc-5/*.c.o \
-		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-ref/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
-bin/benchmark-hqc-5-avx2: build-hqc-avx2
+bin/benchmark-hqc-5-avx2: build-hqc-avx2 randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-I../hqc/src/common -I../hqc/src/common/hqc-5 -I../hqc/src/x86_64/avx256 -I../hqc/src/x86_64/avx256/hqc-5 \
-		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src \
+		-I../hqc/lib/fips202 -Ibuild-hqc-avx2/src -Irandombytes/ \
 		build-hqc-avx2/src/CMakeFiles/hqc_5_x86_64.dir/common/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_5_x86_64.dir/x86_64/avx256/*.c.o \
 		build-hqc-avx2/src/CMakeFiles/hqc_5_x86_64.dir/x86_64/avx256/hqc-5/*.c.o \
-		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o
+		build-hqc-avx2/lib/CMakeFiles/fips202.dir/*.c.o \
+		randombytes/librandombytes1.a
 
 #-- Combined PQC benchmarks ------------------------------------------
 
