@@ -22,8 +22,7 @@ the \emph{same} three modifications to the ML-KEM base:
 
 \subsubsection{Provenance and layout.}
 The C implementation is a fork of the pq-crystals ML-KEM 
-reference codebase. \footnote{https://github.com/pq-crystals/kyber} 
-Hence we also split into a portable \texttt{ref/} implementation
+reference codebase. \footnote{https://github.com/pq-crystals/kyber} Following their approach, we split into a portable \texttt{ref/} implementation
 and an AVX2-vectorized \texttt{avx2/} implementation. The three parameter sets are
 selected at compile time by \texttt{$k$}$\in\{7,18,24\}$.
 
@@ -59,19 +58,14 @@ byte-alignment is the most natural fit for SIMD, requiring no masking or shiftin
 of the product term.
 
 \subsubsection{Consequences of removing compression.}
-The compression routines \texttt{poly\_compress}
-\texttt{polyvec\_compress} and their decompress pairs are removed along with the associated size macros. 
-The ciphertext now
-stores both $\mathbf{u}$ and $v$ at full $12$-bit precision. In the
-\texttt{ref} version this reuses the existing standard-order packer
-\texttt{poly\_tobytes}, which packs two coefficients into three bytes. 
-In the AVX2 version, however, \texttt{poly\_tobytes} is
-implemented via \texttt{ntttobytes\_avx} and packs in NTT (bit-reversed)
-order, which is incorrect for the normal-order ciphertext produced by the
-inverse NTT. We therefore add new hand-vectorized
-\texttt{cpoly\_tobytes}/\texttt{cpoly\_frombytes} functions in
-\texttt{indcpa.c} that properly serialize in standard coefficient order. These
-functions use conditional modular reduction and a shuffle pattern (similar to
-the gather operation in $f(6)$ sampling) to interleave 16 coefficients into
-24 bytes per 256-bit lane, then store the result using standard-order byte
-layout.
+The compression routines \seqsplit{\texttt{poly\_compress}} and \seqsplit{\texttt{polyvec\_compress}}
+and their decompress pairs are removed along with the associated size macros.
+The ciphertext now stores both $\mathbf{u}$ and $v$ at full $12$-bit precision. In the \texttt{ref}
+version this reuses the existing standard-order packer \seqsplit{\texttt{poly\_tobytes}}, which packs
+two coefficients into three bytes. In the AVX2 version, however, \seqsplit{\texttt{poly\_tobytes}}
+is implemented via \seqsplit{\texttt{ntttobytes\_avx}} and packs in NTT (bit-reversed) order, which is incorrect
+for the normal-order ciphertext produced by the inverse NTT. We therefore add new hand-vectorized
+\seqsplit{\texttt{cpoly\_tobytes}}/\seqsplit{\texttt{cpoly\_frombytes}} functions in \texttt{indcpa.c} 
+that properly serialize in standard coefficient order. These functions use conditional modular reduction and 
+a shuffle pattern (similar to the gather operation in $f(6)$ sampling) to interleave 16 coefficients into 
+24 bytes per 256-bit lane, then store the result using standard-order byte layout.
