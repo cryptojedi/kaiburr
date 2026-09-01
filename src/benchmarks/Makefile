@@ -164,12 +164,12 @@ run-hqc: run-hqc-ref run-hqc-avx2
 
 build-hqc-ref:
 	mkdir -p build-hqc-ref && cd build-hqc-ref && \
-	cmake -DHQC_ARCH=ref -DHQC_X86_IMPL=avx256 ../hqc 2>&1 | grep -v "^--" && \
+	cmake -DHQC_ARCH=ref -DHQC_X86_IMPL=avx256 $$(pwd)/../hqc 2>&1 | grep -v "^--" && \
 	$(MAKE) hqc_1_ref hqc_3_ref hqc_5_ref 2>&1 | grep -v "Built target"
 
 build-hqc-avx2:
 	mkdir -p build-hqc-avx2 && cd build-hqc-avx2 && \
-	cmake -DHQC_ARCH=x86_64 -DHQC_X86_IMPL=avx256 ../hqc 2>&1 | grep -v "^--" && \
+	cmake -DHQC_ARCH=x86_64 -DHQC_X86_IMPL=avx256 $$(pwd)/../hqc 2>&1 | grep -v "^--" && \
 	$(MAKE) hqc_1_x86_64 hqc_3_x86_64 hqc_5_x86_64 2>&1 | grep -v "Built target"
 
 bin/benchmark-hqc-1-ref: build-hqc-ref randombytes/librandombytes1.a
