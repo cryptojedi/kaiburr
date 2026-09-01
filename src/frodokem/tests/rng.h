@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include "../src/config.h"
 #if !defined(USE_OPENSSL)
-    #include "../../common/aes/aes.h"
+    #include "../common/aes/aes.h"
 #else
-    #include "../../common/aes/aes_openssl.h"
+    #include "../common/aes/aes_openssl.h"
 #endif
 
 #define RNG_SUCCESS      0

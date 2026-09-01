@@ -4,8 +4,7 @@
 * Abstract: benchmarking/testing KEM scheme
 *********************************************************************************************/
 
-#include "../../common/random/random.h"
-#include "../../common/sha3/fips202.h"
+#include "../common/sha3/fips202.h"
 
 #ifdef DO_VALGRIND_CHECK
 #include <valgrind/memcheck.h>

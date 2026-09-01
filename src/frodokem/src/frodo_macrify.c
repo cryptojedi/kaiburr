@@ -6,15 +6,15 @@
 
 #if defined(USE_AES128_FOR_A)
 #if !defined(USE_OPENSSL)
-    #include "../../common/aes/aes.h"
+    #include "../common/aes/aes.h"
 #else
-    #include "../../common/aes/aes_openssl.h"
+    #include "../common/aes/aes_openssl.h"
 #endif
 #elif defined (USE_SHAKE128_FOR_A)
 #if !defined(USE_AVX2)
-    #include "../../common/sha3/fips202.h"
+    #include "../common/sha3/fips202.h"
 #else
-    #include "../../common/sha3/fips202x4.h"
+    #include "../common/sha3/fips202x4.h"
 #endif
 #endif    
 #if defined(USE_AVX2)

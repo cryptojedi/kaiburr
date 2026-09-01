@@ -4,7 +4,7 @@
 * Abstract: noise sampling functions
 *********************************************************************************************/
 
-#include "../../common/sha3/fips202.h"
+#include "../common/sha3/fips202.h"
 
 
 void frodo_sample_n(uint16_t *s, const size_t n) 
