@@ -66,7 +66,7 @@ run-frodokem: run-frodokem-ref run-frodokem-avx2
 bin/benchmark-frodo640-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-640/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO640 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO640 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO640 \
@@ -78,7 +78,7 @@ bin/benchmark-frodo640-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo640-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-640/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO640 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO640 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO640 \
@@ -91,7 +91,7 @@ bin/benchmark-frodo640-avx2: randombytes/librandombytes1.a
 bin/benchmark-frodo976-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-976/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO976 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO976 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO976 \
@@ -103,7 +103,7 @@ bin/benchmark-frodo976-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo976-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-976/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO976 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO976 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO976 \
@@ -116,7 +116,7 @@ bin/benchmark-frodo976-avx2: randombytes/librandombytes1.a
 bin/benchmark-frodo1344-ref: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_REFERENCE_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-1344/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO1344 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO1344 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO1344 \
@@ -128,7 +128,7 @@ bin/benchmark-frodo1344-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo1344-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-1344/ -I../frodokem/src/ -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO1344 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO1344 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO1344 \
