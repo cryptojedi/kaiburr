@@ -78,13 +78,14 @@ bin/benchmark-frodo640-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo640-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-Ifrodo-include-640/ -I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-640/ -I../frodokem/src/ -I../frodokem/common/sha3/keccak4x -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO640 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO640 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO640 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO640 \
 		../frodokem/src/frodo640.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
+		../frodokem/common/sha3/keccak4x/KeccakP-1600-times4-SIMD256.c \
 		randombytes/librandombytes1.a
 
 # FrodoKEM-976
@@ -103,13 +104,14 @@ bin/benchmark-frodo976-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo976-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-Ifrodo-include-976/ -I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-976/ -I../frodokem/src/ -I../frodokem/common/sha3/keccak4x -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO976 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO976 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO976 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO976 \
 		../frodokem/src/frodo976.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
+		../frodokem/common/sha3/keccak4x/KeccakP-1600-times4-SIMD256.c \
 		randombytes/librandombytes1.a
 
 # FrodoKEM-1344
@@ -128,13 +130,14 @@ bin/benchmark-frodo1344-ref: randombytes/librandombytes1.a
 bin/benchmark-frodo1344-avx2: randombytes/librandombytes1.a
 	$(CC) $(CFLAGS) -o $@ src/crypto_kem.c \
 		-D_AMD64_ -DNIX -D_FAST_ -D_SHAKE128_FOR_A_ \
-		-Ifrodo-include-1344/ -I../frodokem/src/ -Irandombytes/ \
+		-Ifrodo-include-1344/ -I../frodokem/src/ -I../frodokem/common/sha3/keccak4x -Irandombytes/ \
 		-DCRYPTO_SECRETKEYBYTES=CRYPTO_SECRETKEYBYTES_FRODO1344 \
 		-DCRYPTO_PUBLICKEYBYTES=CRYPTO_PUBLICKEYBYTES_FRODO1344 \
 		-DCRYPTO_CIPHERTEXTBYTES=CRYPTO_CIPHERTEXTBYTES_FRODO1344 \
 		-DCRYPTO_BYTES=CRYPTO_BYTES_FRODO1344 \
 		../frodokem/src/frodo1344.c ../frodokem/src/util.c \
 		../frodokem/common/sha3/fips202.c ../frodokem/common/sha3/fips202x4.c \
+		../frodokem/common/sha3/keccak4x/KeccakP-1600-times4-SIMD256.c \
 		randombytes/librandombytes1.a
 
 #-- HQC benchmarks ---------------------------------------------------
