@@ -94,7 +94,7 @@ CFLAGS += -mavx2 -maes -msse2
 endif
 endif
 
-.PHONY: all check clean prettyprint
+.PHONY: all check clean prettyprint test640 test976 test1344 benchmark640 benchmark976 benchmark1344 benchmark
 
 all: lib640 lib976 lib1344 tests KATS
 
@@ -223,26 +223,37 @@ endif
 
 check: tests
 
-test640:
+test640: tests
 ifeq "$(DO_VALGRIND_CHECK)" "TRUE"
 	valgrind --tool=memcheck --error-exitcode=1 --max-stackframe=20480000 frodo640/test_KEM
 else
 	frodo640/test_KEM
 endif
 
-test976:
+test976: tests
 ifeq "$(DO_VALGRIND_CHECK)" "TRUE"
 	valgrind --tool=memcheck --error-exitcode=1 --max-stackframe=20480000 frodo976/test_KEM
 else
 	frodo976/test_KEM
 endif
 
-test1344:
+test1344: tests
 ifeq "$(DO_VALGRIND_CHECK)" "TRUE"
 	valgrind --tool=memcheck --error-exitcode=1 --max-stackframe=20480000 frodo1344/test_KEM
 else
 	frodo1344/test_KEM
 endif
+
+benchmark640: tests
+  frodo640/test_KEM
+
+benchmark976: tests
+  frodo976/test_KEM
+
+benchmark1344: tests
+  frodo1344/test_KEM
+
+benchmark: benchmark640 benchmark976 benchmark1344
 
 clean:
 	rm -rf objs *.req frodo640 frodo976 frodo1344
