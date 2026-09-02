@@ -245,13 +245,13 @@ else
 endif
 
 benchmark640: tests
-  frodo640/test_KEM
+	frodo640/test_KEM
 
 benchmark976: tests
-  frodo976/test_KEM
+	frodo976/test_KEM
 
 benchmark1344: tests
-  frodo1344/test_KEM
+	frodo1344/test_KEM
 
 benchmark: benchmark640 benchmark976 benchmark1344
 

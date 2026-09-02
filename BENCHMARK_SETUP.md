@@ -36,7 +36,7 @@ cd src/benchmarks/fn
 make run                 # Run all implementations
 make ref                 # Reference only
 make avx2                # AVX2 optimized only
-``
+```
 
 ## FrodoKEM Benchmarks
 
@@ -64,16 +64,15 @@ make benchmark ARCH=ARM USE_OPENSSL=FALSE
 ### Location
 `src/hqc-next-release/tests/bench/`
 
-First, configure and build HQC:
+First, configure and build HQC (use `-DHQC_ARCH=x86_64` for the AVX2-optimized build, default is `ref`):
 ```bash
 cd src/hqc-next-release
-mkdir build
-cd build
+mkdir -p build && cd build
 cmake ..
 make
 ```
 
-Then run benchmarks:
+Then run benchmarks (from `src/hqc-next-release/build/`, the directory left by the steps above):
 ```bash
 # Run HQC-1 benchmark
 ./tests/bench/benchmark_kem_unified_hqc_1
