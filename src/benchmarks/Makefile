@@ -115,17 +115,23 @@ endef
 $(foreach v,$(KAIBURR_VARIANTS),\
   $(eval $(call kaiburr_c_rule,$(firstword $(subst :, ,$(v))),$(word 2,$(subst :, ,$(v))))))
 
-define kaiburr_jasmin_rule
-$$(KAIBURR_JASMIN)/code/jasmin/$(1)/$(2)/jkem.s:
-	cd $$(KAIBURR_JASMIN)/code/jasmin/$(1)/$(2) && \
-	  $$(JASMINC) -I Keccak=$$(abspath $$(KECCAK)) -o jkem.s jkem.jazz
+JBUILD := build-jasmin
+JSRC    = $(KAIBURR_JASMIN)/code/jasmin
 
-bin/$(1)-jasmin-$(2): $(RB) $$(KAIBURR_JASMIN)/code/jasmin/$(1)/$(2)/jkem.s | bin
+define kaiburr_jasmin_rule
+$$(JBUILD)/$(1)/$(2)/jkem.s: \
+    $$(wildcard $$(JSRC)/$(1)/$(2)/*.jazz $$(JSRC)/$(1)/$(2)/*.jinc \
+                $$(JSRC)/common/$(2)/*.jinc)
+	@mkdir -p $$(@D)
+	cd $$(JSRC)/$(1)/$(2) && \
+	  $$(JASMINC) -I Keccak=$$(abspath $$(KECCAK)) -o $$(abspath $$@) jkem.jazz
+
+bin/$(1)-jasmin-$(2): $(RB) $$(JBUILD)/$(1)/$(2)/jkem.s | bin
 	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) -o $$@ $$(DRIVER) \
 	  -DJADE_NAMESPACE=JADE_KEM_mlkem_$(1)_amd64_$(2) \
 	  -DJADE_NAMESPACE_LC=jade_kem_mlkem_$(1)_amd64_$(2) \
-	  -I$$(KAIBURR_JASMIN)/code/jasmin/$(1)/$(2)/include $$(RBINC) \
-	  $$(KAIBURR_JASMIN)/code/jasmin/$(1)/$(2)/jkem.s $$(RB)
+	  -I$$(JSRC)/$(1)/$(2)/include $$(RBINC) \
+	  $$(JBUILD)/$(1)/$(2)/jkem.s $$(RB)
 endef
 
 $(foreach v,$(KAIBURR_VARIANTS),\
@@ -186,10 +192,10 @@ bin:
 $(RB):
 	$(MAKE) -C randombytes/
 
+.DELETE_ON_ERROR:
+
 clean:
-	$(RM) -r bin $(HQC_BUILD_REF) $(HQC_BUILD_AVX2)
-	$(RM) $(foreach v,$(KAIBURR_VARIANTS),$(foreach i,ref avx2,\
-	  $(KAIBURR_JASMIN)/code/jasmin/$(firstword $(subst :, ,$(v)))/$(i)/jkem.s))
+	$(RM) -r bin $(JBUILD) $(HQC_BUILD_REF) $(HQC_BUILD_AVX2)
 	$(MAKE) -C randombytes/ clean
 
 help:
