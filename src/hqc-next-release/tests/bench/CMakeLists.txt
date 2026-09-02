@@ -31,24 +31,7 @@ foreach(variant IN LISTS VARIANTS)
     endforeach()
 endforeach()
 
-# Unified benchmark targets
-foreach(variant IN LISTS VARIANTS)
-    string(REPLACE "-" "_" safe_var ${variant})
-    set(exe "benchmark_kem_unified_${safe_var}")
-
-    add_executable(${exe} benchmark_kem_unified.c)
-    target_link_libraries(${exe} PRIVATE
-            ${safe_var}_${HQC_ARCH}
-            fips202
-    )
-    target_compile_definitions(${exe} PRIVATE
-            $<$<STREQUAL:${HQC_ARCH},x86_64>:AVX2_MODE>
-            $<$<NOT:$<STREQUAL:${HQC_ARCH},x86_64>>:REF_MODE>
-    )
-    target_include_directories(${exe} PRIVATE
-            ${CMAKE_SOURCE_DIR}/tests/bench
-            ${CMAKE_SOURCE_DIR}/src/common
-            ${CMAKE_SOURCE_DIR}/src/${HQC_ARCH}/${variant}
-            ${CMAKE_SOURCE_DIR}/lib/fips202
-    )
-endforeach()
+# NOTE: the unified cross-KEM benchmark does not live here. FrodoKEM, HQC and
+# Kaiburr are all benchmarked through the shared driver in src/benchmarks/,
+# which links the static libraries this project builds. See
+# BENCHMARK_SETUP.md at the repository root.

@@ -1,9 +1,11 @@
 #!/bin/bash
-# one driver (bench/src/crypto_kem.c), same librandombytes; builds C and Jasmin,
+# One driver (../src/crypto_kem.c), same librandombytes; builds C and Jasmin,
+# ref and avx2, for each kaiburr variant, bound to that driver.
 set -u
-ROOT="$HOME/kaiburr-jasmin"
-BENCH="$ROOT/bench"; FN="$BENCH/fn"
-CC="${CC:-cc}"; DRIVER="$BENCH/src/crypto_kem.c"; RB="$BENCH/randombytes/librandombytes1.a"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../kaiburr-jasmin" && pwd)"
+HARNESS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BENCH="$HARNESS"; FN="$HARNESS/fn"
+CC="${CC:-cc}"; DRIVER="$HARNESS/src/crypto_kem.c"; RB="$HARNESS/randombytes/librandombytes1.a"
 JC="${JASMINC:-$HOME/.opam/default/bin/jasminc}"; KECCAK="$ROOT/formosa-keccak/src/amd64"
 VARIANTS="${VARIANTS:-kaiburr4:7:5472:2720:3072 kaiburr6:18:13920:6944:7296 kaiburr8:24:18528:9248:9600}"
 IMPLS="${IMPLS:-ref avx2}"
@@ -14,7 +16,7 @@ C_REF=(kem.c indcpa.c polyvec.c poly.c ntt.c fn.c reduce.c verify.c fips202.c sy
 C_AVX2=(kem.c indcpa.c polyvec.c poly.c consts.c rejsample.c fn.c verify.c fips202.c fips202x4.c symmetric-shake.c keccak4x/KeccakP-1600-times4-SIMD256.c fq.S shuffle.S ntt.S invntt.S basemul.S)
 
 make -C "$BENCH/randombytes" >/dev/null 2>&1
-CPU="${CPU:-$(grep -m1 'model name' /proc/cpuinfo|cut -d: -f2|sed 's/^ *//')}"
+CPU="${CPU:-$(sed -n 's/^model name[[:space:]]*: *//p' /proc/cpuinfo 2>/dev/null | head -1)}"
 echo "host: $(hostname)  cpu: $CPU  TIMINGS=$TIMINGS"
 
 hdr=1

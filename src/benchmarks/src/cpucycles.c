@@ -4,15 +4,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
-// try1
+#if defined(__x86_64__) || defined(__amd64__) || defined(_M_X64)
+#define CPUCYCLES_ARE_REAL_CYCLES 1
+
 #define cpucycles_begin cpuid_rdtsc
-#define cpucycles_end rdtscp_lfence
-
-//try2
-#if 0
-#define cpucycles_begin lfence_rdtsc
-#endif
+#define cpucycles_end   rdtscp_lfence
 
 static inline uint64_t cpuid_rdtsc(void)
 {
@@ -29,23 +28,6 @@ static inline uint64_t cpuid_rdtsc(void)
     return ((uint64_t)hi << 32) | lo;
 }
 
-static inline uint64_t lfence_rdtsc(void)
-{
-  uint32_t lo, hi;
-
-  __asm__ volatile (
-    "lfence\n\t"
-    "rdtsc"
-    : "=a"(lo), "=d"(hi)
-    :
-    : "memory"
-  );
-
-  return ((uint64_t)hi << 32) | lo;
-}
-
-//
-
 static inline uint64_t rdtscp_lfence(void)
 {
   uint32_t lo, hi;
@@ -59,6 +41,33 @@ static inline uint64_t rdtscp_lfence(void)
   );
 
   return ((uint64_t)hi << 32) | lo;
+}
+
+#else
+#define CPUCYCLES_ARE_REAL_CYCLES 0
+
+#define cpucycles_begin monotonic_ns
+#define cpucycles_end   monotonic_ns
+
+static inline uint64_t monotonic_ns(void)
+{
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return ((uint64_t)ts.tv_sec * 1000000000ULL) + (uint64_t)ts.tv_nsec;
+}
+
+#endif
+
+static void cpucycles_warn_if_not_cycles(void)
+{
+#if !CPUCYCLES_ARE_REAL_CYCLES
+  fprintf(stderr,
+    "########################################################################\n"
+    "# WARNING: no cycle counter on this architecture.                      #\n"
+    "# The numbers below are nanoseconds, not cycles. They are for   #\n"
+    "# a smoke test only!      #\n"
+    "########################################################################\n");
+#endif
 }
 
 static int cmp_uint64(const void *a, const void *b)

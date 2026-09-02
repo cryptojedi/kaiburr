@@ -1,5 +1,21 @@
 \section{Benchmarks}
 \label{sec:benchmarks}
-We benchmark on three Intel generations following the methodology of \cite{fvk}: 
-single-core with Hyper-Threading and Turbo Boost disabled, medians over 10001
-runs with randomness from Linux \texttt{getrandom}.
+
+We benchmark on three Intel generations, each single-core
+with Hyper-Threading and Turbo Boost disabled. We report
+the benchmarks pinned to both the performance and efficient cores separately. Our code is compiled
+with gcc-version.
+
+All three KEMs are measured by a single benchmark driver, adapted from the
+one used in~\cite{fvk}. After $1000$ untimed warm-up iterations,
+we take the median of $10001$ consecutive measurements together with its
+interquartile range ($Q1$ - $Q3$). This is then repeated three times and we report the median
+run with its own quartiles. Every iteration checks that the decapsulated
+shared secret matches the encapsulated one.
+
+Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \textsc{Kaiburr}
+call it within \texttt{keypair} and \texttt{enc}, so that syscall is inside
+the measured region. HQC instead seeds a SHAKE-256 PRNG once, which we seed
+from \texttt{getrandom} before timing begins. \textsc{Kaiburr}'s
+derandomized entry points, reported separately, isolate the scheme cost
+from randomness generation.

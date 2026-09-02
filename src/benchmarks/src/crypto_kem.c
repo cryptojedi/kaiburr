@@ -1,4 +1,8 @@
-#include "api.h"
+#ifndef KEM_API_HEADER
+#define KEM_API_HEADER "api.h"
+#endif
+#include KEM_API_HEADER
+
 #include "randombytes1.h"
 
 #include <stdint.h>
@@ -8,12 +12,8 @@
 #include <assert.h>
 #include <inttypes.h>
 
-//
-// Handle both namespace-based (kaiburr) and direct API (frodokem, hqc) KEMs
-//
-
-#ifdef NAMESPACE
-// Kaiburr-style namespace system
+#ifdef JADE_NAMESPACE
+// kaiburr-style namespace system
 #include "namespace.h"
 #define CRYPTO_SECRETKEYBYTES     NAMESPACE(SECRETKEYBYTES)
 #define CRYPTO_PUBLICKEYBYTES     NAMESPACE(PUBLICKEYBYTES)
@@ -31,7 +31,6 @@
 #define crypto_kem_dec            NAMESPACE_LC(dec)
 #else
 // Direct API - use api.h defines directly
-// (already #define'd by api.h from frodokem/hqc)
 #endif
 
 // Determine which operations are available
@@ -60,63 +59,111 @@
 #include "alignedcalloc.c"
 
 //
+//
+// HQC's crypto_kem_keypair()/crypto_kem_enc() draw from a SHAKE-256 PRNG that
+// the caller is required to seed first. Without this the benchmark would run off an all-zero
+// state. We seed it from the same getrandom()-backed randombytes() that
+// FrodoKEM and Kaiburr use, so all three draw their entropy from one source.
+//
+// prng_init is declared here rather than pulled in via HQC's symmetric.h so
+// that this driver does not need HQC's parameters.h/data_structures.h on the
+// include path.
+//
 
-void print_results_op5(
-  const char *cpu,
-  const char *impl,
-  int print_header,
-  uint64_t med[5][RUNS],
-  uint64_t q1[5][RUNS],
-  uint64_t q3[5][RUNS]
-){
-  #ifdef RUNS_SORT
-  for(size_t i=0; i<5; i++)
-  { qsort(&(med[i][0]), RUNS, sizeof(uint64_t), cmp_uint64); }
-  #endif
+#ifdef BENCH_HQC_PRNG_INIT
+void prng_init(uint8_t *entropy_input, uint8_t *personalization_string,
+               uint32_t enlen, uint32_t perlen);
 
-  if(print_header)
-  { printf("|        cpu |              implem. |           keypair |      keypair_derand ");
-    printf("|             enc |        enc_derand |             dec |\n");
-    printf("|-----------:|---------------------:|-------------------:|--------------------:");
-    printf("|-------------------:|-------------------:|-------------------:|\n");
-  }
+static void bench_init(void)
+{
+  uint8_t entropy[48];
+  uint8_t personalization[1] = {0};
+  randombytes(entropy, sizeof entropy);
+  prng_init(entropy, personalization, (uint32_t)sizeof entropy, 0);
+}
+#else
+static void bench_init(void) {}
+#endif
 
-  printf("|%12.11s", cpu);
-  printf("|%22.21s", impl);
+//
 
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[0][RUNS/2], q1[0][RUNS/2], q3[0][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[1][RUNS/2], q1[1][RUNS/2], q3[1][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[2][RUNS/2], q1[2][RUNS/2], q3[2][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[3][RUNS/2], q1[3][RUNS/2], q3[3][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[4][RUNS/2], q1[4][RUNS/2], q3[4][RUNS/2]);
-  printf("|\n");
+#define CELL_W 28
+
+static void print_head_cell(const char *name)
+{ printf("|%*s", CELL_W, name); }
+
+static void print_rule_cell(void)
+{ for(int i=0; i<CELL_W-1; i++) putchar('-'); printf(":"); putchar('|'); }
+
+static void print_cell(uint64_t med, uint64_t q1, uint64_t q3)
+{
+  char buf[64];
+  snprintf(buf, sizeof buf,
+           "%" PRIu64 " (%" PRIu64 "-%" PRIu64 ")", med, q1, q3);
+  printf("|%*s", CELL_W, buf);
 }
 
-void print_results_op3(
+#if RUNS_SORT
+static void sort_runs(uint64_t *med, uint64_t *q1, uint64_t *q3, size_t n)
+{
+  size_t i, j;
+  for(i = 1; i < n; i++)
+  { uint64_t m = med[i], a = q1[i], b = q3[i];
+    for(j = i; j > 0 && med[j-1] > m; j--)
+    { med[j] = med[j-1]; q1[j] = q1[j-1]; q3[j] = q3[j-1]; }
+    med[j] = m; q1[j] = a; q3[j] = b;
+  }
+}
+#endif
+
+#define COLS 5
+
+static void print_results(
   const char *cpu,
   const char *impl,
   int print_header,
-  uint64_t med[3][RUNS],
-  uint64_t q1[3][RUNS],
-  uint64_t q3[3][RUNS]
+  size_t ops,
+  uint64_t med[][RUNS],
+  uint64_t q1[][RUNS],
+  uint64_t q3[][RUNS]
 ){
-  #ifdef RUNS_SORT
-  for(size_t i=0; i<3; i++)
-  { qsort(&(med[i][0]), RUNS, sizeof(uint64_t), cmp_uint64); }
+  static const char *names[COLS] =
+    { "keypair", "keypair_derand", "enc", "enc_derand", "dec" };
+
+  static const int slot5[5] = { 0, 1, 2, 3, 4 };
+  static const int slot3[3] = { 0, 2, 4 };
+  const int *slot = (ops == COLS) ? slot5 : slot3;
+
+  int filled[COLS] = {0};
+  size_t i;
+
+  #if RUNS_SORT
+  for(i=0; i<ops; i++)
+  { sort_runs(&(med[i][0]), &(q1[i][0]), &(q3[i][0]), RUNS); }
   #endif
 
   if(print_header)
-  { printf("|        cpu |              implem. |           keypair |             enc |             dec |\n");
-    printf("|-----------:|---------------------:|-------------------:|-------------------:|-------------------:|\n");
+  { printf("|%12s|%22s", "cpu", "implem.");
+    for(i=0; i<COLS; i++){ print_head_cell(names[i]); }
+    printf("|\n");
+    printf("|-----------:|---------------------:|");
+    for(i=0; i<COLS; i++){ print_rule_cell(); }
+    printf("\n");
   }
 
   printf("|%12.11s", cpu);
   printf("|%22.21s", impl);
-
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[0][RUNS/2], q1[0][RUNS/2], q3[0][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[1][RUNS/2], q1[1][RUNS/2], q3[1][RUNS/2]);
-  printf("|%" PRIu64 " (%" PRIu64 " - %" PRIu64 ")", med[2][RUNS/2], q1[2][RUNS/2], q3[2][RUNS/2]);
+  for(i=0; i<ops; i++){ filled[slot[i]] = 1; }
+  for(i=0; i<COLS; i++)
+  { if(filled[i])
+    { size_t src = (ops == COLS) ? i : (i / 2);
+      print_cell(med[src][RUNS/2], q1[src][RUNS/2], q3[src][RUNS/2]);
+    }
+    else
+    { printf("|%*s", CELL_W, "n/a"); }
+  }
   printf("|\n");
+  fflush(stdout);
 }
 
 //
@@ -130,6 +177,9 @@ int main(int argc, char**argv)
   if (argc > 1) cpu_name = argv[1];
   if (argc > 2) implementation_name = argv[2];
   if (argc > 3) print_headers = (int)strtol(argv[3], NULL, 10);
+
+  cpucycles_warn_if_not_cycles();
+  bench_init();
 
   size_t run, i;
   uint64_t cycles[TIMINGS];
@@ -146,16 +196,23 @@ int main(int argc, char**argv)
   uint8_t *_ks,  *ks,  *k;  // CRYPTO_BYTES           // enc
   uint8_t *_ts,  *ts,  *t;  // CRYPTO_BYTES           // dec
 
-  // 'derand' (optional)
+  // 'derand' (only for KEMs that expose the derandomized API)
+  #if HAS_KEYPAIR_DERAND || HAS_ENC_DERAND
   uint8_t *_d_ss,  *d_ss,  *d_s;  // CRYPTO_SECRETKEYBYTES    // keypair, dec
   uint8_t *_d_ps,  *d_ps,  *d_p;  // CRYPTO_PUBLICKEYBYTES    // keypair, enc
   uint8_t *_d_cs,  *d_cs,  *d_c;  // CRYPTO_CIPHERTEXTBYTES   // enc, dec
   uint8_t *_d_ks,  *d_ks,  *d_k;  // CRYPTO_BYTES             // enc
+  #endif
+  #if HAS_KEYPAIR_DERAND
   uint8_t *_d_kcs, *d_kcs, *d_kc; // CRYPTO_KEYPAIRCOINBYTES  // keypair
+  size_t kclen;
+  #endif
+  #if HAS_ENC_DERAND
   uint8_t *_d_ecs, *d_ecs, *d_ec; // CRYPTO_ENCCOINBYTES      // enc
+  size_t eclen;
+  #endif
 
   size_t slen, plen, clen, klen, tlen;
-  size_t kclen, eclen;
 
   slen  = alignedcalloc_step(CRYPTO_SECRETKEYBYTES);
   plen  = alignedcalloc_step(CRYPTO_PUBLICKEYBYTES);
@@ -165,14 +222,10 @@ int main(int argc, char**argv)
 
   #if HAS_KEYPAIR_DERAND
   kclen = alignedcalloc_step(CRYPTO_KEYPAIRCOINBYTES);
-  #else
-  kclen = 0;
   #endif
 
   #if HAS_ENC_DERAND
   eclen = alignedcalloc_step(CRYPTO_ENCCOINBYTES);
-  #else
-  eclen = 0;
   #endif
 
   //
@@ -195,6 +248,12 @@ int main(int argc, char**argv)
   d_ecs = alignedcalloc(&_d_ecs, eclen * TIMINGS);
   #endif
   #endif
+
+  for (i = 0; i < WARMUP; i++)
+  { crypto_kem_keypair(ps, ss);
+    crypto_kem_enc(cs, ks, ps);
+    crypto_kem_dec(ts, cs, ss);
+  }
 
   for(run = 0; run < RUNS; run++)
   {
@@ -319,11 +378,7 @@ int main(int argc, char**argv)
     #endif
   }
 
-  #if OP == 5
-  print_results_op5(cpu_name, implementation_name, print_headers, (uint64_t(*)[RUNS])median, (uint64_t(*)[RUNS])q1, (uint64_t(*)[RUNS])q3);
-  #else
-  print_results_op3(cpu_name, implementation_name, print_headers, (uint64_t(*)[RUNS])median, (uint64_t(*)[RUNS])q1, (uint64_t(*)[RUNS])q3);
-  #endif
+  print_results(cpu_name, implementation_name, print_headers, OP, median, q1, q3);
 
   free(_ps);
   free(_ss);

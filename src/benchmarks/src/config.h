@@ -13,5 +13,9 @@
 #define TIMINGS 10001
 #endif
 
+#ifndef WARMUP
+#define WARMUP 1000
+#endif
+
 #endif
 

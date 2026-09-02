@@ -94,7 +94,7 @@ CFLAGS += -mavx2 -maes -msse2
 endif
 endif
 
-.PHONY: all check clean prettyprint test640 test976 test1344 benchmark640 benchmark976 benchmark1344 benchmark
+.PHONY: all check clean prettyprint test640 test976 test1344
 
 all: lib640 lib976 lib1344 tests KATS
 
@@ -244,16 +244,14 @@ else
 	frodo1344/test_KEM
 endif
 
-benchmark640: tests
-	frodo640/test_KEM
-
-benchmark976: tests
-	frodo976/test_KEM
-
-benchmark1344: tests
-	frodo1344/test_KEM
-
-benchmark: benchmark640 benchmark976 benchmark1344
+# NOTE: there are deliberately no benchmark targets here. test_KEM reports an
+# arithmetic mean over a one-second budget via tests/ds_benchmark.h, which is
+# not comparable with the medians the project reports for HQC and Kaiburr. Use
+# the shared harness instead:
+#
+#     cd ../../benchmarks && make run-frodo
+#
+# See BENCHMARK_SETUP.md at the repository root.
 
 clean:
 	rm -rf objs *.req frodo640 frodo976 frodo1344
