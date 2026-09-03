@@ -4,7 +4,7 @@
 #   make run       every implementation, one table
 #   make smoke     same, but TIMINGS=101, to check the build
 
-CFLAGS ?= -Wall -O3 -fomit-frame-pointer -fno-lto -march=native
+CFLAGS ?= -Wall -O3 -fomit-frame-pointer -march=native
 
 CPU ?= $(shell sed -n 's/^model name[[:space:]]*: *//p' /proc/cpuinfo 2>/dev/null | head -1)
 
