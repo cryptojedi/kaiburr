@@ -1,21 +1,145 @@
 \section{Benchmarks}
 \label{sec:benchmarks}
 
-We benchmark on three Intel generations, each single-core
-with Hyper-Threading and Turbo Boost disabled. We report
-the benchmarks pinned to both the performance and efficient cores separately. Our code is compiled
-with gcc-version.
+We benchmark on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with Hyper-Threading and Turbo 
+Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled 
+with \texttt{gcc-version-to-do}.
 
-All three KEMs are measured by a single benchmark driver, adapted from the
-one used in~\cite{fvk}. After $1000$ untimed warm-up iterations,
-we take the median of $10001$ consecutive measurements together with its
-interquartile range ($Q1$ - $Q3$). This is then repeated three times and we report the median
-run with its own quartiles. Every iteration checks that the decapsulated
-shared secret matches the encapsulated one.
+We compare the \textsc{kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the 
+primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{kaiburr} use SHAKE-based symmetric primitives. 
+However, FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we seek to compare.
+We report only FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially 
+more expensive than \textsc{Kaiburr}. The larger FrodoKEM parameter sets have even higher computational costs and 
+do not provide a more informative performance baseline.
+
+All three KEMs are evaluated using a common benchmark driver adapted from the implementation used in~\cite{fvk}. 
+We first perform $1000$ untimed warm-up iterations, followed by $10001$ timed iterations. We report the median 
+execution time and interquartile range ($Q_1$--$Q_3$). This procedure is repeated three times, and we report the 
+results from the run whose median is itself the median of the three runs, together with its corresponding quartiles. 
+Each iteration verifies that the decapsulated shared secret matches the encapsulated shared secret.
 
 Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \textsc{Kaiburr}
 call it within \texttt{keypair} and \texttt{enc}, so that syscall is inside
 the measured region. HQC instead seeds a SHAKE-256 PRNG once, which we seed
-from \texttt{getrandom} before timing begins. \textsc{Kaiburr}'s
-derandomized entry points, reported separately, isolate the scheme cost
-from randomness generation.
+from \texttt{getrandom} before timing begins.
+
+The benchmark results are reported separately for each processor. Results for the Intel Core i7-6800K, 
+Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6800k}, \ref{tab:8700k}, and 
+\ref{tab:13900k}, respectively.
+
+
+\begin{table*}[t]
+\centering
+\caption{Benchmark results in cycles on an Intel Core i7-8700K. We report only the AVX2 implementations. 
+The reference implementations are, on average, 540.8 percent slower for kaiburr C and 653.8 percent
+ slower for kaiburr Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+\label{tab:8700k}
+\begin{tabular}{llrrr}
+\toprule
+KEM & Impl. & KeyGen & Enc & Dec \\
+\midrule
+kaiburr-4 & C/asm &
+156156,(155579--157778) &
+159719,(159235--161416) &
+173015,(172106--174398) \\
+kaiburr-4 & Jasmin &
+143857,(143402--144559) &
+144987,(144656--145831) &
+150435,(149704--151098) \\
+\addlinespace
+kaiburr-6 & C/asm &
+814685,(812084--817870) &
+821346,(818719--824533) &
+848608,(845755--852000) \\
+kaiburr-6 & Jasmin &
+762767,(761322--764429) &
+765475,(764033--767156) &
+781079,(779648--782776) \\
+\addlinespace
+kaiburr-8 & C/asm &
+1367405,(1363808--1371615) &
+1376530,(1372953--1380951) &
+1411130,(1407567--1415488) \\
+kaiburr-8 & Jasmin &
+1293036,(1291067--1295424) &
+1295674,(1293713--1298070) &
+1313175,(1311174--1315640) \\
+\midrule
+FrodoKEM-640 & \cite{frodoKEM-github} &
+3851932,(3851203--3859217) &
+4067952,(4067235--4075634) &
+4044333,(4043732--4053215) \\
+\midrule
+HQC-1 & \cite{hqc-github} &
+90229,(90070--90974) &
+172063,(171888--172892) &
+404274,(404018--404596) \\
+HQC-3 & \cite{hqc-github} &
+215176,(214956--215857) &
+404687,(404324--405517) &
+857576,(857048--858323) \\
+HQC-5 & \cite{hqc-github} &
+439786,(439458--440546) &
+838353,(837433--839669) &
+1698485,(1697851--1699766) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Benchmark results in cycles on an Intel Core i9-13900K (performance core). We report only the AVX2
+implementations. Values are reported as median (Q1--Q3).}
+\label{tab:13900k}
+\begin{tabular}{llrrr}
+\toprule
+KEM & Impl. & KeyGen & Enc & Dec \\
+\midrule
+kaiburr-4 & C/asm &
+121724,(120872--122872) &
+125204,(124310--126302) &
+134816,(134058--136082) \\
+kaiburr-4 & Jasmin &
+141364,(140882--142142) &
+143058,(142620--143842) &
+148502,(147944--149212) \\
+\addlinespace
+kaiburr-6 & C/asm &
+648064,(645678--650674) &
+654366,(651728--657234) &
+676840,(674446--679554) \\
+kaiburr-6 & Jasmin &
+747376,(745792--749120) &
+749472,(747868--751250) &
+764490,(762874--766280) \\
+\addlinespace
+kaiburr-8 & C/asm &
+1095102,(1091646--1098922) &
+1097334,(1093566--1101348) &
+1127588,(1124030--1131712) \\
+kaiburr-8 & Jasmin &
+1272644,(1270318--1275208) &
+1272480,(1270246--1274906) &
+1285796,(1283420--1288436) \\
+\midrule
+FrodoKEM-640 & \cite{frodoKEM-github} &
+3112706,(3107260--3124744) &
+3239826,(3233936--3249204) &
+3195408,(3187982--3208002) \\
+\midrule
+HQC-1 & \cite{hqc-github} &
+72578,(71902--73220) &
+139896,(138680--141026) &
+312692,(310798--314622) \\
+HQC-3 & \cite{hqc-github} &
+179494,(178058--180668) &
+332806,(329936--335788) &
+668334,(663984--672664) \\
+HQC-5 & \cite{hqc-github} &
+377670,(376224--380158) &
+705038,(700890--709262) &
+1357572,(1350500--1364182) \\
+\bottomrule
+\end{tabular}
+\end{table*}

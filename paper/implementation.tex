@@ -1,71 +1,179 @@
-\section{Implementation specifics}
+\section{Implementation}
 \label{sec:implementation}
 
-We provide three independent implementations of \textsc{Kaiburr}, each derived
-from an existing ML-KEM implementation. This includes a portable and vectorized C reference
-(Section~\ref{sec:impl:c}), a Jasmin implementation carrying constant-time
-checks (Section~\ref{sec:impl:jasmin}), and an ACC implementation for the
-Pavona hardware root of trust (Section~\ref{sec:impl:acc}). All three apply
-the \emph{same} three modifications to the ML-KEM base:
+We provide three implementations of \textsc{Kaiburr}, each forked from an existing ML-KEM implementation: 
+a C implementation, a Jasmin implementation with machine-checked constant-time verification, and an assembly 
+implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC). The ACC reuses ML-KEM's 
+arithmetic core and accelerates Keccak in hardware. This provides us with a complementary hardware-accelerated setting 
+where we can evaluate the cost of scaling the module rank $k$. As upstream, the C and Jasmin code each have a 
+portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
+
+All three implementations make the same three changes to ML-KEM:
 \begin{enumerate}
-  \item the module rank $k$ is scaled to $\{7,18,24\}$
-        (parameter sets \texttt{kaiburr4}, \texttt{kaiburr6}, \texttt{kaiburr8};
-        see Table~\ref{tab:kaiburr-params});
-  \item ciphertext and public-key compression are removed, so all coefficients
-        are serialized at full $12$-bit precision; and
-  \item the centered binomial sampler is replaced by the branchless sampler for
-        the noise family $f(t)$, $t\in\{4,6,8\}$.
+  \item the module rank $k$ is scaled to $\{7,18,24\}$, giving the parameter
+        sets kaiburr-1792, -4608, and -6144 (named kaiburr4, kaiburr6, and
+        kaiburr8 in the code, after their noise parameter $t$; see
+        Table~\ref{tab:kaiburr-params});
+  \item ciphertext compression is removed, so both ciphertext polynomials are
+        serialized at full $12$-bit precision; and
+  \item the centered binomial sampler is replaced by a sampler for the noise
+        family $f(t)$, with $t\in\{4,6,8\}$.
 \end{enumerate}
+Everything else, including the ring, the modulus $q=3329$, the NTT and its constants,
+the Fujisaki--Okamoto transform, and the symmetric primitives, is left
+unchanged.
 
-\subsection{Portable and vectorized software (C)}
-\label{sec:impl:c}
+These changes nonetheless affect more code than they touch directly. ML-KEM
+implementations assume $k \le 4$ in several places, and the AVX2 packers
+assume a particular coefficient order. Most of the rewritten code follows from
+scaling $k$, which we describe first (Section~\ref{sec:impl:k}). We then cover
+the noise sampler (Section~\ref{sec:impl:sampler}), the removal of compression
+(Section~\ref{sec:impl:compression}), and what is checked about each
+implementation (Section~\ref{sec:impl:assurance}).
 
-\subsubsection{Provenance and layout.}
-The C implementation is a fork of the pq-crystals ML-KEM 
-reference codebase. \footnote{https://github.com/pq-crystals/kyber} Following their approach, we split into a portable \texttt{ref/} implementation
-and an AVX2-vectorized \texttt{avx2/} implementation. The three parameter sets are
-selected at compile time by \texttt{$k$}$\in\{7,18,24\}$.
+\subsection{Scaling $k$}
+\label{sec:impl:k}
 
-\subsubsection{The noise sampler.}
-The centered binomial sampler (\texttt{cbd.c}) is removed and replaced by
-\texttt{fn.c}; this adds a single function \texttt{poly\_fn}. Each coefficient consumes $t$ uniformly random
-bits, read least-significant-bit first, and is computed by the branchless
-expression $(2a_t-1)\,(1-a_1+2\prod_{i<t}a_i)$. The PRF output length is
-correspondingly $\texttt{KYBER\_NOISE\_BYTES}=t\cdot n/8$ bytes, giving $128$,
-$192$, and $256$ bytes per polynomial for $t\in\{4,6,8\}$ respectively.
+\paragraph{Accumulator overflow.}
+Larger values of $k$ can overflow the matrix-vector product. In the NTT
+domain, each polynomial of the product is a sum of $k$ pointwise products.
+ML-KEM accumulates this sum in an \texttt{int16\_t} and reduces it once at the
+end. Each Montgomery product has magnitude below $q$, so the sum fits whenever
+$kq < 2^{15}$, i.e.\ $k \le 9$. This holds for the standardized $k \le 4$, but
+fails for our large parameters $k=18$ or $k=24$.
 
-The portable \texttt{ref} variant implements three functions \texttt{fn4},
-\texttt{fn6}, and \texttt{fn8}, each selected at compile time via the
-\texttt{KYBER\_FN} macro based on the parameter set. Each function directly
-applies the branchless arithmetic by extracting the required $t$ bits per
-coefficient and computing the final value via bit operations and masking.
+All three implementations therefore reduce the accumulator after every
+pointwise product. We apply this in all cases, including for $k=7$, where it is
+not strictly necessary. The cost is one extra reduction per term i.e. a Barrett
+reduction in the C and Jasmin code, and a modular addition against the
+\texttt{MOD} register on ACC.
 
-The AVX2 variant provides three hand-vectorized kernels that use SIMD
-parallelism. The $t=8$ kernel processes 32 coefficients per iteration, with each
-input byte mapping directly to one coefficient; the formula's product naturally
-computes as $\prod_{i=1}^7 a_i$ via $7$ consecutive bitwise-AND operations, which
-can be efficiently checked with a single equality comparison to $0xFF$ after
-masking. The $t=4$ kernel processes 64 coefficients per iteration by extracting
-two coefficients (4 bits each) from each input byte, splitting into low and high
-nibbles and then interleaving with sign extension across four 256-bit lanes. The
-$t=6$ kernel processes 32 coefficients per iteration by handling the 6-bit
-packing via a gather-shuffle pattern adapted from ML-KEM's \texttt{cbd3}: it
-loads 24 bytes, permutes and shuffles to extract four 6-bit fields per 32-bit
-lane, applies the $f(6)$ arithmetic via vectorized comparisons and arithmetic
-operations, and then repacks the coefficients. All three kernels are amenable to
-SIMD because they perform uniform operations across all lanes; the $t=8$
-byte-alignment is the most natural fit for SIMD, requiring no masking or shifting
-of the product term.
+\paragraph{Matrix generation.}
+The AVX2 matrix sampler in ML-KEM hardcodes how the $k^2$
+matrix entries are grouped into batches of four for the $4$-way Keccak for each $k \le 4$. We
+replace this with a generic loop; it samples four entries at a time with 4-way Keccak and handles 
+any remaining entries with a scalar tail. Only $k=7$ has a
+remainder, of one entry.
 
-\subsubsection{Consequences of removing compression.}
-The compression routines \seqsplit{\texttt{poly\_compress}} and \seqsplit{\texttt{polyvec\_compress}}
-and their decompress pairs are removed along with the associated size macros.
-The ciphertext now stores both $\mathbf{u}$ and $v$ at full $12$-bit precision. In the \texttt{ref}
-version this reuses the existing standard-order packer \seqsplit{\texttt{poly\_tobytes}}, which packs
-two coefficients into three bytes. In the AVX2 version, however, \seqsplit{\texttt{poly\_tobytes}}
-is implemented via \seqsplit{\texttt{ntttobytes\_avx}} and packs in NTT (bit-reversed) order, which is incorrect
-for the normal-order ciphertext produced by the inverse NTT. We therefore add new hand-vectorized
-\seqsplit{\texttt{cpoly\_tobytes}}/\seqsplit{\texttt{cpoly\_frombytes}} functions in \texttt{indcpa.c} 
-that properly serialize in standard coefficient order. These functions use conditional modular reduction and 
-a shuffle pattern (similar to the gather operation in $f(6)$ sampling) to interleave 16 coefficients into 
-24 bytes per 256-bit lane, then store the result using standard-order byte layout.
+The same loop generates both $\mathbf{A}$ for key generation and its transpose
+$\mathbf{A}^T$ for encapsulation, by selecting the matching domain separators.
+The C code computes these separators from the row and column indices, while
+the Jasmin code reads them from a precomputed table. ACC generates one entry at a time and 
+derives each separator from a running nonce, with separate handling for the transposed and 
+non-transposed orders.
+
+\paragraph{Memory.}
+The C and Jasmin code store the full matrix $\mathbf{A}$ on the stack. Its size
+grows quadratically with $k$, from $24.5$\,KiB at $k=7$ to $288$\,KiB at
+$k=24$. This is not suitable for ACC, whose
+stock configuration only provides $32$\,KiB of data memory. That is less than the
+working set of a single decapsulation at $k=24$, which is about $34$\,KiB for
+the ciphertext, re-encrypted ciphertext, secret key, and hashing buffers alone,
+before the matrix is counted.
+
+We address this in two ways. First, the ACC implementation never stores
+$\mathbf{A}$. It generates one polynomial at a time, multiplies it into a
+running accumulator, and discards it. Second, we enlarge ACC's visible data
+memory from $31$\,KiB to $127$\,KiB in the hardware description, out of
+$128$\,KiB of physical DMEM including a $1$\,KiB scratch region. The ACC
+results in Section~\ref{sec:benchmarks} are therefore for this modified hardware
+configuration.
+
+\subsection{The noise sampler}
+\label{sec:impl:sampler}
+
+The noise family $f(t)$ maps $t$ uniformly random bits $a_1,\ldots,a_t$, read
+least-significant first, to the coefficient
+\[
+  (2a_t-1)\,\Bigl(1-a_1+2\prod_{i<t}a_i\Bigr).
+\]
+All our implementations replace the centered binomial sampler with this
+expression, and the PRF output grows to $t\cdot n/8$ bytes per polynomial. The
+five variants differ in how they compute two parts of the expression: the
+product term $\prod_{i<t}a_i$ and the sign $(2a_t-1)$.
+Table~\ref{tab:sampler-variants} summarizes their choices.
+
+\begin{table}[h]
+  \centering
+  \caption{How each implementation computes the product term and applies the
+           sign in $f(t)$.}
+  \label{tab:sampler-variants}
+  \begin{tabular}{lllc}
+    \toprule
+    Variant & Product term & Sign & Word size \\
+    \midrule
+    C ref       & bit-by-bit AND chain   & integer multiply             & scalar \\
+    C AVX2      & compare against a mask & conditional lane negate      & 8--32-bit lanes \\
+    Jasmin ref  & carry propagation      & conditional two's-complement & scalar \\
+    Jasmin AVX2 & compare against a mask & conditional two's-complement & 8--16-bit lanes \\
+    ACC         & carry propagation      & modular subtract + select    & 16-bit lanes \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The Jasmin reference code and the ACC assembly avoid the literal AND chain
+with a carry trick. Adding one to the low $t-1$ bits carries into bit $t-1$
+exactly when all of those bits are set, so a right shift gives us the product.
+The AVX2 kernels instead isolate the same bits and apply a vector compare,
+which gives the product directly as an all-ones or all-zero mask. In every
+vectorized and assembly variant, the sign is then applied separately and
+without branching.
+
+Extracting $t$-bit fields from the PRF output is simplest for $t=8$ and $t=4$,
+which align with bytes and nibbles, and hardest for $t=6$. Both AVX2 kernels
+use an additional shuffle or gather to align the $6$-bit fields. The C kernel
+reads past the end of its input, so the PRF buffer carries $32$ bytes of
+trailing slack. ACC has no byte-shuffle instruction, so it instead chains
+\texttt{bn.rshi} shifts to move a $6$-bit window across register boundaries.
+
+Key generation needs $2k$ noise polynomials. The AVX2 code samples them in
+groups of four using the $4$-way Keccak.
+
+\subsection{Removing compression}
+\label{sec:impl:compression}
+
+\textsc{Kaiburr} serializes both ciphertext polynomials $\mathbf{u}$ and $v$
+at full $12$-bit precision, so the ciphertext grows to $(k+1)\cdot 384$ bytes.
+The public key keeps its size of $384k+32$ bytes, since ML-KEM never
+compresses it.
+
+The reference code and ACC reuse their existing $12$-bit packer unchanged. The
+AVX2 code needs a new one. Its existing packer is used only for the public key,
+which is stored in the permuted coefficient order of the AVX2 NTT, so it
+applies that permutation while packing. Ciphertext polynomials leave the
+inverse NTT in standard order. Both AVX2 forks therefore add a packer and
+unpacker that work in standard order, without the permutation.
+
+The new packer emits $24$ bytes per iteration as two $16$-byte stores twelve
+bytes apart, so its final iteration would write past the end of the buffer.
+The C code stages the final iteration through a scratch buffer, and the Jasmin
+code handles it as a separate case.
+
+\subsection{Assurance}
+\label{sec:impl:assurance}
+
+\paragraph{Jasmin.}
+The Jasmin implementation is a fork of \texttt{formosa-mlkem}~\cite{fvk},
+whose EasyCrypt proofs establish functional correctness for ML-KEM. These
+proofs do not carry over to \textsc{Kaiburr}, since the sampler, module rank,
+and serialization all change. What we check is much narrower.
+
+Every exported function carries two annotations. A \texttt{ct} annotation is
+checked by Jasmin's constant-time checker, for both standard and speculative
+constant-time. A \texttt{safety} annotation establishes that array accesses
+stay in bounds and that all memory is initialized before use. Both properties
+are checked for all six builds.
+
+\paragraph{Testing.}
+The C implementation relies on the deterministic round-trip self-tests
+inherited from its upstream ML-KEM codebase. The Jasmin implementation runs
+the same kind of self-test, and additionally cross-checks its output against
+the C implementation, bit-for-bit, across all six builds. The ACC
+implementation is validated against a Python model, which subclasses
+\texttt{kyber-py}'s \texttt{ML\_KEM}, overrides the noise sampler, and
+disables ciphertext compression. For each parameter set, the model generates
+known-answer tests (KATs) for key generation, encapsulation, and decapsulation
+(including implicit rejection), as well as round-trip tests.
+Unlike the Jasmin code, ACC's constant-time behavior is not machine-checked;
+the hand-written kernels avoid secret-dependent branches
+by construction.
