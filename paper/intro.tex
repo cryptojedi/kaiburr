@@ -1,17 +1,17 @@
 \section{Introduction}
 \label{sec:introduction}
-After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203 \cite{fips203}, FIPS-204 \cite{fips204},
-and FIPS-205 \cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA respectively. Interestingly, four of the schemes in the PQC Round
+After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204}, 
+and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively. In 2025, NIST selected an additional KEM, HQC, 
+for standardization in the fourth round. Unlike ML-KEM, which is based on module-LWE, HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) problem, providing 
+diversity beyond lattice-based assumptions~\cite{hqc2025spec}. This choice also marked a shift away from the lattice-based KEMs that dominated the 
+Round 3 submissions. Four of the schemes in the PQC Round
 3 Submissions \cite{nistpqc-round3} --- Kyber \cite{kyberoriginal} (standardized as ML-KEM), Saber \cite{AFRICACRYPT:DKRV18}, NTRU LPRime \cite{ntruprime}, and FrodoKEM \cite{takeofffrodo} --- are closely related lattice KEMs, spanning a
 spectrum of algebraic structure, from FrodoKEM's unstructured LWE, through Kyber's and Saber's cyclotomic modules, to
 the prime-degree number fields of NTRU Prime. This spectrum reflects different design principles, commonly understood as
 structure vs. conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
 but is also seen as a potential attack surface, so conservative designs discard it entirely \cite{takeofffrodo}. FrodoKEM, for example,
 is based on a more conservative hardness assumption of plain LWE, which is why bodies such as BSI, ENISA, and NLNCSA point
-to it for long-term confidentiality \cite{frodokem-news}; it was also recently standardized by ISO \cite{frodoiso}. Outside the lattice setting, 
-NIST's fourth round also standardized HQC, whose security rests on the Quasi-Cyclic Syndrome Decoding (QCSD) problem rather than LWE \cite{hqc2025spec}. 
-HQC was chosen as a code-based backup that provides cryptographic diversity alongside ML-KEM, whereas FrodoKEM is understood to be the conservative choice 
-within the lattice-based setting.
+to it for long-term confidentiality \cite{frodokem-news}; it was also recently standardized by ISO \cite{frodoiso}. 
 
 It is useful to separate the two notions of conservatism this framing bundles together as they concern two different
 (and today, entirely hypothetical) classes of attack. The first arises from the choice of hardness assumption. 
@@ -31,7 +31,7 @@ These approaches address different sources of uncertainty, and it is impossible 
 
 Faced with this uncertainty, increasing the margin has been a historically standard response, provided that sufficient bandwidth is available to accommodate the increase.
 For computationally secure schemes,
-concrete security estimate is the cost of the best attack known at the time, and such estimates evolve as cryptanalysis matures.
+a concrete security estimate is the cost of the best attack known at the time, and such estimates evolve as cryptanalysis matures.
 For instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring 
 algorithms and available computation advanced \cite{nist-sp800-57pt1r5}. Lattice estimates are not static either. The cost models used for
 estimation and the attacks have evolved over more than a decade \cite{bkz2,estimator}. The core framework for estimating 
@@ -48,13 +48,12 @@ margin necessarily affects correctness.
 
 Crucially, what structure determines is the \emph{price} of buying additional margin. At matched security levels, an unstructured scheme 
 already requires roughly an order of magnitude more bandwidth than a module scheme \cite{takeofffrodo,kyberoriginal}. Since these communication costs are considered 
-practical enough for conservative deployments, a module scheme can spend the same bandwidth budget on larger parameters and obtain a 
+practical enough for conservative deployments, a module scheme can spend the same bandwidth budget on larger parameters and obtain
 a conservative security margin while retaining the efficiency advantages of NTT arithmetic. 
 
 Recent work has explored this high-margin regime from the perspective of unstructured LWE. KyFrog \cite{kyfrog} increases the LWE dimension and 
-adjusts the noise distribution to achieve substantially higher security estimates for much larger ciphertexts. This 
-motivates the complementary question of how much security margin a module KEM can achieve within the communication budget of 
-a conservative unstructured scheme. We answer this question with \textsc{Kaiburr}, a module KEM that scales ML-KEM's 
+adjusts the noise distribution to achieve substantially higher security estimates for much larger ciphertexts. This motivates the complementary question of how much security margin a module KEM can achieve within the communication budget of a conservative unstructured LWE scheme, and at what computational cost. 
+We answer this question with \textsc{Kaiburr}, a module KEM that scales ML-KEM's 
 module rank and introduces a generalized noise distribution to preserve correctness. We first characterize 
 the correctness and security limits of naively increasing ML-KEM's module rank, then introduce a noise family that 
 allows further scaling. We then build three different parameter sets with the new noise sampler, and implement them across conventional software and
@@ -75,9 +74,9 @@ and HQC. More specifically, our contributions can be summarized as follows.
   \item \emph{We select concrete parameter sets that reach large security margins within FrodoKEM-640's
     communication budget.} Using this trade-off, we obtain three parameter sets, kaiburr-1792, -4608, and
     -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
-    bits while their public keys and ciphertexts stay within within the communication budget of FrodoKEM-640, its smallest standardized
+    bits while their public keys and ciphertexts stay within the communication budget of FrodoKEM-640, its smallest standardized
 parameter set (see Section~\ref{sec:benchmarks}).
-  \item \emph{We build three implementations of \textsc{Kaiburr}.} We implement all three
+  \item \emph{We build \textsc{Kaiburr} across three implememtation targets.} We implement all three
     parameter sets in C, in Jasmin with machine-checked constant-time verification,
     and as an ACC variant targeting the Pavona hardware root of trust, detailing the engineering
     consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
@@ -86,4 +85,4 @@ parameter set (see Section~\ref{sec:benchmarks}).
     achieve performance comparable to HQC, despite having (much) larger security margins. (Section~\ref{sec:benchmarks}).
 \end{itemize}
 \subsection{Access to artifacts}
-All software, including parameter analysis scripts, implementation source code, and other artifacts, is publicly available on GitHub.
+All software, including parameter analysis scripts, implementation source code, and other artifacts, is publicly available on \href{https://github.com/cryptojedi/kaiburr}{GitHub}.

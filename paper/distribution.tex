@@ -2,10 +2,12 @@
 \label{sec:distribution}
 Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small, 
 increasing $k$ further is not possible without affecting correctness. Instead, one could reduce the failure probability at large $k$ by increasing the modulus $q$.
-We note that all variants of \tetsc{Kyber} fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
+We note that all variants of \textsc{Kyber} fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
 $q=3329$ is the small prime satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect, 
 which \textsc{Kyber} deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
 bandwidth spent by dropping public-key compression and co-tuned to balance ciphertext size, failure probability, and security. 
+
+Since ML-KEM's standardization, highly optimized and high-assurance implementations have emerged across software and hardware platforms \cite{mlkem-native,fvk,SP:AOPPSS25}.
 Changing $q$ would mean not being able to reuse any existing optimized routines in software or hardware, which sacrifices an important engineering advantage 
 and results in a different scheme altogether.
 
@@ -41,7 +43,7 @@ bits $a_1,\dots,a_t$ as
 \]
 which is branchless and therefore samples in constant time; we
 machine-check both constant-time (CT) and speculative constant-time (SCT)
-in Jasmin~\cite{CCS:ABBBGL17} (see Section~\ref{implementation}). The standard deviation
+in Jasmin~\cite{CCS:ABBBGL17} (see Section~\ref{sec:implementation}). The standard deviation
 $\sigma(t) = \sqrt{0.5 + 2^{3-t}}$ decreases from $1$ at $t=4$ toward
 $\sqrt{0.5}$ as $t$ grows.
 
