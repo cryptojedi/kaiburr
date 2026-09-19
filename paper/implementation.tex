@@ -149,6 +149,9 @@ bytes apart, so its final iteration would write past the end of the buffer.
 The C code stages the final iteration through a scratch buffer, and the Jasmin
 code handles it as a separate case.
 
+Removing compression also has a consequence beyond engineering. It makes the decryption-failure probability
+formally provable, which we develop in Section~\ref{sec:verification}.
+
 \subsection{Assurance}
 \label{sec:impl:assurance}
 

@@ -80,6 +80,10 @@ parameter set (Section~\ref{sec:benchmarks}).
     parameter sets in C, in Jasmin with machine-checked constant-time verification,
     and as an ACC variant targeting the Pavona hardware root of trust, detailing the engineering
     consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
+  \item \emph{We give a formally verified bound on Kaiburr's decryption-failure probability.} 
+  Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show that removing ciphertext compression is what 
+  makes this bound provable rather than heuristic and close a gap that exists even for ML-KEM's own published bound 
+  (Section~\ref{sec:verification}).
   \item \emph{We benchmark \textsc{Kaiburr} against FrodoKEM and HQC.} Across three Intel
     microarchitectures, our AVX2 and Jasmin implementations run substantially faster than FrodoKEM-640 and 
     achieve performance comparable to HQC, despite having (much) larger security margins. (Section~\ref{sec:benchmarks}).

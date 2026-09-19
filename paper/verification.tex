@@ -1,0 +1,67 @@
+\section{Correctness}
+\label{sec:verification}
+
+In the previous sections, we discussed removing compression as a design choice with engineering consequences. We now show why that
+change matters beyond engineering and show that it turns the decryption-failure probability from a heuristic estimate into a
+formally verified bound.
+
+\paragraph{Why compression is the obstruction.}
+In the noise expression that Barbosa et al.~\cite{BarbosaKLSS25} derive for ML-KEM,
+$\tilde{n} = \langle e,r\rangle - \langle s,e_1\rangle - \langle s,c_u\rangle + e_2 + c_v$,
+the rounding errors $c_u$ and $c_v$ are the only source of difficulty. First, because the correctness adversary holds the secret key, 
+no direct MLWE reduction is available which forces a worst-case elimination of $c_v$ and a split into two sub-bounds. Second, $c_u$'s own rounding-error 
+distribution is not symmetric and so fails the ``good'' property their framework requires. This forces an index-dependent, 256-term sum rather than a 
+single closed-form union bound. In the case of FrodoKEM, since it admits no ciphertext compression, the noise term only involves
+good distributions, which gives a clean union bound with no heuristic assumption. The cost of compression is concrete and quantitative. For ML-KEM-768, 
+the fully provable bound (which pays for compression) is $2^{-80}$, while the heuristic bound that just assumes rounding-of-uniform is 
+$2^{-164}$, a gap of roughly 84 bits.
+
+\paragraph{Consequence for \textsc{Kaiburr}}
+We adapt the EasyCrypt framework of~\cite{BarbosaKLSS25} and instantiate it for \textsc{Kaiburr} which has no ciphertext compression like FrodoKEM. 
+We reuse their theory for
+combining distributions over a ring and their proofs that the relevant properties are preserved. We also use their reduction to a 
+single coefficient and their OCaml implementation for computing a sound upper bound on the resulting tail probability. 
+\textsc{Kaiburr} retains \textsc{Kyber} as specified in
+Sections~\ref{sec:preliminaries}--\ref{sec:implementation} in every respect the analysis depends on. The only
+property of the noise family $f(t)$ the proof uses is that it is ``good'' in their sense: non-trivial and symmetric around 0 
+(see Section~\ref{sec:distribution}).
+
+Since the rounding terms vanish, the noise
+collapses to $\tilde{n} = \langle e,r\rangle - \langle s,e_1\rangle + e_2$. As a result, every coefficient is identically distributed independent of its
+index, and the union bound becomes a single factor of $256$ rather than a sum of $256$ distinct terms. Moreover, no additional
+MLWE term is needed. We note the resulting expression is in fact simpler than the one obtained for FrodoKEM, since
+$q=3329$ is prime, so $\mathbb{Z}_q$ is a field and goodness is preserved through inner products with only $\oplus$
+required, whereas FrodoKEM's power-of-two modulus forces $\ominus$ to be retained.
+
+\paragraph{Computing the bound.}
+The tail probability is computed outside EasyCrypt by OCaml code that mirrors the
+EasyCrypt expression. We report the results for kaiburr-1792 ($k=7$), kaiburr-4608 ($k=18$), and kaiburr-6144 ($k=24$) in Table~\ref{tab:bounds},
+alongside the failure probability obtained for each parameter set from the \textsc{Kyber} team's estimator scripts
+(Table~\ref{tab:kaiburr-params}).
+
+\begin{table}[h]
+  \centering
+  \caption{Decryption-failure probability for each \textsc{Kaiburr} parameter set: the formally verified bound
+  obtained in this work, and the estimate from the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}).}
+  \label{tab:bounds}
+  \begin{tabular}{lccc}
+    \toprule
+    Scheme & $k$ & Verified bound (this work) & \textsc{Kyber}-script estimate \\
+    \midrule
+    kaiburr-1792 & 7  & $2^{-133.3}$ & $2^{-133.7}$ \\
+    kaiburr-4608 & 18 & $2^{-133.8}$ & $2^{-134.1}$ \\
+    kaiburr-6144 & 24 & $2^{-139.6}$ & $2^{-139.9}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+To put the numbers in context: for ML-KEM-768, Barbosa et al.~\cite{BarbosaKLSS25}
+compute a heuristic bound of $2^{-164}$, while the best bound they can
+justify against the definition of correctness is only
+$2^{-80}$, a gap of roughly 84 bits. For \textsc{Kaiburr} there is no such gap to close, since removing compression
+leaves no rounding term for a heuristic assumption to apply to. Table~\ref{tab:bounds} shows our provable bound
+closely tracks the \textsc{Kyber} team's own estimate for every parameter set. This shows that the bound is provable as well
+as tight in practice.
+
+The price \textsc{Kaiburr} pays by removing compression is ciphertext size. However, this additional size is modest in the context of the high-security 
+parameter sets considered in this work; it also remains within our fixed communication budget.
