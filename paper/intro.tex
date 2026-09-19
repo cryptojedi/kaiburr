@@ -5,8 +5,8 @@ and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, res
 for standardization in the fourth round. Unlike ML-KEM, which is based on module-LWE, HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) problem, providing 
 diversity beyond lattice-based assumptions~\cite{hqc2025spec}. This choice also marked a shift away from the lattice-based KEMs that dominated the 
 Round 3 submissions. Four of the schemes in the PQC Round
-3 Submissions \cite{nistpqc-round3} --- Kyber \cite{kyberoriginal} (standardized as ML-KEM), Saber \cite{AFRICACRYPT:DKRV18}, NTRU LPRime \cite{ntruprime}, and FrodoKEM \cite{takeofffrodo} --- are closely related lattice KEMs, spanning a
-spectrum of algebraic structure, from FrodoKEM's unstructured LWE, through Kyber's and Saber's cyclotomic modules, to
+3 Submissions \cite{nistpqc-round3} --- \textsc{Kyber} \cite{kyberoriginal} (standardized as ML-KEM), Saber \cite{AFRICACRYPT:DKRV18}, NTRU LPRime \cite{ntruprime}, and FrodoKEM \cite{takeofffrodo} --- are closely related lattice KEMs, spanning a
+spectrum of algebraic structure, from FrodoKEM's unstructured LWE, through \textsc{Kyber}'s and Saber's cyclotomic modules, to
 the prime-degree number fields of NTRU Prime. This spectrum reflects different design principles, commonly understood as
 structure vs. conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
 but is also seen as a potential attack surface, so conservative designs discard it entirely \cite{takeofffrodo}. FrodoKEM, for example,
@@ -62,12 +62,12 @@ and HQC. More specifically, our contributions can be summarized as follows.
 
 \subsection{Our contributions}
 \begin{itemize}
-  \item \emph{We show that naively scaling ML-KEM's module rank hits a correctness wall.} Raising $k$ alone, with Kyber's noise and 
+  \item \emph{We show that naively scaling ML-KEM's module rank hits a correctness wall.} Raising $k$ alone, with \textsc{Kyber}'s noise and 
     modulus fixed, satisfies the $2^{-128}$ decryption-failure
     bound only up to $k=7$ and fails already at $k=8$, so larger module rank cannot buy additional
     security margin on its own (Section~\ref{sec:warmup}).
   \item \emph{We introduce a one-parameter noise family that allows us to scale further.} Our family $f(t)$
-    generalizes Kyber's centered binomial distribution, thinning its $\pm 2$ tail geometrically as $t$
+    generalizes \textsc{Kyber}'s centered binomial distribution, thinning its $\pm 2$ tail geometrically as $t$
     grows while leaving the $\pm 1$ mass and its branchless sampling unchanged.
     This gives a noise knob that can be traded against module rank to keep decryption failure below
     $2^{-128}$ as $k$ increases (Section~\ref{sec:distribution}).

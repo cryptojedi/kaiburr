@@ -5,8 +5,8 @@ We benchmark the C and Jasmin implementations on three Intel microarchitectures:
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled 
 with \texttt{gcc-version-to-do}.
 
-We compare the \textsc{kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the 
-primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{kaiburr} use SHAKE-based symmetric primitives. 
+We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
+primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 However, FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
 implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.
 We report only FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially 
@@ -32,8 +32,8 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 \begin{table*}[t]
 \centering
 \caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations. 
-The reference implementations are, on average, TBD percent slower for kaiburr C and TBD percent
- slower for kaiburr Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+The reference implementations are, on average, TBD percent slower for \textsc{Kaiburr} C and TBD percent
+ slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
 \label{tab:6700k}
 \begin{tabular}{llrrr}
 \toprule
@@ -91,8 +91,8 @@ TBD \\
 \begin{table*}[t]
 \centering
 \caption{Benchmark results in cycles on an Intel Core i7-8700K. We report only the AVX2 implementations. 
-The reference implementations are, on average, 540.8 percent slower for kaiburr C and 653.8 percent
- slower for kaiburr Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+The reference implementations are, on average, 540.8 percent slower for \textsc{Kaiburr} C and 653.8 percent
+ slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
 \label{tab:8700k}
 \begin{tabular}{llrrr}
 \toprule

@@ -1,6 +1,6 @@
 \section{Warmup: Just changing $k$}
 \label{sec:warmup}
-The main mechanism to increase bit security in Kyber is to raise
+The main mechanism to increase bit security in \textsc{Kyber} is to raise
 the module rank $k$ \cite{kyberround1}. Fixing the ML-KEM base ring, noise distribution, and
 modulus, and varying only $k$, we measure the decryption-failure
 probability using the scripts provided by \textsc{Kyber} team. \footnote{\url{https://github.com/pq-crystals/security-estimates}}
@@ -15,7 +15,7 @@ sacrificing correctness.
 
 These values are computed without ciphertext compression, and therefore
 are optimistic estimates. The rounding applied to $\mathbf{u}$ and
-$v$ in Kyber introduces additional error, which can only increase the true
+$v$ in \textsc{Kyber} introduces additional error, which can only increase the true
 failure probability. The actual failure probabilities are expected to
 be higher than those reported here, and the correctness limit on $k$ may be
 even more restrictive.
