@@ -9,7 +9,7 @@ bandwidth spent by dropping public-key compression and co-tuned to balance ciphe
 
 Since ML-KEM's standardization, highly optimized and high-assurance implementations have emerged across software and hardware platforms \cite{mlkem-native,fvk,SP:AOPPSS25}.
 Changing $q$ would mean not being able to reuse any existing optimized routines in software or hardware, which sacrifices an important engineering advantage 
-and results in a different scheme altogether.
+and results in a different scheme altogether. We choose not to change $q$ for this reason.
 
 This is not to say that $k$ is the only parameter that can be modified. We focus on changes that preserve the \emph{essence} of \textsc{Kyber}:
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
@@ -20,8 +20,8 @@ it can be replaced without altering the core implementation. What it changes are
 decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
 
 
-In this sense, the error distribution is another degree of freedom that moves both security and corectness without changing what the scheme is at its core. 
-This is the direction we pursue and where our main contribution lies.
+In this sense, the error distribution is another part of the scheme alongside $k$ that moves both security and corectness without changing what 
+\textsc{Kyber} is at its core. This is the direction we pursue and where our main contribution lies.
 
 To scale past $k=7$, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving 
 \textsc{Kyber}'s \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \textsc{Kyber}'s use of a 
@@ -78,7 +78,7 @@ while keeping the $\pm1$ contribution fixed.
 
 \subsection{Selecting $t$}
 Since $t$ is the number of uniform bits per sample, vectorization-friendly
-values are natural, especially considering the AVX2 implementations. As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ sampler, so it serves
+values are natural, especially for AVX2 implementations (see Section~\ref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ sampler, so it serves
 as our anchor. Notice that $t=8$ consumes exactly one PRF byte per coefficient, meaning it
 admits one-byte-per-coefficient SIMD packing without cross-byte bit-splitting. This makes $t=8$ a very convenient choice.
 Our third choice, $t=6$, sits in the middle and does not share the byte-alignment of $t=4$ or $t=8$. Sampling four
@@ -116,7 +116,7 @@ respectively, which follow from these choices
 
 \subsection{Sizes in context}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
-sets alongside all standardized FrodoKEM-SHAKE and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the
+sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the
 communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set,
 despite reaching Core-SVP security levels far beyond any of FrodoKEM's or
 HQC's parameter sets. Against HQC, whose ciphertexts are the most compact of the three families at matched security levels, kaiburr-1792 is still
@@ -125,7 +125,7 @@ smaller than HQC-1 in combined pk+ct size.
 \begin{table}[h]
 \centering
 \caption{Public-key and ciphertext sizes across \textsc{Kaiburr},
-FrodoKEM-SHAKE~\cite{frodoKEM-github}, and HQC~\cite{hqc-github,hqc2025spec}.
+FrodoKEM~\cite{frodoKEM-github}, and HQC~\cite{hqc-github,hqc2025spec}.
 \textsc{Kaiburr}'s classical/quantum Core-SVP security is as computed with
 the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}); FrodoKEM
 and HQC security categories are as claimed by their designers against NIST's

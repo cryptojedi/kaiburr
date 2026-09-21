@@ -3,7 +3,9 @@
 
 We provide three implementations of \textsc{Kaiburr}, each forked from an existing ML-KEM implementation: 
 a C implementation, a Jasmin implementation with machine-checked constant-time verification, and an assembly 
-implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC). The ACC reuses ML-KEM's 
+implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).
+\footnote{\url{https://github.com/pavona/pavona}}
+The ACC reuses ML-KEM's 
 arithmetic core and accelerates Keccak in hardware. This provides us with a complementary hardware-accelerated setting 
 where we can evaluate the cost of scaling the module rank $k$. As upstream, the C and Jasmin code each have a 
 portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
@@ -23,7 +25,7 @@ Everything else, including the ring, the modulus $q=3329$, the NTT and its const
 the Fujisaki--Okamoto transform, and the symmetric primitives, is left
 unchanged.
 
-These changes nonetheless affect more code than they touch directly. ML-KEM
+These changes nonetheless require more than purely mechanical changes to the code. ML-KEM
 implementations assume $k \le 4$ in several places, and the AVX2 packers
 assume a particular coefficient order. Most of the rewritten code follows from
 scaling $k$, which we describe first (Section~\ref{sec:impl:k}). We then cover
@@ -84,9 +86,7 @@ configuration.
 
 The noise family $f(t)$ maps $t$ uniformly random bits $a_1,\ldots,a_t$, read
 least-significant first, to the coefficient
-\[
-  (2a_t-1)\,\Bigl(1-a_1+2\prod_{i<t}a_i\Bigr).
-\]
+$$(2a_t-1)\,\Bigl(1-a_1+2\prod_{i<t}a_i\Bigr).$$
 All our implementations replace the centered binomial sampler with this
 expression, and the PRF output grows to $t\cdot n/8$ bytes per polynomial. The
 five variants differ in how they compute two parts of the expression: the
@@ -116,15 +116,14 @@ with a carry trick. Adding one to the low $t-1$ bits carries into bit $t-1$
 exactly when all of those bits are set, so a right shift gives us the product.
 The AVX2 kernels instead isolate the same bits and apply a vector compare,
 which gives the product directly as an all-ones or all-zero mask. In every
-vectorized and assembly variant, the sign is then applied separately and
+vectorized and assembly variant, we then apply the sign separately and
 without branching.
 
 Extracting $t$-bit fields from the PRF output is simplest for $t=8$ and $t=4$,
-which align with bytes and nibbles, and hardest for $t=6$. Both AVX2 kernels
-use an additional shuffle or gather to align the $6$-bit fields. The C kernel
-reads past the end of its input, so the PRF buffer carries $32$ bytes of
-trailing slack. ACC has no byte-shuffle instruction, so it instead chains
-\texttt{bn.rshi} shifts to move a $6$-bit window across register boundaries.
+which align with bytes and nibbles, and hardest for $t=6$, as explained in Section~\ref{sec:distribution}. Both AVX2 kernels use an extra 
+shuffle or gather for this step. The C kernel also reads slightly beyond the end of the PRF output, so the buffer includes 32 bytes of 
+trailing slack. ACC lacks a byte-shuffle instruction, so it instead uses a sequence of \texttt{bn.rshi} shifts to 
+move the 6-bit fields across register boundaries.
 
 Key generation needs $2k$ noise polynomials. The AVX2 code samples them in
 groups of four using the $4$-way Keccak.
@@ -172,8 +171,8 @@ The C implementation relies on the deterministic round-trip self-tests
 inherited from its upstream ML-KEM codebase. The Jasmin implementation runs
 the same kind of self-test, and additionally cross-checks its output against
 the C implementation, bit-for-bit, across all six builds. The ACC
-implementation is validated against a Python model, which subclasses
-\texttt{kyber-py}'s \texttt{ML\_KEM}, overrides the noise sampler, and
+implementation is validated against a Python model based on
+\texttt{kyber-py} \footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
 disables ciphertext compression. For each parameter set, the model generates
 known-answer tests (KATs) for key generation, encapsulation, and decapsulation
 (including implicit rejection), as well as round-trip tests.

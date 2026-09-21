@@ -1,82 +1,57 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 
-\paragraph{Terminology} Throughout the paper, we use \textsc{Kyber} and \textsc{ML-KEM} 
-interchangeably, except when distinguishing the original 
+\paragraph{Terminology} Throughout the paper, we use \textsc{Kyber} and \textsc{ML-KEM} interchangeably, except when distinguishing the original 
 \textsc{Kyber} submission from the standardized ML-KEM specification.
 
-\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let
-$R=\mathbb{Z}[X]/(X^n+1)$ and $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
-base ring, with coefficients represented centered in $(-q/2,q/2]$. The
-modulus satisfies $n \mid (q-1)$, which is what is needed for the
-number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial
-multiplication in $R_q$.
-A module rank $k$ determines the dimensions of the public matrix
-$\mathbf{A}\in R_q^{k\times k}$ and the secret/error vectors
-$\mathbf{s},\mathbf{e}\in R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
+\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $R=\mathbb{Z}[X]/(X^n+1)$ and $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
+base ring, with coefficients centered in $(-q/2,q/2]$. The modulus satisfies $n \mid (q-1)$, needed for the
+number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial multiplication in $R_q$. A module rank $k$ determines the dimensions of the public matrix
+$\mathbf{A}\in R_q^{k\times k}$ and the secret/error vectors $\mathbf{s},\mathbf{e}\in R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
 respectively~\cite{fips203}.
 
-\paragraph{Centered binomial noise.} \textsc{Kyber} samples secret and error
-coefficients from the centered binomial distribution $\mathrm{CBD}*\eta$. It draws
-$2\eta$ uniform bits $a_1,\dots,a*\eta,b_1,\dots,b_\eta$ and outputs
-$\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in ${-\eta,\dots,\eta}$
-with variance $\eta/2$. ML-KEM-768 and -1024 use $\mathrm{CBD}*2$ for both the
-secret and error terms; ML-KEM-512 uses $\mathrm{CBD}*3$ for the secret. We
+\paragraph{Centered binomial noise.} \textsc{Kyber} samples secret and error coefficients from the centered binomial distribution $\mathrm{CBD}*\eta$. It draws
+$2\eta$ uniform bits $a_1,\dots,a*\eta,b_1,\dots,b_\eta$ and gives $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in ${-\eta,\dots,\eta}$
+with variance $\eta/2$. ML-KEM-768 and -1024 use $\mathrm{CBD}*2$ for both the secret and error terms; ML-KEM-512 uses $\mathrm{CBD}*3$ for the secret. We
 write $\mathrm{CBD}*\eta(x)$ for its probability mass function. $\mathrm{CBD}*\eta$ is
-attractive because it can be sampled from raw PRF output in constant time
-without rejection, using only bit-counting and a subtraction.
+especially desirable because it can be sampled from raw PRF output in constant time
+without rejection and uses only bit-counting and a subtraction.
 
-\paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the
-decisional Module Learning With Errors (MLWE)
-problem~\cite{DCC:LanSte15} over $R_q$. An
-adversary must distinguish
-$(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where
-$\mathbf{A}\leftarrow R_q^{k\times k}$ and
-$\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
+\paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the decisional Module Learning With Errors (MLWE)
+problem (see \cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
+$(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{k\times k}$ and $\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
 pair in $R_q^{k\times k}\times R_q^k$. Increasing $k$ increases the dimension
-of the underlying lattice problem and is the main lever \textsc{Kyber} uses to
-raise its claimed security level~\cite{kyberround1}. Increasing the noise
+of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}. Increasing the noise
 variance also increases the estimated attack cost, which is why \textsc{Kaiburr}
-adjusts the noise distribution as $k$ increases.
+adjusts the noise distribution as $k$ increases in this work.
 
 
-\paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness following
-the standard core-SVP methodology used throughout the \textsc{Kyber}
-submission documents and re-implemented in the \textsc{Kyber} team's public
-estimator scripts, which we reuse unmodified. An adversary is modeled as
-running BKZ lattice reduction with block size $b$ against the primal (or
-dual) lattice attack. The cost of BKZ-$b$ is dominated by a single call to an
-SVP oracle in dimension $b$, whose cost is estimated as $2^{cb}$ operations
-for a model-dependent constant $c$ (e.g., $c\approx 0.292$ classically and
-$c\approx 0.265$ under a quantum sieve)~\cite{bkz2,estimator}. For a given
-parameter set, the scripts search over block size $b$ and sample count $m$
-for the cheapest attack that succeeds against the secret/error distribution's
-standard deviation, and report the resulting $\log_2$ cost as the
+\paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness following the standard core-SVP methodology used throughout the \textsc{Kyber}
+submission documents and re-implemented in the \textsc{Kyber} team's public estimator scripts. An adversary is modeled as
+running BKZ lattice reduction with block size $b$ against the primal (or dual) lattice attack. The cost of BKZ-$b$ is dominated by a single call to an
+SVP oracle in dimension $b$, whose cost is estimated as $2^{cb}$ operations for a constant $c$ (e.g., $c\approx 0.292$ classically and 
+$c\approx 0.265$ under a quantum sieve)~\cite{bkz2,estimator}. For a given parameter set, the scripts search over block size 
+$b$ and sample count $m$
+for the cheapest attack that succeeds against the secret/error distribution's standard deviation, and report the $\log_2$ cost as the 
 \emph{classical} and \emph{quantum} core-SVP security level. We report both
-throughout. These estimates are conservative lower bounds on attack cost
+throughout. We note that these estimates are conservative lower bounds on attack cost
 rather than concrete running times.
 
-\paragraph{Decryption failure.} Because \textsc{Kyber}'s underlying public-key
-encryption scheme is only approximately correct, decapsulation can fail. The
-accumulated LWE and (when present) rounding error can push a coefficient of
-the decrypted message past the threshold at $q/4$ that separates a $0$ bit
-from a $1$ bit. The decryption-failure probability of a parameter set is the
-probability, over the randomness of key generation and encryption, that at
-least one of the $n$ message-bit coefficients suffers such an error. It is
-computed by convolving the noise, secret, and (if applicable) compression
-rounding-error distributions coordinate-wise and taking the tail probability
-of the resulting distribution beyond $q/4$, scaled by $n$. NIST requires this
-probability to be bounded by $2^{-128}$ for ML-KEM's target security
-level~\cite{fips203}; we use the same bound throughout as the correctness
-target our parameter sets must satisfy.
+\paragraph{Decryption failure.} Because \textsc{Kyber}'s public-key encryption scheme is only approximately correct, decapsulation can fail. The
+accumulated LWE and rounding error can push a coefficient of the decrypted message past the threshold at $q/4$ that 
+separates a $0$ bit from a $1$ bit. We refer to the decryption-failure probability as the probability, over the randomness of key generation and 
+encryption, that at least one of the $n$ message-bit coefficients suffers such an error.
+\footnote{Even though a single decryption error may not sound catastrophic, it is well established that once an attacker finds a single failure, 
+they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting'' \cite{EC:DAnRosVir20}.}
+It is computed by convolving the noise, secret, and 
+(when present) compression rounding-error distributions coordinate-wise and taking the tail probability of the final 
+distribution beyond $q/4$, scaled by $n$. NIST requires this probability to be bounded by $2^{-128}$ for ML-KEM's target security
+level~\cite{fips203}; we use the same bound throughout as our correctness target.
 
-\paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key
-encryption scheme is lifted to an IND-CCA2-secure KEM
-via a variant of the Fujisaki--Okamoto (FO) transform~\cite{fips203}. The ciphertext produced by encryption
-consists of two components, $\mathbf{u}\in R_q^k$ and $v\in R_q$, which
+\paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key encryption scheme is lifted to an IND-CCA2-secure KEM using a tweaked variant of the 
+Fujisaki--Okamoto (FO) transform~\cite{fips203}. The ciphertext produced by encryption consists of two components, $\mathbf{u}\in R_q^k$ and $v\in R_q$, which
 ML-KEM serializes after \emph{compression}, where each coefficient is rounded.
-This trades a small increase in
-decryption-failure probability for a smaller ciphertext. The public key,
+This trades a small increase in decryption-failure probability for a smaller ciphertext. The public key,
 consisting of $\mathbf{A}$'s seed and $\mathbf{A}\mathbf{s}+\mathbf{e}$, is
 never compressed. Throughout the paper, ``ciphertext compression'' refers to
 this rounding of $\mathbf{u}$ and $v$. We remove this compression in
