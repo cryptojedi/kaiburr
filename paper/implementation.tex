@@ -25,7 +25,7 @@ Everything else, including the ring, the modulus $q=3329$, the NTT and its const
 the Fujisaki--Okamoto transform, and the symmetric primitives, is left
 unchanged.
 
-These changes nonetheless require more than purely mechanical changes to the code. ML-KEM
+These modifications nonetheless require more than just mechanical changes to the code. ML-KEM
 implementations assume $k \le 4$ in several places, and the AVX2 packers
 assume a particular coefficient order. Most of the rewritten code follows from
 scaling $k$, which we describe first (Section~\ref{sec:impl:k}). We then cover
@@ -37,18 +37,22 @@ implementation (Section~\ref{sec:impl:assurance}).
 \label{sec:impl:k}
 
 \paragraph{Accumulator overflow.}
-Larger values of $k$ can overflow the matrix-vector product. In the NTT
-domain, each polynomial of the product is a sum of $k$ pointwise products.
-ML-KEM accumulates this sum in an \texttt{int16\_t} and reduces it once at the
-end. Each Montgomery product has magnitude below $q$, so the sum fits whenever
-$kq < 2^{15}$, i.e.\ $k \le 9$. This holds for the standardized $k \le 4$, but
-fails for our large parameters $k=18$ or $k=24$.
+Larger values of $k$ can overflow the matrix-vector product. In the NTT domain, each polynomial of the 
+product is a sum of $k$ pointwise products, which
+ML-KEM accumulates in an \texttt{int16\_t} and reduces once at the end. In the C reference, the 
+C AVX2, and the Jasmin reference code, each output coefficient is the sum of two separately
+Montgomery-reduced products, so it is bounded by $2(q-1) = 6656$ rather than by
+$q$, and the sum of $k$ terms fits only while $2kq < 2^{15}$, i.e.\ $k \le 4$. On the other hand, the Jasmin AVX2 code accumulates 
+both products at $32$ bits and applies a single Montgomery reduction, so its terms are bounded by $q$ and it is safe to
+$k \le 9$; it also fails at $k=18$ and $k=24$.
 
-All three implementations therefore reduce the accumulator after every
-pointwise product. We apply this in all cases, including for $k=7$, where it is
-not strictly necessary. The cost is one extra reduction per term i.e. a Barrett
-reduction in the C and Jasmin code, and a modular addition against the
-\texttt{MOD} register on ACC.
+The C and Jasmin implementations therefore Barrett-reduce the accumulator after every pointwise product, at 
+a cost of one extra reduction per term.\footnote{We note that reducing after every term is more conservative than
+necessary, since a Barrett reduction leaves headroom for several further terms.
+We did not implement this, as reduction is not a significant part of the cost.}
+ACC needs no such change since it accumulates with \texttt{bn.addvm}, 
+a modular addition against the \texttt{MOD} register, which is set to $2q$ throughout the basemul. Its accumulator
+stays below $2q$ for every $k$, and the reduction is free.
 
 \paragraph{Matrix generation.}
 The AVX2 matrix sampler in ML-KEM hardcodes how the $k^2$
@@ -172,7 +176,7 @@ inherited from its upstream ML-KEM codebase. The Jasmin implementation runs
 the same kind of self-test, and additionally cross-checks its output against
 the C implementation, bit-for-bit, across all six builds. The ACC
 implementation is validated against a Python model based on
-\texttt{kyber-py} \footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
+\texttt{kyber-py}\footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
 disables ciphertext compression. For each parameter set, the model generates
 known-answer tests (KATs) for key generation, encapsulation, and decapsulation
 (including implicit rejection), as well as round-trip tests.
