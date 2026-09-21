@@ -45,8 +45,8 @@ encryption, that at least one of the $n$ message-bit coefficients suffers such a
 they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting'' \cite{EC:DAnRosVir20}.}
 It is computed by convolving the noise, secret, and 
 (when present) compression rounding-error distributions coordinate-wise and taking the tail probability of the final 
-distribution beyond $q/4$, scaled by $n$. NIST requires this probability to be bounded by $2^{-128}$ for ML-KEM's target security
-level~\cite{fips203}; we use the same bound throughout as our correctness target.
+distribution beyond $q/4$, scaled by $n$. A failure probability of $2^{-128}$ is considered a standard benchmark which aligns with the target
+of 128-bit security. We use the same bound throughout as our correctness target.
 
 \paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key encryption scheme is lifted to an IND-CCA2-secure KEM using a tweaked variant of the 
 Fujisaki--Okamoto (FO) transform~\cite{fips203}. The ciphertext produced by encryption consists of two components, $\mathbf{u}\in R_q^k$ and $v\in R_q$, which
