@@ -86,7 +86,7 @@ and HQC. More specifically, our contributions can be summarized as follows.
     consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
   \item \emph{We give a formally verified bound on Kaiburr's decryption-failure probability.} 
   Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show that removing ciphertext compression is what 
-  makes this bound provable rather than heuristic and close a gap that exists even for ML-KEM's own published bound 
+  makes this bound provable rather than heuristic and close a gap that exists for ML-KEM's published bound by removing compression 
   (Section~\ref{sec:verification}).
   \item \emph{We benchmark \textsc{Kaiburr} against FrodoKEM and HQC.} Across three Intel
     microarchitectures, we show that our AVX2 and Jasmin implementations run substantially faster than FrodoKEM-640 and 

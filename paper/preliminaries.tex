@@ -21,9 +21,7 @@ without rejection and uses only bit-counting and a subtraction.
 problem (see \cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
 $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{k\times k}$ and $\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
 pair in $R_q^{k\times k}\times R_q^k$. Increasing $k$ increases the dimension
-of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}. Increasing the noise
-variance also increases the estimated attack cost, which is why \textsc{Kaiburr}
-adjusts the noise distribution as $k$ increases in this work.
+of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
 
 
 \paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness following the standard core-SVP methodology used throughout the \textsc{Kyber}

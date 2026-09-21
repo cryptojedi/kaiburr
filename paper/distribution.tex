@@ -78,7 +78,7 @@ while keeping the $\pm1$ contribution fixed.
 
 \subsection{Selecting $t$}
 Since $t$ is the number of uniform bits per sample, vectorization-friendly
-values are natural, especially for AVX2 implementations (see Section~\ref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ sampler, so it serves
+values are natural, especially for AVX2 implementations (see Section~\ref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ distribution, so it serves
 as our anchor. Notice that $t=8$ consumes exactly one PRF byte per coefficient, meaning it
 admits one-byte-per-coefficient SIMD packing without cross-byte bit-splitting. This makes $t=8$ a very convenient choice.
 Our third choice, $t=6$, sits in the middle and does not share the byte-alignment of $t=4$ or $t=8$. Sampling four
@@ -91,7 +91,7 @@ FrodoKEM640.
 
 We use FrodoKEM-640 as our baseline for parameter selection and comparison throughout the paper because it is the 
 smallest standardized FrodoKEM parameter set and therefore imposes the tightest communication budget of 9,616 public-key 
-bytes and 9,700 ciphertext bytes. This gives us 
+bytes and 9,720 ciphertext bytes. This gives us 
 a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
 of a conservative lattice-based KEM.
 
