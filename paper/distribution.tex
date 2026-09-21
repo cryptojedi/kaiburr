@@ -3,7 +3,7 @@
 Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small, 
 increasing $k$ further is not possible without affecting correctness. Instead, one could reduce the failure probability at large $k$ by increasing the modulus $q$.
 We note that all variants of \textsc{Kyber} fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
-$q=3329$ is the small prime satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect, 
+$q=3329$ is a suitable small prime satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect, 
 which \textsc{Kyber} deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
 bandwidth spent by dropping public-key compression and co-tuned to balance ciphertext size, failure probability, and security. 
 
@@ -15,12 +15,12 @@ This is not to say that $k$ is the only parameter that can be modified. We focus
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
 constants, and the existing analysis framework. The module
 rank $k$ qualifies trivially. So does the error distribution. 
-Since the noise only affects the error term and does not interact with the arithmetic structure or the NTT, 
+Since the noise only affects the secret and error terms and does not interact with the arithmetic structure or the NTT, 
 it can be replaced without altering the core implementation. What it changes are only the MLWE hardness estimate and the 
 decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
 
 
-In this sense, the error distribution is another part of the scheme alongside $k$ that moves both security and corectness without changing what 
+In this sense, the error distribution is another part of the scheme alongside $k$ that moves both security and correctness without changing what 
 \textsc{Kyber} is at its core. This is the direction we pursue and where our main contribution lies.
 
 To scale past $k=7$, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving 
@@ -35,7 +35,7 @@ support as $\mathrm{CBD}_2$, defined by
   \Pr[\pm 1] = \tfrac14, \qquad
   \Pr[0] = \tfrac12 - 2^{-(t-1)}.
 \]
-The error at $\pm 1$ is fixed. The single parameter $t$ acts only on the
+The mass at $\pm 1$ is fixed. The single parameter $t$ acts only on the
 $\pm 2$ tail, thinning it geometrically. A sample is drawn from uniform
 bits $a_1,\dots,a_t$ as
 \[
@@ -55,7 +55,7 @@ $$
 $$
 exactly matching $\mathrm{CBD}_2$, the noise distribution used by ML-KEM-768 and -1024. As $t \to \infty$, the $\pm 2$ mass vanishes and $f(t)$ approaches $\mathrm{CBD}_1$.
 
-\subsection{Why thinning the tail is the efficient trade}
+\subsection{Finer control over the noise}
 A key property of $f(t)$ is that increasing $t$ reduces the probability of the $\pm2$ terms exponentially while leaving the $\pm1$ mass unchanged. As
 defined above, we have
 $$
@@ -67,7 +67,7 @@ So, $t$ is the tunable parameter for thinning the tail of
 the distribution without changing the bulk $\pm1$ terms. This gives finer control over the noise than the standard centered binomial
 choices. In particular, $\mathrm{CBD}_1$ and $\mathrm{CBD}_2$ have standard deviations $\sqrt{0.5}$ and $1$, 
 respectively, with no centered binomial parameter providing an intermediate distribution. As shown above, 
-$f(t)$ ranges from $\mathrm{CBD}_2$ toward $\mathrm{CBD}_1$ as $t$ increases, giving us finer control over the noise.
+$f(t)$ ranges from $\mathrm{CBD}_2$ toward $\mathrm{CBD}_1$ as $t$ increases.
 
 This finer control is useful as the module rank $k$ increases. Increasing
 $k$ increases the amount of error accumulated during encryption and
@@ -118,9 +118,9 @@ respectively, which follow from these choices
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
 sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the
 communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set,
-despite reaching Core-SVP security levels far beyond any of FrodoKEM's or
-HQC's parameter sets. Against HQC, whose ciphertexts are the most compact of the three families at matched security levels, kaiburr-1792 is still
-smaller than HQC-1 in combined pk+ct size.
+despite reaching Core-SVP security levels far beyond the NIST Level 5 target. kaiburr-1792 is smaller in
+combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
+a third the size of HQC-5 (21,658 bytes)
 
 \begin{table}[h]
 \centering
