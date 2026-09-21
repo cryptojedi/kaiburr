@@ -8,7 +8,9 @@ with \texttt{gcc-version-to-do}.
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 However, FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
-implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare. \footnote{Additionally,
+we do not report a direct cycle-count comparison with \cite{kyfrog}, the KEM most closest to \textsc{Kaiburr} in principle, since no
+public hand-optimized implementation of the scheme exists.}
 We report only FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially 
 more expensive than \textsc{Kaiburr}. The larger FrodoKEM parameter sets have even higher computational costs and 
 do not provide a more informative performance baseline.
