@@ -7,7 +7,7 @@ $q=3329$ is a suitable small prime satisfying the NTT-enabling condition $n \mid
 which \textsc{Kyber} deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
 bandwidth spent by dropping public-key compression and co-tuned to balance ciphertext size, failure probability, and security. 
 
-Since ML-KEM's standardization, highly optimized and high-assurance implementations have emerged across software and hardware platforms \cite{mlkem-native,fvk,SP:AOPPSS25}.
+Since ML-KEM's standardization, highly optimized and high-assurance implementations have emerged across software and hardware platforms~\cite{mlkem-native,fvk,SP:AOPPSS25}.
 Changing $q$ would mean not being able to reuse any existing optimized routines in software or hardware, which sacrifices an important engineering advantage 
 and results in a different scheme altogether. We choose not to change $q$ for this reason.
 

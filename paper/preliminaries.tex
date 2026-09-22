@@ -18,7 +18,7 @@ especially desirable because it can be sampled from raw PRF output in constant t
 without rejection and uses only bit-counting and a subtraction.
 
 \paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the decisional Module Learning With Errors (MLWE)
-problem (see \cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
+problem (see~\cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
 $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{k\times k}$ and $\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
 pair in $R_q^{k\times k}\times R_q^k$. Increasing $k$ increases the dimension
 of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
@@ -40,7 +40,7 @@ accumulated LWE and rounding error can push a coefficient of the decrypted messa
 separates a $0$ bit from a $1$ bit. We refer to the decryption-failure probability as the probability, over the randomness of key generation and 
 encryption, that at least one of the $n$ message-bit coefficients suffers such an error.
 \footnote{Even though a single decryption error may not sound catastrophic, it is well established that once an attacker finds a single failure, 
-they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting'' \cite{EC:DAnRosVir20}.}
+they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}
 It is computed by convolving the noise, secret, and 
 (when present) compression rounding-error distributions coordinate-wise and taking the tail probability of the final 
 distribution beyond $q/4$, scaled by $n$. A failure probability of $2^{-128}$ is considered a standard benchmark which aligns with the target

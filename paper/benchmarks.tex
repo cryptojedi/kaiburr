@@ -2,14 +2,13 @@
 \label{sec:benchmarks}
 
 We benchmark the C and Jasmin implementations on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with Hyper-Threading and Turbo 
-Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled 
-with \texttt{gcc-version-to-do}.
+Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled using \texttt{GCC 12.2.0}.
 
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 However, FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
-implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare. \footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog \cite{kyfrog}, the KEM closest to \textsc{Kaiburr} in principle, since no
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
+we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, the KEM closest to \textsc{Kaiburr} in principle, since no
 public hand-optimized implementation of the scheme exists.}
 We report only FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially 
 more expensive than \textsc{Kaiburr}. The larger FrodoKEM parameter sets have even higher computational costs and 
