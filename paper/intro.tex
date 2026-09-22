@@ -2,7 +2,8 @@
 \label{sec:introduction}
 After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204}, 
 and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively. Later in 2025, NIST selected an additional KEM, HQC, 
-for standardization in the fourth round. Unlike ML-KEM, which is based on module-LWE, HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) 
+for standardization in the fourth round~\cite{fourthstatus}. Unlike ML-KEM, which is based on module learning with errors (LWE), 
+HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) 
 problem~\cite{hqc2025spec}, providing
 diversity beyond lattice-based assumptions. This choice also marked a shift away from the lattice-based KEMs that dominated the 
 Round 3 submissions. Four of the schemes in the PQC Round
@@ -12,27 +13,27 @@ spectrum of algebraic structure, from FrodoKEM's unstructured LWE, through \text
 the prime-degree number fields of NTRU Prime. This spectrum reflects different design principles, commonly understood as
 structure vs. conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
 but is also seen as a potential attack surface, so conservative designs discard it entirely~\cite{takeofffrodo}. FrodoKEM, for example,
-is based on a more conservative hardness assumption of plain LWE, which is why bodies such as BSI, ENISA, and NLNCSA point
-to it for long-term confidentiality~\cite{frodokem-news}; FrodoKEM was also recently standardized by ISO~\cite{frodoiso}.
+is based on a more conservative hardness assumption of plain LWE, one of the reasons why it was
+recommended by bodies such as BSI, ENISA, and NLNCSA~\cite{frodokem-news} and recently standardized by ISO~\cite{frodoiso}.
 
 It is useful to separate the two notions of conservatism this framing bundles together as they concern two different
-(and today, entirely hypothetical) classes of attack. The first arises from the choice of hardness assumption. 
+classes of attack. The first arises from the choice of hardness assumption. 
 FrodoKEM rests on unstructured LWE to avoid a hypothetical structure break, an attack that would exploit the algebraic structure of 
 ring/module LWE but not apply directly to plain LWE.
 The second involves the security margin a scheme carries above its target level, which protects against advances 
 in the best known attacks today. This could include improved lattice reduction, dual attacks, or sharper cost models 
 that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM. Both of these 
-hedges are distinct, but not entirely independent: additional parameter margin can also increase the cost of a 
-hypothetical structural attack, while removing structure can affect the cost of known attacks. A third, orthogonal hedge is to change the hardness 
-assumption altogether, as HQC does by relying on QCSD instead of LWE. This provides cryptographic diversity, since an attack on one assumption 
-does not automatically imply an attack on the other. 
-However, diversity alone also does not imply that the schemes are cryptanalytically independent.
-Recent work has demonstrated connections between lattice and code-based cryptanalysis, including adaptations of lattice-sieving techniques to codes~\cite{EC:DEEK24}.
-Moreover, the quasi-cyclic structure of HQC has been noted to have important parallels with the ring and module structures used in
-structured lattice schemes~\cite{hqc-forum}.
-These approaches address different sources of unknowns, and it is impossible to predict which is more likely.
-
+hedges are distinct, but not entirely independent because additional parameter margin can also increase the cost of a 
+hypothetical structural attack, and removing algebraic structure can affect the cost of known attacks. A third, orthogonal hedge is to change the hardness 
+assumption altogether, as HQC does by relying on QCSD instead of LWE. This provides diversity, and at first glance, some additional assurance
+since a break of LWE could still leave HQC secure. However, this cryptanalytic independence is not absolute.
+Recent work has demonstrated connections between lattice and code-based cryptanalysis, including adaptations of lattice-sieving techniques to codes~\cite{EC:DEEK24}. 
+The quasi-cyclic structure of HQC has also been noted to have important parallels with the ring and module structures used in structured lattice schemes~\cite{hqc-forum}.
+These approaches address different (hypothetical) ways things could go wrong: unstructured LWE protects against attacks that exploit algebraic structure, 
+additional parameter margin protects against improvements to existing attacks, and QCSD provides diversity against a failure of the LWE assumption itself.
+At this time, it is impossible to predict which one of these breakthroughs is more likely to occur.
 Faced with this uncertainty, increasing the margin has been a historically standard response, provided that sufficient bandwidth is available.
+
 For computationally secure schemes,
 a concrete security estimate is the cost of the best attack known at the time, and such estimates evolve as cryptanalysis matures.
 For instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring 
@@ -55,8 +56,10 @@ considered practical enough for conservative deployments, a module scheme can sp
 a conservative security margin while retaining the efficiency advantages of NTT arithmetic. 
 
 Recent work has explored this high-margin regime from the perspective of unstructured LWE. KyFrog~\cite{kyfrog} increases the LWE dimension and
-adjusts the noise distribution to achieve substantially higher security estimates for much larger ciphertexts. This motivates the complementary question of 
-how much security margin a module KEM can achieve within the communication budget of a conservative unstructured LWE scheme, and at what computational cost. 
+adjusts the noise distribution to achieve substantially higher security estimates for much larger ciphertexts. This leaves open the corresponding question for module-based KEMs:
+
+\emph{How much additional security margin can their algebraic structure buy within the communication budget of an unstructured LWE scheme, and at what computational cost?}
+
 We answer this question with \textsc{Kaiburr}, a module KEM that scales ML-KEM's 
 module rank and introduces a generalized noise distribution to preserve correctness. We first characterize 
 the correctness and security limits of naively increasing ML-KEM's module rank, then introduce a noise family that 
