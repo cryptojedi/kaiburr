@@ -10,12 +10,12 @@ number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial multipl
 $\mathbf{A}\in R_q^{k\times k}$ and the secret/error vectors $\mathbf{s},\mathbf{e}\in R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
 respectively~\cite{fips203}.
 
-\paragraph{Centered binomial noise.} \textsc{Kyber} samples secret and error coefficients from the centered binomial distribution $\mathrm{CBD}*\eta$. It draws
-$2\eta$ uniform bits $a_1,\dots,a*\eta,b_1,\dots,b_\eta$ and gives $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in ${-\eta,\dots,\eta}$
-with variance $\eta/2$. ML-KEM-768 and -1024 use $\mathrm{CBD}*2$ for both the secret and error terms; ML-KEM-512 uses $\mathrm{CBD}*3$ for the secret. We
-write $\mathrm{CBD}*\eta(x)$ for its probability mass function. $\mathrm{CBD}*\eta$ is
-especially desirable because it can be sampled from raw PRF output in constant time
-without rejection and uses only bit-counting and a subtraction.
+\paragraph{Centered binomial noise.}
+\textsc{Kyber} samples secret and error coefficients from the centered binomial distribution $\mathrm{CBD}_\eta$. It draws $2\eta$ uniform bits
+$a_1,\dots,a_\eta,b_1,\dots,b_\eta$ and outputs $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in
+$\{-\eta,\ldots,\eta\}$ with variance $\eta/2$. ML-KEM-768 and -1024 use $\mathrm{CBD}_2$ for both the secret and error terms; ML-KEM-512 uses
+$\mathrm{CBD}_3$ for the secret. We write $\mathrm{CBD}_\eta(x)$ for the probability mass assigned to $x$ by this distribution. $\mathrm{CBD}_\eta$
+is especially desirable because it can be sampled from raw PRF output in constant time without rejection and uses only bit-counting and a subtraction.
 
 \paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the decisional Module Learning With Errors (MLWE)
 problem (see~\cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
