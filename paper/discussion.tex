@@ -10,7 +10,7 @@ quantum security, and is still roughly 2.5--3 times faster across all operations
 A gap this wide exemplifies the computational advantage of retaining module structure. It also shows that the bandwidth
 separating the two schemes can be spent in more than one way. Even the largest ML-KEM parameter set, ML-KEM-1024, sits 8,048
 public-key bytes and 8,152 ciphertext bytes below the smallest FrodoKEM parameter set, FrodoKEM-640. FrodoKEM spends that
-bandwidth on removing algebraic structure; \textsc{Kaiburr} spends it on module rank instead, and thereby reaches the
+bandwidth on \emph{removing} algebraic structure; \textsc{Kaiburr} spends it on \emph{retaining the structure} while reaching the
 security estimates above.
  
 Framed this way, our comparison also raises a practical question: if FrodoKEM-640's communication and computational costs are
@@ -18,10 +18,10 @@ already practical enough for conservative deployments, why not spend the same bu
 results suggest that this is a plausible alternative. Naively increasing the module rank does reach a correctness limit, but
 with \textsc{Kaiburr}'s modified noise distribution, the same bandwidth budget supports much larger module ranks, much higher
 security estimates, and up to three times the speed. What the comparison exposes, then, is a tradeoff between two forms of
-conservatism, which are removing algebraic structure, or retaining it and spending the resources on security margin instead.
+conservatism: removing algebraic structure, or retaining it and spending the resources on security margin instead.
  
 Against HQC the picture is different, since HQC hedges against a different unknown. On cost alone, however, \textsc{Kaiburr}
-compares favorably. kaiburr-1792 is smaller than HQC-1 in combined pk+ct size and
+compares favorably in terms of performance. kaiburr-1792 is smaller than HQC-1 in combined pk+ct size and
 faster than HQC-5 in every operation on both machines, despite security estimates far beyond the category-5 target. HQC's
 advantage is concentrated in key generation, where every HQC parameter set beats the corresponding \textsc{Kaiburr}
 parameter set by a wide margin. On efficiency grounds, therefore, the margin hedge and the diversity hedge are not in
@@ -36,17 +36,18 @@ symmetric throughput to rejection sampling. This is consistent with prior work b
 rejection sampling as a target for further hardware optimization~\cite{SP:AOPPSS25}; in our setting, its cost grows with $k$
 until it dominates matrix generation.
  
-As discussed in Section~\ref{sec:introduction}, \textsc{Kaiburr} only buys margin and not structural diversity. A
-hypothetical break of the module structure would still motivate an unstructured scheme such as FrodoKEM, so the two
+As discussed in Section~\ref{sec:introduction}, our work explicitly explores increasing the security margin as a hedge against improvements
+in the best known attacks today. By this, we mean that \textsc{Kaiburr} is and will remain vulnerable to structural attacks that exploit the 
+module structure, a class of attacks FrodoKEM is immune against. Such a breakthrough would still motivate an unstructured scheme, so the two
 approaches remain complementary rather than substitutes. In principle, they could even be combined in a hybrid
 construction, deriving the final key from both a high-margin module KEM such as \textsc{Kaiburr} and an unstructured LWE KEM
 such as FrodoKEM. Such a construction would combine the security-margin and structural-diversity hedges, at the cost of
 increased communication and computation.
  
-None of this is to argue that these security margins are currently necessary. Considering the relative stability of lattice
-cryptanalysis and security estimates in recent years, we do not expect improvements of the magnitude that would require such
-parameter sets in the near future. What we characterize instead is how much margin ML-KEM can accommodate and what obtaining
-it costs, so that the tradeoff is already understood if it ever becomes necessary.
+The purpose of designing and evaluating these high security variants of ML-KEM is not to argue that such security margins
+are currently necessary. Considering the relative stability of lattice cryptanalysis and security estimates in recent years, we do not expect improvements of
+the magnitude that would require such parameter sets in the near future. What we characterize instead is how much margin ML-KEM can 
+accommodate and it costs to obtain it, so that the tradeoff is already understood if it ever becomes necessary.
  
 Two directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an open question whether
 the same construction could extend the security margin of other module-LWE schemes, such as ML-DSA. On the implementation
