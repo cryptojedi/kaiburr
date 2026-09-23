@@ -205,6 +205,29 @@ HQC-5 & \cite{hqc-github} &
 \end{tabular}
 \end{table*}
 
+\textsc{Kaiburr} is faster than FrodoKEM-640 across every operation, parameter set, implementation, and
+machine. kaiburr-1792 is 21.5--28.1x faster, kaiburr-4608 is 4.2--5.3x faster, and kaiburr-6144 is
+2.5--3.1x faster than FrodoKEM-640.
+
+Comparing the \textsc{Kaiburr} C/asm and Jasmin implementations, the faster implementation depends on
+the microarchitecture. On the i7-8700K, Jasmin is faster than C/asm for every parameter set and every
+operation, by 5.4--13.1\%. On the i9-13900K, this reverses: C/asm is faster than Jasmin for every
+parameter set and every operation, by 9.2--14.0\%.
+
+Across parameter sets, C/asm KeyGen cycle counts scale by a factor of 5.22 (8700K) / 5.32 (13900K) from
+kaiburr-1792 ($k=7$) to kaiburr-4608 ($k=18$), and by a factor of 1.68 (8700K) / 1.69 (13900K) from
+kaiburr-4608 to kaiburr-6144 ($k=24$). For reference, $k$ itself grows by factors of 2.57 and 1.33 over
+these two steps, and $k^2$ by factors of 6.61 and 1.78.
+
+kaiburr-1792 is faster than HQC-5 in every operation on both machines: by 64.5--89.8\% on the 8700K
+(KeyGen, Enc, Dec) and 67.8--90.1\% on the 13900K. Comparing each \textsc{Kaiburr} parameter set to the
+HQC parameter set of the same index (kaiburr-1792/HQC-1, kaiburr-4608/HQC-3, kaiburr-6144/HQC-5), HQC's
+KeyGen is faster than the corresponding \textsc{Kaiburr} KeyGen by a factor of 1.73, 3.79, and 3.11 on
+the 8700K, and 1.68, 3.61, and 2.90 on the 13900K.
+
+Interquartile ranges are narrow relative to the medians across all measurements, typically within
+1--2\% of the median (e.g., 1.3--1.4\% for kaiburr-1792 C/asm on the 8700K).
+
 We additionally benchmark the ACC implementation described in Section~\ref{sec:implementation} on
 Pavona's cycle-accurate RTL simulator for the accelerator. Because the simulator is deterministic
 for a fixed random seed, repeated runs of the same test are identical in cycles. Therefore unlike the CPU benchmarks
