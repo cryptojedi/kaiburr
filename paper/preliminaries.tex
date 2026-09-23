@@ -18,7 +18,7 @@ $\mathrm{CBD}_3$ for the secret. We write $\mathrm{CBD}_\eta(x)$ for the probabi
 is especially desirable because it can be sampled from raw PRF output in constant time without rejection and uses only bit-counting and a subtraction.
 
 \paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the decisional Module Learning With Errors (MLWE)
-problem (see~\cite{DCC:LanSte15}) over $R_q$. An adversary must distinguish
+problem ~\cite{DCC:LanSte15} over $R_q$. An adversary must distinguish
 $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{k\times k}$ and $\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
 pair in $R_q^{k\times k}\times R_q^k$. Increasing $k$ increases the dimension
 of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
