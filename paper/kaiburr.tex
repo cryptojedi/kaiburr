@@ -1,35 +1,38 @@
-\documentclass[a4paper,runningheads]{llncs}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+%%%% IACR Transactions TEMPLATE %%%%
+
+%%%% 1. DOCUMENTCLASS %%%%
+\documentclass[journal=tosc,submission]{iacrtrans}
+%%%% NOTES:
+% - Change "journal=tosc" to "journal=tches" if needed
+% - Change "submission" to "final" for final version
+% - Add "spthm" for LNCS-like theorems
+
+
+%%%% 2. PACKAGES %%%%
+\input{packages}
+\input{macros}
+
 
 \newif\ifpublic
 \publictrue
 
-\input{packages}
-\input{macros}
-
-\title{Evaluating ML-KEM at (much) higher security levels}
-
 \ifpublic
 \author{
-  Swechchha Adhikari\inst{1} 
+  Swechchha Adhikari\inst{1}
   \and
-  Vadim Lyubashevsky\inst{2} 
+  Vadim Lyubashevsky\inst{2}
   \and
   Peter Schwabe\inst{3,4}
 }
 
 \institute{
-  Brigham Young University, Provo, USA\\
-  \email{\href{mailto:mail@swechchhaa.com}{mail@swechchhaa.com}}
-\and
-  IBM Research, Zurich, Switzerland\\
-  \email{\href{mailto:VAD@zurich.ibm.com}{VAD@zurich.ibm.com}}
-\and
-  Max Planck Institute for Security and Privacy, Bochum, Germany\\
-  \email{\href{mailto:peter@cryptojedi.org}{peter@cryptojedi.org}}
-\and
-  Radboud University, Nijmegen, The Netherlands\\
+  Brigham Young University, Provo, USA, \email{mail@swechchhaa.com}
+  \and
+  IBM Research, Zurich, Switzerland, \email{VAD@zurich.ibm.com}
+  \and
+  Max Planck Institute for Security and Privacy, Bochum, Germany, \email{peter@cryptojedi.org}
+  \and
+  Radboud University, Nijmegen, The Netherlands
 }
 
 \else
@@ -37,11 +40,18 @@
 \fi
 
 
+\title{Evaluating ML-KEM at (much) higher security levels}
+
+
 \begin{document}
 
 \maketitle
 
+
+\begin{abstract}
 \input{abstract}
+\end{abstract}
+
 
 \input{intro}
 \input{preliminaries}
@@ -55,6 +65,7 @@
 \ifpublic
 \input{acks}
 \fi
+
 
 \bibliographystyle{splncs04}
 \bibliography{cryptobib/abbrev2,cryptobib/abbrev3,cryptobib/crypto,kaiburr}
