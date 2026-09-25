@@ -1,14 +1,14 @@
 kaiburr.pdf: *.tex *.bib
-	lualatex kaiburr.tex
+	xelatex kaiburr.tex
 	bibtex kaiburr
-	lualatex kaiburr.tex
-	lualatex kaiburr.tex
+	xelatex kaiburr.tex
+	xelatex kaiburr.tex
 
 draft.pdf: draft.tex *.bib
-	lualatex draft.tex
-	lualatex draft.tex
+	xelatex draft.tex
+	xelatex draft.tex
 	-bibtex draft
-	lualatex draft.tex
+	xelatex draft.tex
 
 proposal.pdf:
 	$(MAKE) -C proposal proposal.pdf

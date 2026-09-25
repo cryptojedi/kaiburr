@@ -1,22 +1,10 @@
-%%%% IACR Transactions TEMPLATE %%%%
+\documentclass[journal=tosc,submission]{iacrtrans}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
-%%%% 1. DOCUMENTCLASS %%%%
-\documentclass[journal=tosc,submission,nohyperxmp]{iacrtrans}
-%%%% NOTES:
-% - Change "journal=tosc" to "journal=tches" if needed
-% - Change "submission" to "final" for final version
-% - Add "spthm" for LNCS-like theorems
-
-
-%%%% 2. PACKAGES %%%%
 \input{packages}
 \input{macros}
 
-
-\newif\ifpublic
-\publictrue
-
-\ifpublic
 \author{
   Swechchha Adhikari\inst{1}
   \and
@@ -35,23 +23,14 @@
   Radboud University, Nijmegen, The Netherlands
 }
 
-\else
-\author{Anonymized for Submission}
-\fi
-
-
-\title{Evaluating ML-KEM at (much) higher security levels}
+\title{Kaiburr: ML-KEM at (much) higher security levels}
 
 
 \begin{document}
 
 \maketitle
 
-
-\begin{abstract}
 \input{abstract}
-\end{abstract}
-
 
 \input{intro}
 \input{preliminaries}
@@ -62,12 +41,15 @@
 \input{benchmarks}
 \input{discussion}
 
-\ifpublic
+\makeatletter
+\if@submission
+\else
 \input{acks}
 \fi
+\makeatother
 
 
-\bibliographystyle{splncs04}
+\bibliographystyle{alpha}
 \bibliography{cryptobib/abbrev2,cryptobib/abbrev3,cryptobib/crypto,kaiburr}
 
 \end{document}
