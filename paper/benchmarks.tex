@@ -32,6 +32,7 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 
 \begin{table*}[t]
 \centering
+\small
 \caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations. 
 The reference implementations are, on average, TBD percent slower for \textsc{Kaiburr} C and TBD percent
  slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
@@ -91,6 +92,7 @@ TBD \\
 
 \begin{table*}[t]
 \centering
+\small
 \caption{Benchmark results in cycles on an Intel Core i7-8700K. We report only the AVX2 implementations. 
 The reference implementations are, on average, 540.8 percent slower for \textsc{Kaiburr} C and 653.8 percent
  slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
@@ -100,55 +102,56 @@ The reference implementations are, on average, 540.8 percent slower for \textsc{
 KEM & Impl. & KeyGen & Enc & Dec \\
 \midrule
 kaiburr-1792 & C/asm &
-156156,(155579--157778) &
-159719,(159235--161416) &
-173015,(172106--174398) \\
+\makecell[r]{156156\\(155579--157778)} &
+\makecell[r]{159719\\(159235--161416)} &
+\makecell[r]{173015\\(172106--174398)} \\
 kaiburr-1792 & Jasmin &
-143857,(143402--144559) &
-144987,(144656--145831) &
-150435,(149704--151098) \\
+\makecell[r]{143857\\(143402--144559)} &
+\makecell[r]{144987\\(144656--145831)} &
+\makecell[r]{150435\\(149704--151098)} \\
 \addlinespace
 kaiburr-4608 & C/asm &
-814685,(812084--817870) &
-821346,(818719--824533) &
-848608,(845755--852000) \\
+\makecell[r]{814685\\(812084--817870)} &
+\makecell[r]{821346\\(818719--824533)} &
+\makecell[r]{848608\\(845755--852000)} \\
 kaiburr-4608 & Jasmin &
-762767,(761322--764429) &
-765475,(764033--767156) &
-781079,(779648--782776) \\
+\makecell[r]{762767\\(761322--764429)} &
+\makecell[r]{765475\\(764033--767156)} &
+\makecell[r]{781079\\(779648--782776)} \\
 \addlinespace
 kaiburr-6144 & C/asm &
-1367405,(1363808--1371615) &
-1376530,(1372953--1380951) &
-1411130,(1407567--1415488) \\
+\makecell[r]{1367405\\(1363808--1371615)} &
+\makecell[r]{1376530\\(1372953--1380951)} &
+\makecell[r]{1411130\\(1407567--1415488)} \\
 kaiburr-6144 & Jasmin &
-1293036,(1291067--1295424) &
-1295674,(1293713--1298070) &
-1313175,(1311174--1315640) \\
+\makecell[r]{1293036\\(1291067--1295424)} &
+\makecell[r]{1295674\\(1293713--1298070)} &
+\makecell[r]{1313175\\(1311174--1315640)} \\
 \midrule
 FrodoKEM-640 & \cite{frodoKEM-github} &
-3851932,(3851203--3859217) &
-4067952,(4067235--4075634) &
-4044333,(4043732--4053215) \\
+\makecell[r]{3851932\\(3851203--3859217)} &
+\makecell[r]{4067952\\(4067235--4075634)} &
+\makecell[r]{4044333\\(4043732--4053215)} \\
 \midrule
 HQC-1 & \cite{hqc-github} &
-90229,(90070--90974) &
-172063,(171888--172892) &
-404274,(404018--404596) \\
+\makecell[r]{90229\\(90070--90974)} &
+\makecell[r]{172063\\(171888--172892)} &
+\makecell[r]{404274\\(404018--404596)} \\
 HQC-3 & \cite{hqc-github} &
-215176,(214956--215857) &
-404687,(404324--405517) &
-857576,(857048--858323) \\
+\makecell[r]{215176\\(214956--215857)} &
+\makecell[r]{404687\\(404324--405517)} &
+\makecell[r]{857576\\(857048--858323)} \\
 HQC-5 & \cite{hqc-github} &
-439786,(439458--440546) &
-838353,(837433--839669) &
-1698485,(1697851--1699766) \\
+\makecell[r]{439786\\(439458--440546)} &
+\makecell[r]{838353\\(837433--839669)} &
+\makecell[r]{1698485\\(1697851--1699766)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \begin{table*}[t]
 \centering
+\small
 \caption{Benchmark results in cycles on an Intel Core i9-13900K. We report only the AVX2 implementations. The reference implementations are, 
 on average, 498.2 percent slower for \textsc{Kaiburr} C and 557.8 percent slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. 
 Values are reported as median (Q1--Q3).}
@@ -158,49 +161,49 @@ Values are reported as median (Q1--Q3).}
 KEM & Impl. & KeyGen & Enc & Dec \\
 \midrule
 kaiburr-1792 & C/asm &
-121724,(120872--122872) &
-125204,(124310--126302) &
-134816,(134058--136082) \\
+\makecell[r]{121724\\(120872--122872)} &
+\makecell[r]{125204\\(124310--126302)} &
+\makecell[r]{134816\\(134058--136082)} \\
 kaiburr-1792 & Jasmin &
-141364,(140882--142142) &
-143058,(142620--143842) &
-148502,(147944--149212) \\
+\makecell[r]{141364\\(140882--142142)} &
+\makecell[r]{143058\\(142620--143842)} &
+\makecell[r]{148502\\(147944--149212)} \\
 \addlinespace
 kaiburr-4608 & C/asm &
-648064,(645678--650674) &
-654366,(651728--657234) &
-676840,(674446--679554) \\
+\makecell[r]{648064\\(645678--650674)} &
+\makecell[r]{654366\\(651728--657234)} &
+\makecell[r]{676840\\(674446--679554)} \\
 kaiburr-4608 & Jasmin &
-747376,(745792--749120) &
-749472,(747868--751250) &
-764490,(762874--766280) \\
+\makecell[r]{747376\\(745792--749120)} &
+\makecell[r]{749472\\(747868--751250)} &
+\makecell[r]{764490\\(762874--766280)} \\
 \addlinespace
 kaiburr-6144 & C/asm &
-1095102,(1091646--1098922) &
-1097334,(1093566--1101348) &
-1127588,(1124030--1131712) \\
+\makecell[r]{1095102\\(1091646--1098922)} &
+\makecell[r]{1097334\\(1093566--1101348)} &
+\makecell[r]{1127588\\(1124030--1131712)} \\
 kaiburr-6144 & Jasmin &
-1272644,(1270318--1275208) &
-1272480,(1270246--1274906) &
-1285796,(1283420--1288436) \\
+\makecell[r]{1272644\\(1270318--1275208)} &
+\makecell[r]{1272480\\(1270246--1274906)} &
+\makecell[r]{1285796\\(1283420--1288436)} \\
 \midrule
 FrodoKEM-640 & \cite{frodoKEM-github} &
-3112706,(3107260--3124744) &
-3239826,(3233936--3249204) &
-3195408,(3187982--3208002) \\
+\makecell[r]{3112706\\(3107260--3124744)} &
+\makecell[r]{3239826\\(3233936--3249204)} &
+\makecell[r]{3195408\\(3187982--3208002)} \\
 \midrule
 HQC-1 & \cite{hqc-github} &
-72578,(71902--73220) &
-139896,(138680--141026) &
-312692,(310798--314622) \\
+\makecell[r]{72578\\(71902--73220)} &
+\makecell[r]{139896\\(138680--141026)} &
+\makecell[r]{312692\\(310798--314622)} \\
 HQC-3 & \cite{hqc-github} &
-179494,(178058--180668) &
-332806,(329936--335788) &
-668334,(663984--672664) \\
+\makecell[r]{179494\\(178058--180668)} &
+\makecell[r]{332806\\(329936--335788)} &
+\makecell[r]{668334\\(663984--672664)} \\
 HQC-5 & \cite{hqc-github} &
-377670,(376224--380158) &
-705038,(700890--709262) &
-1357572,(1350500--1364182) \\
+\makecell[r]{377670\\(376224--380158)} &
+\makecell[r]{705038\\(700890--709262)} &
+\makecell[r]{1357572\\(1350500--1364182)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
