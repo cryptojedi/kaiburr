@@ -1,8 +1,7 @@
 # Kaiburr
 
-**Evaluating ML-KEM at (much) higher security levels.**
-
-See each directory for its own `README.md` with details.
+This repository contains all code and supplementary materials for the paper "Kaiburr: ML-KEM at (much) higher
+security levels." See each directory for its own `README.md` with details.
 
 ## Cloning
 
