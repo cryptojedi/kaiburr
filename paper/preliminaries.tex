@@ -1,9 +1,6 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 
-\paragraph{Terminology} Throughout the paper, we use \textsc{Kyber} and \textsc{ML-KEM} interchangeably, except when distinguishing the original 
-\textsc{Kyber} submission from the standardized ML-KEM specification.
-
 \paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $R=\mathbb{Z}[X]/(X^n+1)$ and $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
 base ring, with coefficients centered in $(-q/2,q/2]$. The modulus satisfies $n \mid (q-1)$, needed for the
 number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial multiplication in $R_q$. A module rank $k$ determines the dimensions of the public matrix

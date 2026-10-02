@@ -33,9 +33,10 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 \begin{table*}[t]
 \centering
 \small
-\caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations. 
+\caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations.
 The reference implementations are, on average, TBD percent slower for \textsc{Kaiburr} C and TBD percent
- slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+ slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).
+ \textcolor{kaiburrcolor}{Green} rows are \textsc{Kaiburr}.}
 \label{tab:6700k}
 \begin{tabular}{llrrr}
 \toprule
@@ -95,7 +96,8 @@ TBD \\
 \small
 \caption{Benchmark results in cycles on an Intel Core i7-8700K. We report only the AVX2 implementations. 
 The reference implementations are, on average, 540.8 percent slower for \textsc{Kaiburr} C and 653.8 percent
- slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+ slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).
+ \textcolor{kaiburrcolor}{Green} rows are \textsc{Kaiburr}.}
 \label{tab:8700k}
 \begin{tabular}{llrrr}
 \toprule
@@ -153,8 +155,8 @@ HQC-5 & \cite{hqc-github} &
 \centering
 \small
 \caption{Benchmark results in cycles on an Intel Core i9-13900K. We report only the AVX2 implementations. The reference implementations are, 
-on average, 498.2 percent slower for \textsc{Kaiburr} C and 557.8 percent slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. 
-Values are reported as median (Q1--Q3).}
+on average, 498.2 percent slower for \textsc{Kaiburr} C and 557.8 percent slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean.
+Values are reported as median (Q1--Q3). \textcolor{kaiburrcolor}{Green} rows are \textsc{Kaiburr}.}
 \label{tab:13900k}
 \begin{tabular}{llrrr}
 \toprule
@@ -265,23 +267,25 @@ consuming 73--84\% of total cycles.
 \begin{table}[t]
 \centering
 \caption{The three functions with the largest share of total cycles in the ACC roundtrip
-benchmark, as a percentage of total cycles for that parameter set.}
+benchmark, as a percentage of total cycles for that parameter set. Cell shading (\#1 column)
+is scaled to the largest value in the table (83.56\%), on the same heat scale as
+Table~\ref{tab:acc-keccak}.}
 \label{tab:acc-profile}
 \begin{tabular}{llll}
 \toprule
 KEM & \#1 & \#2 & \#3 \\
 \midrule
-kaiburr-1792 & \texttt{poly\_gen\_matrix} (72.60\%) & \texttt{basemul\_acc} (8.08\%) & \texttt{f4} (6.26\%) \\
-kaiburr-4608 & \texttt{poly\_gen\_matrix} (80.78\%) & \texttt{basemul\_acc} (9.23\%) & \texttt{f6} (3.96\%) \\
-kaiburr-6144 & \texttt{poly\_gen\_matrix} (83.56\%) & \texttt{basemul\_acc} (9.57\%) & \texttt{f8} (2.05\%) \\
+kaiburr-1792 & \cellcolor{heatmid!85!white}\textcolor{white}{\texttt{poly\_gen\_matrix} (72.60\%)} & \texttt{basemul\_acc} (8.08\%) & \texttt{f4} (6.26\%) \\
+kaiburr-4608 & \cellcolor{heatdark!90!white}\textcolor{white}{\texttt{poly\_gen\_matrix} (80.78\%)} & \texttt{basemul\_acc} (9.23\%) & \texttt{f6} (3.96\%) \\
+kaiburr-6144 & \cellcolor{heatdark}\textcolor{white}{\texttt{poly\_gen\_matrix} (83.56\%)} & \texttt{basemul\_acc} (9.57\%) & \texttt{f8} (2.05\%) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \texttt{poly\_gen\_matrix} expands the public seed into the uniformly random matrix
 $\mathbf{A}$ via rejection sampling on SHAKE-128 output. Since it dominates the ACC cycle counts,
-we break down its costs further. The simulator additionally reports, per function, a cycle count broken down by
-individual instruction. For kaiburr-6144, this instruction-level breakdown of \texttt{poly\_gen\_matrix} shows that
+we break down its costs further using the simulator's per-instruction execution statistics.
+For kaiburr-6144, this instruction-level breakdown of \texttt{poly\_gen\_matrix} shows that
 rejection sampling is responsible for the vast majority of its
 cost. Only 464{,}022 of its 6{,}235{,}212 cycles (7.4\%, or 6.2\% of the entire benchmark) are
 spent stalled on \texttt{bn.wsrr} waiting for the hardware SHAKE-128 core to produce the next
@@ -290,45 +294,44 @@ of \texttt{poly\_gen\_matrix}'s cycles (69.9\% of the whole benchmark) are retir
 instructions (\texttt{bn.and}, \texttt{bn.cmp}, and \texttt{bn.sel}) performing the
 mask/compare/accumulate operations of rejection sampling, and a further 8.5\% (7.1\% of the whole
 benchmark) comes from branch overhead (\texttt{bne} and \texttt{beq}) in the accept/reject loop.
-Table~\ref{tab:acc-keccak} summarizes this breakdown.
-
-\begin{table}[t]
-\centering
-\caption{Cycle breakdown of \texttt{poly\_gen\_matrix} for kaiburr-6144, obtained from the
-simulator's per-instruction execution statistics. Percentages are of the whole kaiburr-6144
-roundtrip benchmark (7{,}461{,}727 cycles).}
-\label{tab:acc-keccak}
-\begin{tabular}{lrr}
-\toprule
-Source & Cycles & \% of benchmark \\
-\midrule
-Rejection sampling & 5{,}212{,}503 & 69.9\% \\
-Branch overhead & 529{,}311 & 7.1\% \\
-Keccak wait & 464{,}022 & 6.2\% \\
-Memory latency & 29{,}376 & 0.4\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 We repeated this instruction-level breakdown for kaiburr-1792 and kaiburr-4608 and found the same
 pattern. The hardware-Keccak-wait share stays flat (5.5\% and 6.0\% of each
 benchmark's total cycles, respectively, versus 6.2\% for kaiburr-6144), while the rejection-sampling
 arithmetic share grows with the parameter set (60.6\% and 67.6\%, versus 69.9\% for kaiburr-6144).
-Table~\ref{tab:acc-keccak-all} gives the full comparison.
+Table~\ref{tab:acc-keccak} gives the full comparison.
 
 \begin{table}[t]
 \centering
 \caption{Cycle breakdown of \texttt{poly\_gen\_matrix} across parameter sets, as a percentage of
-each variant's total roundtrip benchmark cycles.}
-\label{tab:acc-keccak-all}
+each variant's total roundtrip benchmark cycles, obtained from the simulator's per-instruction
+execution statistics. Cell shading is scaled to the largest value in the table (69.9\%).}
+\label{tab:acc-keccak}
+
 \begin{tabular}{lrrr}
 \toprule
 Source & kaiburr-1792 & kaiburr-4608 & kaiburr-6144 \\
 \midrule
-Rejection sampling & 60.6\% & 67.6\% & 69.9\% \\
-Branch overhead & 6.2\% & 6.8\% & 7.1\% \\
-Keccak wait & 5.5\% & 6.0\% & 6.2\% \\
-Memory latency & 0.3\% & 0.4\% & 0.4\% \\
+
+Rejection sampling &
+\cellcolor{heatmid!85!white}\textcolor{white}{60.6\%} &
+\cellcolor{heatdark!90!white}\textcolor{white}{67.6\%} &
+\cellcolor{heatdark}\textcolor{white}{69.9\%} \\
+
+Branch overhead &
+\cellcolor{heatpale}6.2\% &
+\cellcolor{heatpale}6.8\% &
+\cellcolor{heatlight}7.1\% \\
+
+Keccak wait &
+\cellcolor{heatpale}5.5\% &
+\cellcolor{heatpale}6.0\% &
+\cellcolor{heatpale}6.2\% \\
+
+Memory latency &
+\cellcolor{heatpale}0.3\% &
+\cellcolor{heatpale}0.4\% &
+\cellcolor{heatpale}0.4\% \\
+
 \bottomrule
 \end{tabular}
 \end{table}

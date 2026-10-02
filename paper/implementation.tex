@@ -50,7 +50,7 @@ The C and Jasmin implementations therefore Barrett-reduce the accumulator after 
 a cost of one extra reduction per term.\footnote{We note that reducing after every term is more conservative than
 necessary, since a Barrett reduction leaves headroom for several further terms.
 We did not implement this, as reduction is not a significant part of the cost.}
-ACC needs no such change since it accumulates with \texttt{bn.addvm}, 
+ACC needs no such change since it accumulates with \textcolor{hotpink}{\texttt{bn.addvm}},
 a modular addition against the \texttt{MOD} register, which is set to $2q$ throughout the basemul. Its accumulator
 stays below $2q$ for every $k$, and the reduction is free.
 
@@ -126,7 +126,7 @@ without branching.
 Extracting $t$-bit fields from the PRF output is simplest for $t=8$ and $t=4$,
 which align with bytes and nibbles, and hardest for $t=6$, as explained in Section~\ref{sec:distribution}. Both AVX2 kernels use an extra 
 shuffle or gather for this step. The C kernel also reads slightly beyond the end of the PRF output, so the buffer includes 32 bytes of 
-trailing slack. ACC lacks a byte-shuffle instruction, so it instead uses a sequence of \texttt{bn.rshi} shifts to 
+trailing slack. ACC lacks a byte-shuffle instruction, so it instead uses a sequence of \textcolor{hotpink}{\texttt{bn.rshi}} shifts to
 move the 6-bit fields across register boundaries.
 
 Key generation needs $2k$ noise polynomials. The AVX2 code samples them in
