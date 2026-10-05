@@ -1,6 +1,6 @@
 \section{Warmup: Just changing $k$}
 \label{sec:warmup}
-The main mechanism to increase bit security in \textsc{Kyber} is to raise
+The main mechanism to increase the security margin in \textsc{Kyber} is to raise
 the module rank $k$~\cite{kyberround1}. Fixing the ML-KEM base ring, noise distribution, and
 modulus, and varying only $k$, we measure the decryption-failure
 probability using the \textsc{Kyber} team's scripts~\cite{kyber-scripts}.
@@ -14,7 +14,7 @@ sacrificing correctness.
 
 These values are computed without ciphertext compression. This matches
 \textsc{Kaiburr}, which removes compression (Section~\ref{sec:impl:compression}),
-so the numbers are exact for our setting. If the compression from \textsc{Kyber} is retained, the rounding 
+so the numbers are exact for our setting. If the compression from \textsc{Kyber} is kept, the rounding 
 applied to $\mathbf{u}$ and
 $v$ introduces additional error, which would increase the true
 failure probability, and the correctness limit on $k$ would be reached even earlier.

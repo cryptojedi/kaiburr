@@ -30,30 +30,27 @@ centered binomial in the first place. This requirement rules out simply using a 
 \subsection{A parameterized noise distribution}
 We introduce a one-parameter family $f(t)$ on $\{-2,-1,0,1,2\}$, the same
 support as $\mathrm{CBD}_2$, defined by
-\[
+$$
   \Pr[\pm 2] = 2^{-t}, \qquad
   \Pr[\pm 1] = \tfrac14, \qquad
   \Pr[0] = \tfrac12 - 2^{-(t-1)}.
-\]
+$$
 The mass at $\pm 1$ is fixed. The single parameter $t$ acts only on the
 $\pm 2$ tail, thinning it geometrically. A sample is drawn from uniform
-bits $a_1,\dots,a_t$ as
-\[
-  x = (2a_t - 1)\Bigl(1 - a_1 + 2\textstyle\prod_{i=1}^{t-1} a_i\Bigr),
-\]
+bits $a_1,\dots,a_t$ as $$x = (2a_t - 1)\Bigl(1 - a_1 + 2\textstyle\prod_{i=1}^{t-1} a_i\Bigr),$$
 which is branchless and therefore samples in constant time; we
 machine-check both constant-time (CT) and speculative constant-time (SCT)
 in Jasmin~\cite{CCS:ABBBGL17} (see Section~\ref{sec:implementation}). The standard deviation
 $\sigma(t) = \sqrt{0.5 + 2^{3-t}}$ decreases from $1$ at $t=4$ toward
 $\sqrt{0.5}$ as $t$ grows.
 
-Crucially, $f(t)$ generalizes \textsc{Kyber}'s own noise distribution. At $t=4$, the probabilities become
+We note that $f(t)$ generalizes \textsc{Kyber}'s own noise distribution. At $t=4$, the probabilities become
 $$
   \Pr[\pm 2] = \frac{1}{16}, \qquad
   \Pr[\pm 1] = \frac14, \qquad
   \Pr[0] = \frac38,
-$$
-exactly matching $\mathrm{CBD}_2$, the noise distribution used by ML-KEM-768 and -1024. As $t \to \infty$, the $\pm 2$ mass vanishes and $f(t)$ approaches $\mathrm{CBD}_1$.
+$$ which matches $\mathrm{CBD}_2$, the noise distribution used by ML-KEM-768 and -1024. As $t \to \infty$, the $\pm 2$ 
+mass vanishes and $f(t)$ approaches $\mathrm{CBD}_1$.
 
 \subsection{Finer control over the noise}
 A key property of $f(t)$ is that increasing $t$ reduces the probability of the $\pm2$ terms exponentially while leaving the $\pm1$ mass unchanged. As
@@ -90,7 +87,7 @@ For each choice of $t$, we pick the highest $k$ satisfying the failure probabili
 FrodoKEM640. 
 
 We use FrodoKEM-640 as our baseline for parameter selection and comparison throughout the paper because it is the 
-smallest standardized FrodoKEM parameter set and therefore imposes the tightest communication budget of 9,616 public-key 
+smallest standardized FrodoKEM parameter set and hence imposes the tightest communication budget of 9,616 public-key 
 bytes and 9,720 ciphertext bytes. This gives us 
 a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
 of a conservative lattice-based KEM.
@@ -121,11 +118,10 @@ finite cost for any attack, so for these parameter sets we report only the Core-
 \sia{I don't know why the estimator returns $\infty$ at $k=18,24$.}
 \sia{I think I do. TODO: Rerun the estimator by increasing the max block size.}
 
-\subsection{Sizes in context}
+\subsection{Sizes}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
 sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the
-communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set,
-despite reaching Core-SVP security levels far beyond the NIST Level 5 target. kaiburr-1792 is smaller in
+communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set. kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
 a third the size of HQC-5 (21,658 bytes)
 
@@ -165,8 +161,7 @@ $\Pr[0]=\tfrac12$, $\Pr[\pm 2]=0$, and minimal variance
 $\sigma^2=0.5$. At $n=256$ and $q=3329$, the failure probability crosses
 $2^{-128}$ at $k=30$, so $k=29$ is the largest rank that $f(t)$ can
 support (Table~\ref{tab:theoretical-ceiling}). Reaching higher
-security levels would require another change, such as modifying $q$, $n$, or the noise family itself, 
-moving beyond the \textsc{Kyber} structure we seek to preserve.
+security levels would require another change, such as changing the noise family or modifying $q$ or $n$.
 
 \begin{table}[h]
 \centering
