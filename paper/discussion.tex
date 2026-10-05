@@ -27,9 +27,9 @@ advantage is concentrated in key generation, where every HQC parameter set beats
 parameter set by a wide margin. On efficiency grounds, therefore, the margin hedge and the diversity hedge are not in
 tension, and a deployment that wants both can afford both.
  
-Scaling the module rank also changes where the time goes, and our ACC results show how. Matrix generation accounts for
+Scaling the module rank also changes where the cost goes, and our ACC results demonstrate this concretely. Matrix generation accounts for
 73--84\% of total cycles, and its cost grows quadratically with $k$, since a $k \times k$ matrix requires $k^2$ sampled
-polynomials. Hardware SHAKE-128 acceleration does not remove this bottleneck since the core waits on the accelerator for only
+polynomials. Hardware SHAKE-128 acceleration does not remove this bottleneck because the core waits on the accelerator for only
 5.5--6.2\% of total cycles, with little change across parameter sets. The software rejection-sampling loop grows to
 69.9\% of total cycles for kaiburr-6144. For an accelerated implementation, the optimization target then moves from
 symmetric throughput to rejection sampling. This is consistent with prior work by Abdulrahman et al., who also identify
@@ -48,8 +48,12 @@ The purpose of designing and evaluating these high security variants of ML-KEM i
 are currently necessary. Considering the relative stability of lattice cryptanalysis and security estimates in recent years, we do not expect improvements of
 the magnitude that would require such parameter sets in the near future. What we characterize instead is how much margin ML-KEM can 
 accommodate and it costs to obtain it, so that the tradeoff is already understood if it ever becomes necessary.
- 
+
+Our work also has several other limitations which we acknowledge here.
+\sia{TODO:add limitations here.}
+
 Two directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an open question whether
 the same construction could extend the security margin of other module-LWE schemes, such as ML-DSA. On the implementation
 side, our ACC results leave dedicated hardware support for rejection sampling as the natural next step, since that is what
-scaling $k$ makes the bottleneck.
+scaling $k$ makes the bottleneck. It also remains open whether scaling beyond $k=29$ is possible by modifying
+other parameters in ML-KEM while still preserving its essence. 

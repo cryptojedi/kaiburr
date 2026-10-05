@@ -29,9 +29,7 @@ property of the noise family $f(t)$ the proof uses is that it is ``good'' in the
 Since the rounding terms vanish, the noise
 collapses to $\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 + e_2$. As a result, every coefficient is identically distributed independent of its
 index, and the union bound becomes a single factor of $256$ rather than a sum of $256$ distinct terms. Moreover, no additional
-MLWE term is needed. We note the resulting expression is in fact simpler than the one obtained for FrodoKEM, since
-$q=3329$ is prime, so $\mathbb{Z}_q$ is a field and goodness is preserved through inner products with only $\oplus$
-required, whereas FrodoKEM's power-of-two modulus forces $\ominus$ to be retained.
+MLWE term is needed.
 
 \paragraph{Computing the bound.}
 The tail probability is computed outside EasyCrypt by OCaml code that mirrors the
@@ -55,10 +53,10 @@ alongside the failure probability obtained for each parameter set from the \text
   \end{tabular}
 \end{table}
 
-To put the numbers in context: for ML-KEM-768, Barbosa et al.~\cite{BarbosaKLSS25}
+To put the numbers in context, for ML-KEM-768, Barbosa et al.~\cite{BarbosaKLSS25}
 compute a heuristic bound of $2^{-164}$, while the best bound they can
 justify against the definition of correctness is only
-$2^{-80}$, a gap of roughly 84 bits. For \textsc{Kaiburr} there is no such gap to close, since removing compression
+$2^{-80}$ with a gap of roughly 84 bits. For \textsc{Kaiburr} there is no such gap to close, since removing compression
 leaves no rounding term for a heuristic assumption to apply to. Table~\ref{tab:bounds} shows our provable bound
 closely tracks the \textsc{Kyber} team's own estimate for every parameter set. This shows that the bound is provable as well
 as tight in practice.
