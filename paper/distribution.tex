@@ -114,6 +114,13 @@ respectively, which follow from these choices
   \end{tabular}
 \end{table}
 
+As a cross-check, we also run the lattice estimator (Section~\ref{sec:preliminaries}). For kaiburr-1792, its cheapest attack is the dual-hybrid attack,
+at $2^{467.3}$ under its default cost model and $2^{452.3}$ in \texttt{rough} mode. Both are below the $479$ bits from the \textsc{Kyber} scripts,
+which do not model hybrid attacks. For kaiburr-4608 and kaiburr-6144, the estimator currently returns no
+finite cost for any attack, so for these parameter sets we report only the Core-SVP estimates from the \textsc{Kyber} scripts.
+\sia{I don't know why the estimator returns $\infty$ at $k=18,24$.}
+\sia{I think I do. TODO: Rerun the estimator by increasing the max block size.}
+
 \subsection{Sizes in context}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
 sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the

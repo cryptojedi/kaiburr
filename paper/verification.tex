@@ -7,9 +7,9 @@ formally verified bound.
 
 \paragraph{Why compression is the obstruction.}
 In the noise expression that Barbosa et al.~\cite{BarbosaKLSS25} derive for ML-KEM,
-$\tilde{n} = \langle e,r\rangle - \langle s,e_1\rangle - \langle s,c_u\rangle + e_2 + c_v$,
-the rounding errors $c_u$ and $c_v$ are the only source of difficulty. First, because the correctness adversary holds the secret key, 
-no direct MLWE reduction is available which forces a worst-case elimination of $c_v$ and a split into two sub-bounds. Second, $c_u$'s own rounding-error 
+$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v$ (Section~\ref{sec:preliminaries}),
+the rounding errors $\mathbf{c}_u$ and $c_v$ are the only source of difficulty. First, because the correctness adversary holds the secret key, 
+no direct MLWE reduction is available which forces a worst-case elimination of $c_v$ and a split into two sub-bounds. Second, $\mathbf{c}_u$'s own rounding-error 
 distribution is not symmetric and so fails the ``good'' property their framework requires. This forces an index-dependent, 256-term sum rather than a 
 single closed-form union bound. In the case of FrodoKEM, since it admits no ciphertext compression, the noise term only involves
 good distributions, which gives a clean union bound with no heuristic assumption. The cost of compression is concrete and quantitative. For ML-KEM-768, 
@@ -27,7 +27,7 @@ property of the noise family $f(t)$ the proof uses is that it is ``good'' in the
 (see Section~\ref{sec:distribution}).
 
 Since the rounding terms vanish, the noise
-collapses to $\tilde{n} = \langle e,r\rangle - \langle s,e_1\rangle + e_2$. As a result, every coefficient is identically distributed independent of its
+collapses to $\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 + e_2$. As a result, every coefficient is identically distributed independent of its
 index, and the union bound becomes a single factor of $256$ rather than a sum of $256$ distinct terms. Moreover, no additional
 MLWE term is needed. We note the resulting expression is in fact simpler than the one obtained for FrodoKEM, since
 $q=3329$ is prime, so $\mathbb{Z}_q$ is a field and goodness is preserved through inner products with only $\oplus$

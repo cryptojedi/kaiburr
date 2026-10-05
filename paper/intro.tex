@@ -8,8 +8,7 @@ problem~\cite{hqc2025spec}, providing
 diversity beyond lattice-based assumptions. This choice also marked a deliberate move beyond the lattice-based KEMs that dominated the 
 Round 3 submissions. Four of the schemes in the PQC Round
 3 Submissions~\cite{nistpqc-round3} span a spectrum of algebraic structure, from unstructure LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules
-(\textsc{Kyber~\cite{kyberoriginal}} and Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}).\footnote{We use \textsc{Kyber} and ML-KEM interchangeably throughout, except when distinguishing the original \textsc{Kyber} submission
-from the standardized ML-KEM specification.}
+(\textsc{Kyber~\cite{kyberoriginal}} and Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}).
 This spectrum reflects different design principles, commonly understood as
 structure vs. conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
 but is also seen as a potential attack surface, so conservative designs discard it entirely~\cite{takeofffrodo}. FrodoKEM, for example,
@@ -22,14 +21,14 @@ FrodoKEM rests on unstructured LWE to avoid a hypothetical structure break, an a
 ring/module LWE but not apply directly to plain LWE.
 The second involves the security margin a scheme carries above its target level, which protects against advances 
 in the best known attacks today. This could include improved lattice reduction, dual attacks, or sharper cost models 
-that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM.\footnote{Both of these 
+that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM.\footnote{We note that both of these 
 hedges are distinct, but not entirely independent: additional parameter margin can also increase the cost of a 
 hypothetical structural attack, and removing algebraic structure can affect the cost of known attacks.} A third, orthogonal hedge is to change the hardness 
 assumption altogether, as HQC does by relying on QCSD instead of LWE. This provides diversity, and at first glance, some additional assurance
 since a break of LWE could still leave HQC secure. However, this cryptanalytic independence is not absolute.
 Recent work has demonstrated connections between lattice and code-based cryptanalysis, including adaptations of lattice-sieving techniques to codes~\cite{EC:DEEK24}. 
 The quasi-cyclic structure of HQC has also been noted to have important parallels with the ring and module structures used in structured lattice schemes~\cite{hqc-forum}.
-These approaches address different (hypothetical) ways things could go wrong: unstructured LWE protects against attacks that exploit algebraic structure, 
+These approaches address different (hypothetical) failure modes: unstructured LWE protects against attacks that exploit algebraic structure, 
 additional parameter margin protects against improvements to existing attacks, and QCSD provides diversity against a failure of the LWE assumption itself.
 At this time, it is impossible to predict which one of these breakthroughs is more likely to occur.
 

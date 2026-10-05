@@ -1,55 +1,94 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 
-\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $R=\mathbb{Z}[X]/(X^n+1)$ and $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
+\paragraph{Notation.} Throughout the paper, we use \textsc{Kyber} and ML-KEM
+interchangeably, except when separating the NIST submission from the standardized version.
+We write vectors in bold lowercase and matrices in bold uppercase, $\mathbf{x}^T$ for the transpose of $\mathbf{x}$,
+and $\lceil x \rfloor$ for rounding $x$ to the nearest integer.
+
+\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
 base ring, with coefficients centered in $(-q/2,q/2]$. The modulus satisfies $n \mid (q-1)$, needed for the
 number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial multiplication in $R_q$. A module rank $k$ determines the dimensions of the public matrix
-$\mathbf{A}\in R_q^{k\times k}$ and the secret/error vectors $\mathbf{s},\mathbf{e}\in R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
+$\mathbf{A}\in R_q^{k\times k}$ and of the secret and error vectors in $R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
 respectively~\cite{fips203}.
 
 \paragraph{Centered binomial noise.}
 \textsc{Kyber} samples secret and error coefficients from the centered binomial distribution $\mathrm{CBD}_\eta$. It draws $2\eta$ uniform bits
 $a_1,\dots,a_\eta,b_1,\dots,b_\eta$ and outputs $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in
-$\{-\eta,\ldots,\eta\}$ with variance $\eta/2$. ML-KEM-768 and -1024 use $\mathrm{CBD}_2$ for both the secret and error terms; ML-KEM-512 uses
-$\mathrm{CBD}_3$ for the secret. We write $\mathrm{CBD}_\eta(x)$ for the probability mass assigned to $x$ by this distribution. $\mathrm{CBD}_\eta$
-is especially desirable because it can be sampled from raw PRF output in constant time without rejection and uses only bit-counting and a subtraction.
+$\{-\eta,\ldots,\eta\}$ with variance $\eta/2$. ML-KEM uses two parameters: $\eta_1$ for the secret and error vectors
+$\mathbf{s},\mathbf{e}$ in key generation and the randomness $\mathbf{r}$ in encryption, and $\eta_2$ for the encryption errors
+$\mathbf{e}_1, e_2$ (see below). ML-KEM-768 and -1024 use $\eta_1=\eta_2=2$; ML-KEM-512 uses $\eta_1=3$ and $\eta_2=2$.
+$\mathrm{CBD}_\eta$ is especially desirable because it can be sampled from raw PRF output in constant time without rejection
+and uses only bit-counting and a subtraction.
 
-\paragraph{Module-LWE.} The scheme's IND-CPA security reduces to the decisional Module Learning With Errors (MLWE)
-problem ~\cite{DCC:LanSte15} over $R_q$. An adversary must distinguish
-$(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{k\times k}$ and $\mathbf{s},\mathbf{e}\leftarrow \mathrm{CBD}_\eta^k$, from a uniformly random
-pair in $R_q^{k\times k}\times R_q^k$. Increasing $k$ increases the dimension
-of the lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
+\paragraph{Module-LWE.} Let $\chi$ be a distribution over $R_q$ with small coefficients. The decisional Module Learning With Errors (MLWE)
+problem~\cite{DCC:LanSte15} over $R_q$ asks an adversary to distinguish
+$(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{m\times k}$ is uniform and $\mathbf{s}\leftarrow \chi^k$,
+$\mathbf{e}\leftarrow \chi^m$, from a uniformly random pair in $R_q^{m\times k}\times R_q^m$.
+In ML-KEM, $\chi$ samples each coefficient from $\mathrm{CBD}_\eta$; \textsc{Kaiburr} replaces it with the noise
+family of Section~\ref{sec:distribution}. Increasing $k$ increases the dimension $kn$
+of the underlying lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
 
+\paragraph{The \textsc{Kyber} public-key encryption scheme.}
+Key generation expands a public $32$-byte seed $\rho$ into $\mathbf{A}\in R_q^{k\times k}$, directly in the NTT domain, by
+rejection sampling where SHAKE-128 output is parsed into $12$-bit candidates, and those smaller than $q$ are accepted as coefficients.
+\begin{itemize}
+  \item \emph{Key generation:} sample $\mathbf{s},\mathbf{e}\leftarrow\chi^k$ and set $\mathbf{t}=\mathbf{A}\mathbf{s}+\mathbf{e}$.
+    The public key is $(\mathbf{t},\rho)$ and the secret key is $\mathbf{s}$.
+  \item \emph{Encryption} of a message $m\in\{0,1\}^{n}$, viewed as a polynomial with binary coefficients: sample
+    $\mathbf{r}\leftarrow\chi^k$, $\mathbf{e}_1\leftarrow\chi^k$, and $e_2\leftarrow\chi$, and compute
+    $\mathbf{u}=\mathbf{A}^T\mathbf{r}+\mathbf{e}_1$ and $v=\mathbf{t}^T\mathbf{r}+e_2+\lceil q/2\rfloor\cdot m$.
+  \item \emph{Decryption:} compute $v-\mathbf{s}^T\mathbf{u}$ and decode each coefficient to $1$ if it is closer to
+    $\lceil q/2\rfloor$ than to $0$, and to $0$ otherwise.
+\end{itemize}
+The IND-CPA security of this scheme reduces to MLWE with $\chi$. The public key is an instance with $m=k$, and,
+with $\mathbf{t}$ replaced by a uniform vector, the ciphertext is an instance with $m=k+1$.
+Expanding the decryption step gives $v-\mathbf{s}^T\mathbf{u}=\lceil q/2\rfloor\cdot m+\tilde{n}$ with noise term
+$$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 + e_2 .$$
 
-\paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness following the standard core-SVP methodology used throughout the \textsc{Kyber}
-submission documents and re-implemented in the \textsc{Kyber} team's public estimator scripts. An adversary is modeled as
-running BKZ lattice reduction with block size $b$ against the primal (or dual) lattice attack. The cost of BKZ-$b$ is dominated by a single call to an
-SVP oracle in dimension $b$, whose cost is estimated as $2^{cb}$ operations for a constant $c$ (e.g., $c\approx 0.292$ classically and 
-$c\approx 0.265$ under a quantum sieve)~\cite{bkz2,estimator}. For a given parameter set, the scripts search over block size 
-$b$ and sample count $m$
-for the cheapest attack that succeeds against the secret/error distribution's standard deviation, and report the $\log_2$ cost as the 
-\emph{classical} and \emph{quantum} core-SVP security level. We report both
-throughout. We note that these estimates are conservative lower bounds on attack cost
-rather than concrete running times.
+\paragraph{Ciphertext compression.}
+Instead of transmitting $\mathbf{u}$ and $v$ at full $12$-bit precision, ML-KEM compresses them by rounding each coefficient
+to $d_u$ and $d_v$ bits, respectively, with $(d_u,d_v)=(10,4)$ for ML-KEM-512 and -768 and $(11,5)$ for ML-KEM-1024.
+This reduces the ciphertext from $384(k+1)$ to $32(d_u k+d_v)$ bytes, e.g.\ from $1536$ to $1088$ bytes for ML-KEM-768. The receiver
+decompresses to $\mathbf{u}+\mathbf{c}_u$ and $v+c_v$, where $\mathbf{c}_u$ and $c_v$ are the rounding errors, so the noise term becomes
+$$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v ;$$
+this trades a higher decryption-failure probability for a smaller ciphertext. The public key is never compressed and has
+$384k+32$ bytes. Throughout the paper, ``ciphertext compression'' refers to this rounding of $\mathbf{u}$ and $v$.
 
-\paragraph{Decryption failure.} Because \textsc{Kyber}'s public-key encryption scheme is only approximately correct, decapsulation can fail. The
-accumulated LWE and rounding error can push a coefficient of the decrypted message past the threshold at $q/4$ that 
-separates a $0$ bit from a $1$ bit. We refer to the decryption-failure probability as the probability, over the randomness of key generation and 
-encryption, that at least one of the $n$ message-bit coefficients suffers such an error.
-\footnote{Even though a single decryption error may not sound catastrophic, it is well established that once an attacker finds a single failure, 
+\paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key encryption scheme is lifted to an IND-CCA2-secure KEM using a
+variant of the Fujisaki--Okamoto (FO) transform with implicit rejection~\cite{fips203}. Decapsulation decrypts, then re-encrypts the
+recovered message with the derived randomness, and returns a pseudorandom key if the result differs from the received ciphertext.
+We leave the FO transform unchanged for our construction of \textsc{Kaiburr}.
+
+\paragraph{Decryption failure.} Decryption is correct as long as every coefficient of $\tilde{n}$ is smaller than $q/4$ in absolute value.
+We refer to the decryption-failure probability $\delta$ as the probability, over the randomness of key generation and
+encryption, that at least one of the $n$ coefficients of $\tilde{n}$ exceeds this threshold.
+\footnote{Even though a single decryption error may not sound catastrophic, it is well established that once an attacker finds a single failure,
 they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}
-It is computed by convolving the noise, secret, and 
-(when present) compression rounding-error distributions coordinate-wise and taking the tail probability of the final 
-distribution beyond $q/4$, scaled by $n$. A failure probability of $2^{-128}$ is considered a standard benchmark which aligns with the target
-of 128-bit security. We use the same bound throughout as our correctness target.
+To compute $\delta$, we adapt the \textsc{Kyber} team's scripts~\cite{kyber-scripts}. Each coefficient of
+$\mathbf{e}^T\mathbf{r}$ and of $\mathbf{s}^T\mathbf{e}_1$ is a signed sum of $kn$ products of two independent noise coefficients.
+The scripts compute the distribution of a single coefficient of $\tilde{n}$ by convolution, take its tail mass beyond $q/4$,
+and multiply by $n$ (a union bound over the coefficients). With compression, the rounding errors $\mathbf{c}_u$ and $c_v$ are additionally
+modeled as independent of the remaining terms.
 
-\paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key encryption scheme is lifted to an IND-CCA2-secure KEM using a tweaked variant of the 
-Fujisaki--Okamoto (FO) transform~\cite{fips203}. The ciphertext produced by encryption consists of two components, $\mathbf{u}\in R_q^k$ and $v\in R_q$, which
-ML-KEM serializes after \emph{compression}, where each coefficient is rounded.
-This trades a small increase in decryption-failure probability for a smaller ciphertext. The public key,
-consisting of $\mathbf{A}$'s seed and $\mathbf{A}\mathbf{s}+\mathbf{e}$, is
-never compressed. Throughout the paper, ``ciphertext compression'' refers to
-this rounding of $\mathbf{u}$ and $v$. We remove this compression in
-\textsc{Kaiburr} to achieve formally verified correctness bounds (see Section~\ref{sec:verification}). The FO
-transform itself, the ring, the NTT, and the symmetric primitives are left
-untouched.
+\paragraph{Correctness target.} We require $\delta\le 2^{-128}$ for all parameter sets. \sia{I am not really sure how to justify this.}
+
+\paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness following the standard Core-SVP methodology~\cite{USENIX:ADPS16}
+used throughout the \textsc{Kyber} submission documents and implemented in the \textsc{Kyber} team's public estimator
+scripts~\cite{kyber-scripts}. An adversary is modeled as
+running BKZ lattice reduction with block size $b$ in either the primal or the dual lattice attack. The cost of BKZ-$b$ is approximated by a single call to an
+SVP oracle in dimension $b$, whose cost is estimated as $2^{cb}$ operations, with $c\approx 0.292$ for classical sieving~\cite{SODA:BDGL16} and
+$c\approx 0.265$ for quantum sieving~\cite{laarhoven-thesis}. For a given parameter set, the scripts search over block size
+$b$ and number of samples $m$ for the cheapest successful attack, and report its $\log_2$ cost as the
+\emph{classical} and \emph{quantum} Core-SVP security level. The scripts depend on the noise distribution only through its standard deviation.
+We report both levels throughout. For reference, the same scripts give classical/quantum Core-SVP levels of $117/106$, $181/164$, and $253/230$ for 
+ML-KEM-512, -768, and -1024, taking the cheaper of the primal and dual attacks as for our parameter sets.
+
+\paragraph{Lattice estimator.} We cross-check the Core-SVP numbers with the lattice estimator of Albrecht et al.~\cite{estimator},\footnote{\url{https://github.com/malb/lattice-estimator},
+commit \texttt{53da598}.}
+which evaluates a wider range of attacks than the \textsc{Kyber} scripts like the primal uSVP and BDD attacks, the primal hybrid attack, the dual attack,
+the dual-hybrid attack of~\cite{matzov2022lwe}, coded BKW, and the Arora--Ge attack with Gr\"obner bases. Its full estimate costs lattice reduction
+with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP. The estimator also provides a \texttt{rough} mode that only considers
+the usually cheapest attacks, uSVP and dual hybrid, and costs them with the Core-SVP model $2^{0.292b}$, which makes it closer to the \textsc{Kyber}
+scripts. We model each parameter set as an LWE instance of dimension $256k$ with $256k$ samples, $q=3329$, and secret and error coefficients
+of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}).

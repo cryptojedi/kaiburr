@@ -34,7 +34,7 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 \centering
 \small
 \caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations.
-The reference implementations are, on average, TBD percent slower for \textsc{Kaiburr} C and TBD percent
+The reference implementations are, on average, 545.7 percent slower for \textsc{Kaiburr} C and 637.8 percent
  slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).
  \textcolor{kaiburrcolor}{Green} rows are \textsc{Kaiburr}.}
 \label{tab:6700k}
@@ -43,49 +43,49 @@ The reference implementations are, on average, TBD percent slower for \textsc{Ka
 KEM & Impl. & KeyGen & Enc & Dec \\
 \midrule
 kaiburr-1792 & C/asm &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{156186\\(155490--157822)} &
+\makecell[r]{160062\\(159576--161914)} &
+\makecell[r]{171888\\(171050--173356)} \\
 kaiburr-1792 & Jasmin &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{146528\\(145948--147226)} &
+\makecell[r]{148044\\(147606--148788)} &
+\makecell[r]{151990\\(151322--152728)} \\
 \addlinespace
 kaiburr-4608 & C/asm &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{809842\\(807208--813058)} &
+\makecell[r]{817844\\(815224--821062)} &
+\makecell[r]{845458\\(842838--848794)} \\
 kaiburr-4608 & Jasmin &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{780574\\(779084--782266)} &
+\makecell[r]{781302\\(779932--782906)} &
+\makecell[r]{796676\\(795256--798396)} \\
 \addlinespace
 kaiburr-6144 & C/asm &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{1361664\\(1358070--1366138)} &
+\makecell[r]{1365370\\(1361692--1369542)} &
+\makecell[r]{1407632\\(1403884--1411932)} \\
 kaiburr-6144 & Jasmin &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{1308772\\(1306774--1311182)} &
+\makecell[r]{1309238\\(1307196--1312060)} &
+\makecell[r]{1324338\\(1322338--1326730)} \\
 \midrule
 FrodoKEM-640 & \cite{frodoKEM-github} &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{3860180\\(3859268--3868164)} &
+\makecell[r]{4077768\\(4076966--4087064)} &
+\makecell[r]{4044176\\(4043428--4053764)} \\
 \midrule
 HQC-1 & \cite{hqc-github} &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{88162\\(88006--89002)} &
+\makecell[r]{172786\\(172618--173672)} &
+\makecell[r]{405674\\(405402--406028)} \\
 HQC-3 & \cite{hqc-github} &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{209986\\(209758--210708)} &
+\makecell[r]{407810\\(407430--408654)} &
+\makecell[r]{858366\\(857904--859064)} \\
 HQC-5 & \cite{hqc-github} &
-TBD &
-TBD &
-TBD \\
+\makecell[r]{433948\\(433570--434640)} &
+\makecell[r]{847696\\(846974--848576)} &
+\makecell[r]{1712396\\(1711782--1713680)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
