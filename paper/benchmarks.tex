@@ -265,17 +265,26 @@ consuming 73--84\% of total cycles.
 \begin{table}[t]
 \centering
 \caption{The three functions with the largest share of total cycles in the ACC roundtrip
-benchmark, as a percentage of total cycles for that parameter set. Cell shading (\#1 column)
-is scaled to the largest value in the table (83.56\%), on the same heat scale as
-Table~\ref{tab:acc-keccak}.}
+benchmark, ranked 1st to 3rd, obtained from the simulator's per-function execution statistics.
+All values are percentages of each variant's total roundtrip cycles. Cell shading is scaled to
+the largest value in the table.}
 \label{tab:acc-profile}
-\begin{tabular}{llll}
+\begin{tabular}{lrrr}
 \toprule
-KEM & \#1 & \#2 & \#3 \\
+KEM & 1st & 2nd & 3rd \\
 \midrule
-kaiburr-1792 & \cellcolor{heatmid!85!white}\textcolor{white}{\texttt{poly\_gen\_matrix} (72.60\%)} & \texttt{basemul\_acc} (8.08\%) & \texttt{f4} (6.26\%) \\
-kaiburr-4608 & \cellcolor{heatdark!90!white}\textcolor{white}{\texttt{poly\_gen\_matrix} (80.78\%)} & \texttt{basemul\_acc} (9.23\%) & \texttt{f6} (3.96\%) \\
-kaiburr-6144 & \cellcolor{heatdark}\textcolor{white}{\texttt{poly\_gen\_matrix} (83.56\%)} & \texttt{basemul\_acc} (9.57\%) & \texttt{f8} (2.05\%) \\
+kaiburr-1792 &
+\heat{72.60}{83.56}{\texttt{poly\_gen\_matrix} 72.60} &
+\heat{8.08}{83.56}{\texttt{basemul\_acc} 8.08} &
+\heat{6.26}{83.56}{\texttt{f4} 6.26} \\
+kaiburr-4608 &
+\heat{80.78}{83.56}{\texttt{poly\_gen\_matrix} 80.78} &
+\heat{9.23}{83.56}{\texttt{basemul\_acc} 9.23} &
+\heat{3.96}{83.56}{\texttt{f6} 3.96} \\
+kaiburr-6144 &
+\heat{83.56}{83.56}{\texttt{poly\_gen\_matrix} 83.56} &
+\heat{9.57}{83.56}{\texttt{basemul\_acc} 9.57} &
+\heat{2.05}{83.56}{\texttt{f8} 2.05} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -300,36 +309,21 @@ Table~\ref{tab:acc-keccak} gives the full comparison.
 
 \begin{table}[t]
 \centering
-\caption{Cycle breakdown of \texttt{poly\_gen\_matrix} across parameter sets, as a percentage of
-each variant's total roundtrip benchmark cycles, obtained from the simulator's per-instruction
-execution statistics. Cell shading is scaled to the largest value in the table (69.9\%).}
+\caption{Cycle breakdown of \texttt{poly\_gen\_matrix} across parameter sets, obtained from the
+simulator's per-instruction execution statistics. All values are percentages of each variant's
+total roundtrip cycles. Cell shading is scaled to the largest value in the table.}
 \label{tab:acc-keccak}
-
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Source & kaiburr-1792 & kaiburr-4608 & kaiburr-6144 \\
+KEM & \makecell[r]{Rejection\\sampling} & \makecell[r]{Branch\\overhead}
+    & \makecell[r]{Keccak\\wait} & \makecell[r]{Memory\\latency} \\
 \midrule
-
-Rejection sampling &
-\cellcolor{heatmid!85!white}\textcolor{white}{60.6\%} &
-\cellcolor{heatdark!90!white}\textcolor{white}{67.6\%} &
-\cellcolor{heatdark}\textcolor{white}{69.9\%} \\
-
-Branch overhead &
-\cellcolor{heatpale}6.2\% &
-\cellcolor{heatpale}6.8\% &
-\cellcolor{heatlight}7.1\% \\
-
-Keccak wait &
-\cellcolor{heatpale}5.5\% &
-\cellcolor{heatpale}6.0\% &
-\cellcolor{heatpale}6.2\% \\
-
-Memory latency &
-\cellcolor{heatpale}0.3\% &
-\cellcolor{heatpale}0.4\% &
-\cellcolor{heatpale}0.4\% \\
-
+kaiburr-1792 &
+\heat{60.6}{69.9}{60.6} & \heat{6.2}{69.9}{6.2} & \heat{5.5}{69.9}{5.5} & \heat{0.3}{69.9}{0.3} \\
+kaiburr-4608 &
+\heat{67.6}{69.9}{67.6} & \heat{6.8}{69.9}{6.8} & \heat{6.0}{69.9}{6.0} & \heat{0.4}{69.9}{0.4} \\
+kaiburr-6144 &
+\heat{69.9}{69.9}{69.9} & \heat{7.1}{69.9}{7.1} & \heat{6.2}{69.9}{6.2} & \heat{0.4}{69.9}{0.4} \\
 \bottomrule
 \end{tabular}
 \end{table}

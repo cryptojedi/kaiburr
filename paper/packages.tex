@@ -12,10 +12,21 @@
 \definecolor{urlcolor}{rgb}{0,0,0.65}
 \usepackage[colorlinks=true, backref=page, linkcolor=linkcolor, urlcolor=urlcolor, citecolor=citecolor]{hyperref}
 
-\definecolor{heatdark}{HTML}{C2410C}
-\definecolor{heatmid}{HTML}{E07A24} 
-\definecolor{heatlight}{HTML}{F6AD55}
-\definecolor{heatpale}{HTML}{FFF7ED}
+% Heat-map scale (lowest -> highest)
+\definecolor{heat0}{HTML}{FFF3E0}
+\definecolor{heat1}{HTML}{FDD0A2}
+\definecolor{heat2}{HTML}{FD9A4E}
+\definecolor{heat3}{HTML}{E8590C}
+
+% \heat{<value>}{<table max>}{<cell text>}: 4-step orange heat map,
+% square-root scale so small values stay distinguishable
+\newcommand{\heat}[3]{%
+  \pgfmathsetmacro\heatt{3*sqrt(#1/#2)}%
+  \pgfmathtruncatemacro\heatseg{min(int(\heatt),2)}%
+  \pgfmathtruncatemacro\heatpct{100*(\heatt-\heatseg)}%
+  \pgfmathtruncatemacro\heatnext{\heatseg+1}%
+  \edef\heatcmd{\noexpand\cellcolor{heat\heatnext!\heatpct!heat\heatseg}}%
+  \heatcmd#3}
 
 \definecolor{kaiburrcolor}{HTML}{15803D}
 \definecolor{kaiburrbg}{HTML}{DCFCE7}
