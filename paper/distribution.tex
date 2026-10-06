@@ -105,20 +105,32 @@ bytes and 9,720 ciphertext bytes. This gives us
 a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
 of a conservative lattice-based KEM.
 
-The three parameter sets we carry forward are $f(4)$, $f(6)$, and $f(8)$, at $k=7$, $18$, and $24$
-respectively, which follow from these choices
-(Table~\ref{tab:kaiburr-params}).
+Table~\ref{tab:kaiburr-params} lists, for every $t$ from $2$ to $8$, the largest $k$ that
+satisfies both constraints. The three parameter sets we carry forward are $f(4)$, $f(6)$, and
+$f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
 
 \begin{table}[H]
   \centering
-  \caption{\textsc{Kaiburr} parameter sets. Classical/quantum security (Core-SVP) and failure probability computed with the \textsc{Kyber} team's scripts; other parameters as in ML-KEM, compression removed.}
+  \caption{Largest module rank $k$ for each noise parameter $t$ under the $2^{-128}$ failure
+  bound and FrodoKEM-640's communication budget. Each name gives the lattice dimension
+  $256k$. \colorbox{kaiburrbg}{Shaded} rows are the selected \textsc{Kaiburr} parameter sets.
+  For $t=8$, $k=25$ would give a 9,632-byte public key, just over the budget.
+  Classical/quantum security (Core-SVP) and failure probability computed with the
+  \textsc{Kyber} team's scripts; other parameters as in ML-KEM, compression removed.}
   \label{tab:kaiburr-params}
   \begin{tabular}{lccccccc}
     \toprule
     Scheme & $k$ & noise & failure & class. & quant. & pk (B) & ct (B) \\
     \midrule
+    kaiburr-256  & 1  & $f(2)$ & $2^{-159.1}$ & 52   & 47   & 416  & 768  \\
+    kaiburr-768  & 3  & $f(3)$ & $2^{-139.3}$ & 191  & 174  & 1184 & 1536 \\
+    \rowcolor{kaiburrbg}
     kaiburr-1792 & 7  & $f(4)$ & $2^{-133.7}$ & 479  & 434  & 2720 & 3072 \\
+    kaiburr-3328 & 13 & $f(5)$ & $2^{-128.4}$ & 918  & 832  & 5024 & 5376 \\
+    \rowcolor{kaiburrbg}
     kaiburr-4608 & 18 & $f(6)$ & $2^{-134.1}$ & 1281 & 1162 & 6944 & 7296 \\
+    kaiburr-5888 & 23 & $f(7)$ & $2^{-129.8}$ & 1650 & 1497 & 8864 & 9216 \\
+    \rowcolor{kaiburrbg}
     kaiburr-6144 & 24 & $f(8)$ & $2^{-139.9}$ & 1717 & 1557 & 9248 & 9600 \\
     \bottomrule
   \end{tabular}
