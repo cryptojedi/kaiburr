@@ -296,12 +296,12 @@ we break down its costs further using the simulator's per-instruction execution 
 For kaiburr-6144, this instruction-level breakdown of \texttt{poly\_gen\_matrix} shows that
 rejection sampling is responsible for the vast majority of its
 cost. Only 464{,}022 of its 6{,}235{,}212 cycles (7.4\%, or 6.2\% of the entire benchmark) are
-spent stalled on \texttt{bn.wsrr} waiting for the hardware SHAKE-128 core to produce the next
+spent stalled on \textcolor{hotpink}{\texttt{bn.wsrr}} waiting for the hardware SHAKE-128 core to produce the next
 squeeze block. The remaining 92.6\% is software cost of the rejection-sampling loop itself. 83.6\%
 of \texttt{poly\_gen\_matrix}'s cycles (69.9\% of the whole benchmark) are retired arithmetic
-instructions (\texttt{bn.and}, \texttt{bn.cmp}, and \texttt{bn.sel}) performing the
+instructions (\textcolor{hotpink}{\texttt{bn.and}}, \textcolor{hotpink}{\texttt{bn.cmp}}, and \textcolor{hotpink}{\texttt{bn.sel}}) performing the
 mask/compare/accumulate operations of rejection sampling, and a further 8.5\% (7.1\% of the whole
-benchmark) comes from branch overhead (\texttt{bne} and \texttt{beq}) in the accept/reject loop.
+benchmark) comes from branch overhead (\textcolor{hotpink}{\texttt{bne}} and \textcolor{hotpink}{\texttt{beq}}) in the accept/reject loop.
 We repeated this instruction-level breakdown for kaiburr-1792 and kaiburr-4608 and found the same
 pattern. The hardware-Keccak-wait share stays flat (5.5\% and 6.0\% of each
 benchmark's total cycles, respectively, versus 6.2\% for kaiburr-6144), while the rejection-sampling
