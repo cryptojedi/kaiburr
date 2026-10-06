@@ -47,13 +47,16 @@ increased communication and computation.
 The purpose of designing and evaluating these high security variants of ML-KEM is not to argue that such security margins
 are currently necessary. Considering the relative stability of lattice cryptanalysis and security estimates in recent years, we do not expect improvements of
 the magnitude that would require such parameter sets in the near future. What we characterize instead is how much margin ML-KEM can 
-accommodate and it costs to obtain it, so that the tradeoff is already understood if it ever becomes necessary.
+accommodate and it costs to obtain it, so that the tradeoff is already understood if it ever becomes necessary. Our work shows that, 
+if a much larger margin is ever needed, it need not come at the cost of ML-KEM's structure.
 
-Our work also has several other limitations which we acknowledge here.
-\sia{TODO:add limitations here.}
+\sia{TODO: add limitations here.}
 
-Two directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an open question whether
+Several directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an interesting question whether
 the same construction could extend the security margin of other module-LWE schemes, such as ML-DSA. On the implementation
 side, our ACC results leave dedicated hardware support for rejection sampling as the natural next step, since that is what
 scaling $k$ makes the bottleneck. It also remains open whether scaling beyond $k=29$ is possible by modifying
-other parameters in ML-KEM while still preserving its essence. 
+other parameters in ML-KEM while still preserving its essence. A machine-checked functional correctness and IND-CCA proof for
+\textsc{Kaiburr} extending \texttt{formosa-mlkem}~\cite{fvk} is also in scope. Finally, the hybrid construction sketched above, which derives
+the final key from both \textsc{Kaiburr} and FrodoKEM, remains to be implemented and benchmarked to quantify the combined
+cost of the security-margin and structural-diversity hedges.
