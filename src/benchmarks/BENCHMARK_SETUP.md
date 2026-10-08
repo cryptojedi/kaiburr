@@ -27,7 +27,7 @@ make run-kaiburr          # kaiburr4/6/8, C and Jasmin, ref and avx2
 make run-kaiburr-c        # kaiburr4/6/8, C only
 make run-kaiburr-jasmin   # kaiburr4/6/8, Jasmin only
 make run-hqc              # hqc-1/3/5, ref and avx2
-make run-frodo            # FrodoKEM-640 SHAKE, ref and avx2
+make run-frodo            # FrodoKEM-640/976/1344, AES and SHAKE, ref and avx2
 
 make compile              # build without running
 make clean

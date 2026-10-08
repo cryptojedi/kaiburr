@@ -26,11 +26,13 @@ KECCAK  := $(KAIBURR_JASMIN)/formosa-keccak/src/amd64
 
 KAIBURR_VARIANTS := kaiburr4:7 kaiburr6:18 kaiburr8:24
 HQC_VARIANTS     := hqc-1 hqc-3 hqc-5
+FRODO_LEVELS     := 640 976 1344
+FRODO_GENS       := aes shake
 
 KAIBURR_C_BINS      := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-c-ref bin/$(firstword $(subst :, ,$(v)))-c-avx2)
 KAIBURR_JASMIN_BINS := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-jasmin-ref bin/$(firstword $(subst :, ,$(v)))-jasmin-avx2)
 HQC_BINS            := $(foreach v,$(HQC_VARIANTS),bin/$(v)-ref bin/$(v)-avx2)
-FRODO_BINS          := bin/frodo640-shake-ref bin/frodo640-shake-avx2
+FRODO_BINS          := $(foreach l,$(FRODO_LEVELS),$(foreach g,$(FRODO_GENS),bin/frodo$(l)-$(g)-ref bin/frodo$(l)-$(g)-avx2))
 
 KAIBURR_BINS := $(KAIBURR_C_BINS) $(KAIBURR_JASMIN_BINS)
 ALL_BINS     := $(KAIBURR_BINS) $(HQC_BINS) $(FRODO_BINS)
@@ -167,24 +169,35 @@ endef
 
 $(foreach v,$(HQC_VARIANTS),$(eval $(call hqc_rule,$(v),$(subst -,_,$(v)))))
 
-FRODO_DEFS := -DNIX -D_AMD64_ -D_SHAKE128_FOR_A_ -DNO_OPENSSL \
-              -DKEM_API_HEADER='"api_frodo640.h"' \
-              -Dcrypto_kem_keypair=crypto_kem_keypair_Frodo640 \
-              -Dcrypto_kem_enc=crypto_kem_enc_Frodo640 \
-              -Dcrypto_kem_dec=crypto_kem_dec_Frodo640
 
-bin/frodo640-shake-ref: $(RB) | bin
-	$(CC) $(CFLAGS) $(BENCHFLAGS) $(FRODO_DEFS) -D_REFERENCE_ -o $@ $(DRIVER) \
-	  -I$(FRODO)/FrodoKEM/src $(RBINC) \
-	  $(FRODO)/FrodoKEM/src/frodo640.c $(FRODO)/FrodoKEM/src/util.c \
-	  $(FRODO)/common/sha3/fips202.c $(RB) -lm
+FRODO_SRC := $(FRODO)/FrodoKEM/src
+FRODO_FAST_SHAKE_SRCS := $(FRODO)/common/sha3/fips202x4.c \
+                         $(FRODO)/common/sha3/keccak4x/KeccakP-1600-times4-SIMD256.c
 
-bin/frodo640-shake-avx2: $(RB) | bin
-	$(CC) $(CFLAGS) $(BENCHFLAGS) $(FRODO_DEFS) -D_FAST_ -mavx2 -maes -msse2 -o $@ $(DRIVER) \
-	  -I$(FRODO)/FrodoKEM/src -I$(FRODO)/common/sha3/keccak4x $(RBINC) \
-	  $(FRODO)/FrodoKEM/src/frodo640.c $(FRODO)/FrodoKEM/src/util.c \
-	  $(FRODO)/common/sha3/fips202.c $(FRODO)/common/sha3/fips202x4.c \
-	  $(FRODO)/common/sha3/keccak4x/KeccakP-1600-times4-SIMD256.c $(RB) -lm
+define frodo_defs
+-DNIX -D_AMD64_ -DNO_OPENSSL \
+-D$(if $(filter aes,$(2)),_AES128_FOR_A_,_SHAKE128_FOR_A_) \
+-DKEM_API_HEADER='"api_frodo$(1).h"' \
+-Dcrypto_kem_keypair=crypto_kem_keypair_Frodo$(1) \
+-Dcrypto_kem_enc=crypto_kem_enc_Frodo$(1) \
+-Dcrypto_kem_dec=crypto_kem_dec_Frodo$(1)
+endef
+
+define frodo_rule
+bin/frodo$(1)-$(2)-ref: $(RB) | bin
+	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) $$(call frodo_defs,$(1),$(2)) -D_REFERENCE_ -o $$@ $$(DRIVER) \
+	  -I$$(FRODO_SRC) $$(RBINC) \
+	  $$(FRODO_SRC)/frodo$(1).c $$(FRODO_SRC)/util.c $$(FRODO)/common/sha3/fips202.c \
+	  $(if $(filter aes,$(2)),$$(FRODO)/common/aes/aes_c.c) $$(RB) -lm
+
+bin/frodo$(1)-$(2)-avx2: $(RB) | bin
+	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) $$(call frodo_defs,$(1),$(2)) -D_FAST_ -mavx2 -maes -msse2 -o $$@ $$(DRIVER) \
+	  -I$$(FRODO_SRC) -I$$(FRODO)/common/sha3/keccak4x $$(RBINC) \
+	  $$(FRODO_SRC)/frodo$(1).c $$(FRODO_SRC)/util.c $$(FRODO)/common/sha3/fips202.c \
+	  $(if $(filter aes,$(2)),$$(FRODO)/common/aes/aes_ni.c,$$(FRODO_FAST_SHAKE_SRCS)) $$(RB) -lm
+endef
+
+$(foreach l,$(FRODO_LEVELS),$(foreach g,$(FRODO_GENS),$(eval $(call frodo_rule,$(l),$(g)))))
 
 bin:
 	@mkdir -p bin
@@ -207,7 +220,7 @@ help:
 	@echo "  make run-kaiburr-c        kaiburr4/6/8, C only"
 	@echo "  make run-kaiburr-jasmin   kaiburr4/6/8, Jasmin only"
 	@echo "  make run-hqc              hqc-1/3/5, ref and avx2"
-	@echo "  make run-frodo            FrodoKEM-640 SHAKE, ref and avx2"
+	@echo "  make run-frodo            FrodoKEM-640/976/1344, AES and SHAKE, ref and avx2"
 	@echo "  make compile[-<group>]    build without running"
 	@echo "  make clean"
 	@echo ""
