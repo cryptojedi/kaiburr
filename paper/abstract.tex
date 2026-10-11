@@ -1,5 +1,30 @@
 \begin{abstract}
-  \peter{TODO: write abstract}
+  With deployment of standardized post-quantum cryptography
+  well on the way, discussions continue around different approaches
+  to hybrid deployments -- either combining post-quantum schemes
+  with ``traditional'' elliptic-curve cryptography (or RSA) or 
+  combining multiple different post-quantum schemes. 
+  The typical question asked in these discussion is what the ``best''
+  or ``most conservative'' approach is within a certain performance
+  budget.
+
+  In this paper we add a data point to this discussion by investigating
+  how to scale ML-KEM to (much) higher security levels of the underlying
+  MLWE problem. We first show that increasing security 
+  simply by increasing the module rank $k$ 
+  quickly reaches a limit imposed by decryption failure probability.
+  We then propose a a generalization of the noise distribution, which enables scaling
+  to much larger module rank and MLWE hardness, while preserving the essence
+  of ML-KEM, most notably arithmetic in the ring $\Z_{3329}{X}/(X^{256}+1)$.
+
+  We select three concrete parameter sets of this high-security variant
+  of ML-KEM, which we call \textsc{Kaiburr}. We present benchmarking results
+  for optimized implementations of \kaiburr on 64-bit Intel CPUs and on
+  the Asymmetric Crypto Coprocessor (ACC) of the Pavona open-source silicon framework.
+  Based on these benchmarks, we argue that, for example, 
+  a hybrid of FrodoKEM-976 and \kaiburr-1792 not only offers better
+  performance than FrodoKEM-1344, it also offers protection against
+  a broader range of hypothetical future attacks against (M)LWE.
 \end{abstract}
 
 
