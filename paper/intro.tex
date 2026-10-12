@@ -38,6 +38,7 @@ within a given performance budget.
 % hedges are distinct, but not entirely independent: additional parameter margin can also increase the cost of a 
 % hypothetical structural attack, and removing algebraic structure can affect the cost of known attacks.} 
 
+\peter{Add a bit more hybrid discussion/storytelling here...?}
 
 Faced with many such uncertainties, increasing the margin has been a historically standard response, provided 
 that sufficient bandwidth is available. For 
@@ -65,6 +66,8 @@ adjusts the noise distribution to achieve substantially higher security estimate
 
 \emph{How much additional security margin can their algebraic structure buy within the communication budget of an unstructured LWE scheme, and at what computational cost?}
 
+\peter{Emphasize our goal to change ML-KEM/Kyber as little as possible, re-use HW or optimized SW, etc.}
+
 We answer this question with \textsc{Kaiburr}, a module KEM that scales ML-KEM's 
 module rank and introduces a generalized noise distribution to preserve correctness. We first characterize 
 the correctness and security limits of naively increasing ML-KEM's module rank, then introduce a noise family that 
@@ -75,6 +78,7 @@ attacks and improvements to the best known lattice attacks at lower cost than Fr
 
 \subsection{Our contributions}
 We make several contributions in this work, summarized below.
+\peter{Clarify that we don't increase security globally, only increase the margin for MLWE. Specifically, we don't scale symmetric components in ML-KEM.}
 \begin{itemize}
   \item \emph{We show that naively scaling ML-KEM's module rank hits a correctness wall.} Raising $k$ alone, with \textsc{Kyber}'s noise and 
     modulus fixed, satisfies the $2^{-128}$ decryption-failure
@@ -98,6 +102,7 @@ We make several contributions in this work, summarized below.
   Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show that removing ciphertext compression is what 
   makes this bound provable rather than heuristic, avoiding the gap between the provable and heuristic bounds
   that compression causes for ML-KEM (Section~\ref{sec:verification}).
+    \peter{Did we actually do these proofs?}
   \item \emph{We benchmark \textsc{Kaiburr} against FrodoKEM and HQC.} Across three Intel
     microarchitectures, we show that our AVX2 and Jasmin implementations run substantially faster than FrodoKEM-640.
     \kaiburr-1792 is faster than HQC-5 in every operation, and for the larger parameter sets HQC is faster in key generation

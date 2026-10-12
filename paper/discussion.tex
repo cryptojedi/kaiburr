@@ -17,7 +17,8 @@ can also be split between the two by using a hybrid of \kaiburr-1792 and FrodoKE
 FrodoKEM-1344 (Section~\ref{sec:hybrid}).
 
 We find it important to stress that these two approaches remain complementary rather than substitutes, since they
-address different attacks. As discussed in Section~\ref{sec:introduction}, \textsc{Kaiburr}'s larger margin is a hedge against improvements to the best known lattice attacks
+hedge against different hypothetical attacks. 
+As discussed in Section~\ref{sec:introduction}, \textsc{Kaiburr}'s larger margin is a hedge against improvements to the best known lattice attacks
 and it offers no protection against attacks that exploit module structure, which by design do
 not apply to FrodoKEM. Such an attack would still motivate an unstructured scheme. This is also what makes splitting the budget worthwhile as the hybrid of
 \kaiburr-1792 and FrodoKEM-976 combines a large security margin with resistance to structural attacks. Compared with
@@ -38,7 +39,9 @@ the share of the noise sampler falls from 6.3\% to 2.1\%. Hardware SHAKE-128 acc
 accelerator for only 5.5--6.2\% of total cycles, with little change across parameter sets, while the software rejection-sampling loop grows to 69.9\% of 
 total cycles for \kaiburr-6144. For an accelerated implementation, the optimization target therefore moves from symmetric
 throughput to rejection sampling. This is consistent with Abdulrahman et al., who also identify rejection sampling as a target for further hardware 
-optimization~\cite{SP:AOPPSS25}. In our setting, we quantify how this dominant cost grows with the module rank, at parameters far
+optimization~\cite{SP:AOPPSS25}. 
+\peter{Try to avoid saying ``et al.''. }
+In our setting, we quantify how this dominant cost grows with the module rank, at parameters far
 beyond those commonly studied for ML-KEM.
 
 We make an important clarification about what our results do not intend to show. The purpose of designing and evaluating these high-security variants of

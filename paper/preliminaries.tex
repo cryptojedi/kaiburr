@@ -12,6 +12,8 @@ number-theoretic transform (NTT) that \textsc{Kyber} uses for polynomial multipl
 $\mathbf{A}\in R_q^{k\times k}$ and of the secret and error vectors in $R_q^k$. $k=2,3,4$ give ML-KEM-512, -768, and -1024,
 respectively~\cite{fips203}.
 
+\peter{Move to $\mathcal{R}$, set up a macro for this}
+
 \paragraph{Centered binomial noise.}
 \textsc{Kyber} samples secret and error coefficients from the centered binomial distribution $\mathrm{CBD}_\eta$. It draws $2\eta$ uniform bits
 $a_1,\dots,a_\eta,b_1,\dots,b_\eta$ and outputs $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in
@@ -30,6 +32,7 @@ family of Section~\ref{sec:distribution}. Increasing $k$ increases the dimension
 of the underlying lattice problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
 
 \paragraph{The \textsc{Kyber} public-key encryption scheme.}
+\peter{Say something about the global design: KPKE + FO transform, then add reference to the full spec.}
 Key generation expands a public $32$-byte seed $\rho$ into $\mathbf{A}\in R_q^{k\times k}$, directly in the NTT domain, by
 rejection sampling where SHAKE-128 output is parsed into $12$-bit candidates, and those smaller than $q$ are accepted as coefficients.
 \begin{itemize}
@@ -52,7 +55,9 @@ to $d_u$ and $d_v$ bits, respectively, with $(d_u,d_v)=(10,4)$ for ML-KEM-512 an
 This reduces the ciphertext from $384(k+1)$ to $32(d_u k+d_v)$ bytes, e.g.\ from $1536$ to $1088$ bytes for ML-KEM-768. The receiver
 decompresses to $\mathbf{u}+\mathbf{c}_u$ and $v+c_v$, where $\mathbf{c}_u$ and $c_v$ are the rounding errors, so the noise term becomes
 $$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v ;$$
-this trades a higher decryption-failure probability for a smaller ciphertext. The public key is never compressed and has
+this trades a higher decryption-failure probability for a smaller ciphertext. 
+\peter{Decryption failures are explained only later.}
+The public key is never compressed and has
 $384k+32$ bytes. Throughout the paper, ``ciphertext compression'' refers to this rounding of $\mathbf{u}$ and $v$.
 
 \paragraph{From PKE to KEM.} \textsc{Kyber}'s IND-CPA-secure public-key encryption scheme is lifted to an IND-CCA2-secure KEM using a
@@ -86,12 +91,14 @@ ML-KEM-512, -768, and -1024, taking the cheaper of the primal and dual attacks a
 
 \paragraph{Lattice estimator.} We cross-check the Core-SVP numbers with the lattice estimator of Albrecht et al.~\cite{estimator},\footnote{\url{https://github.com/malb/lattice-estimator},
 commit \texttt{53da598}, with the change described below.}
+\peter{Also, it aims at providing more tight estimates}
 which evaluates a wider range of attacks than the \textsc{Kyber} scripts like the primal uSVP and BDD attacks, the primal hybrid attack, the dual attack,
 the dual-hybrid attack of~\cite{matzov2022lwe}, coded BKW, and the Arora--Ge attack with Gr\"obner bases. Its full estimate costs lattice reduction
 with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP. We model each parameter set as an LWE instance of dimension 
 $256k$ with $256k$ samples, $q=3329$, and secret and error coefficients
 of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}). For FrodoKEM, we use the estimator's built-in parameter sets, but otherwise 
 we keep the estimator's defaults with one exception.
+
 
 \paragraph{Raising the block-size limit.} By default, the estimator has a maximum BKZ block size of $1754$, at which
 the Core-SVP cost reaches $2^{512}$, and it reports an infinite cost for any attack that would need a larger block size, so every 
