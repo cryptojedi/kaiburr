@@ -12,12 +12,10 @@ the results. Against our $2^{-128}$ correctness target (Section~\ref{sec:prelimi
 ($2^{-116.8}$), so raising $k$ alone cannot buy higher security without
 sacrificing correctness.
 
-These values are computed without ciphertext compression. This matches
-\textsc{Kaiburr}, which removes compression (Section~\ref{sec:impl:compression}),
-so the numbers are exact for our setting. If the compression from \textsc{Kyber} is kept, the rounding 
-applied to $\mathbf{u}$ and
+These values are computed without ciphertext compression which matches \textsc{Kaiburr}. If the compression 
+from \textsc{Kyber} is kept, the rounding  applied to $\mathbf{u}$ and
 $v$ introduces additional error, which would increase the true
-failure probability, and the correctness limit on $k$ would be reached even earlier.
+decryption error, and the correctness limit on $k$ would be reached even earlier.
 
 \begin{table}[h]
 \centering
