@@ -63,8 +63,8 @@ We leave the FO transform unchanged for our construction of \textsc{Kaiburr}.
 \paragraph{Decryption failure.} Decryption is correct as long as every coefficient of $\tilde{n}$ is smaller than $q/4$ in absolute value.
 We refer to the decryption-failure probability $\delta$ as the probability, over the randomness of key generation and
 encryption, that at least one of the $n$ coefficients of $\tilde{n}$ exceeds this threshold.
-\footnote{Even though a single decryption error may not sound catastrophic, it is well established that once an attacker finds a single failure,
-they can use it as a compass to drastically accelerate finding more failures, a type of attack known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}
+\footnote{It is well established that once an attacker finds a single failure,
+they can use it as a compass to drastically accelerate finding more failures. This type of attack is known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}
 To compute $\delta$, we adapt the \textsc{Kyber} team's scripts~\cite{kyber-scripts}. Each coefficient of
 $\mathbf{e}^T\mathbf{r}$ and of $\mathbf{s}^T\mathbf{e}_1$ is a signed sum of $kn$ products of two independent noise coefficients.
 The scripts compute the distribution of a single coefficient of $\tilde{n}$ by convolution, take its tail mass beyond $q/4$,
@@ -85,10 +85,17 @@ We report both levels throughout. For reference, the same scripts give classical
 ML-KEM-512, -768, and -1024, taking the cheaper of the primal and dual attacks as for our parameter sets.
 
 \paragraph{Lattice estimator.} We cross-check the Core-SVP numbers with the lattice estimator of Albrecht et al.~\cite{estimator},\footnote{\url{https://github.com/malb/lattice-estimator},
-commit \texttt{53da598}.}
+commit \texttt{53da598}, with the change described below.}
 which evaluates a wider range of attacks than the \textsc{Kyber} scripts like the primal uSVP and BDD attacks, the primal hybrid attack, the dual attack,
 the dual-hybrid attack of~\cite{matzov2022lwe}, coded BKW, and the Arora--Ge attack with Gr\"obner bases. Its full estimate costs lattice reduction
-with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP. The estimator also provides a \texttt{rough} mode that only considers
-the usually cheapest attacks, uSVP and dual hybrid, and costs them with the Core-SVP model $2^{0.292b}$, which makes it closer to the \textsc{Kyber}
-scripts. We model each parameter set as an LWE instance of dimension $256k$ with $256k$ samples, $q=3329$, and secret and error coefficients
-of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}).
+with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP. We model each parameter set as an LWE instance of dimension 
+$256k$ with $256k$ samples, $q=3329$, and secret and error coefficients
+of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}). For FrodoKEM, we use the estimator's built-in parameter sets, but otherwise 
+we keep the estimator's defaults with one exception.
+
+\paragraph{Raising the block-size limit.} By default, the estimator has a maximum BKZ block size of $1754$, at which
+the Core-SVP cost reaches $2^{512}$, and it reports an infinite cost for any attack that would need a larger block size, so every 
+attack on \kaiburr-4608 and \kaiburr-6144 returns an infinite cost. We raise the cap to $16384$ to obtain finite estimates. The
+primal hybrid and BDD attacks separately hard-code the same limit of $1754$ on the dimension of their final SVP call for lattices of
+dimension above $4096$. We change this limit as well, which is the only change we make to the estimator's code.
+For all FrodoKEM parameters and \kaiburr-1792, the estimates are identical with and without these changes.

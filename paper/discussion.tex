@@ -1,62 +1,64 @@
 \section{Discussion}
 \label{sec:discussion}
- 
-Our results show that \textsc{Kaiburr} remains computationally practical despite much higher security margins. On all our
-benchmarks, every \textsc{Kaiburr} parameter set is substantially faster than FrodoKEM-640. This holds even for our largest
-parameter set, kaiburr-6144, which matches FrodoKEM-640's communication cost while reaching 1717-bit classical and 1557-bit
-quantum security, and is still roughly 2.5--3 times faster across all operations. In other words, \textsc{Kaiburr}'s
-\emph{worst} case is comfortably cheaper than FrodoKEM's \emph{best} case.
- 
-A gap this wide exemplifies the computational advantage of retaining module structure. It also shows that the bandwidth
-separating the two schemes can be spent in more than one way. Even the largest ML-KEM parameter set, ML-KEM-1024, sits 8,048
-public-key bytes and 8,152 ciphertext bytes below the smallest FrodoKEM parameter set, FrodoKEM-640. FrodoKEM spends that
-bandwidth on \emph{removing} algebraic structure; \textsc{Kaiburr} spends it on \emph{retaining the structure} while reaching the
-security estimates above.
- 
-Framed this way, our comparison also raises a practical question: if FrodoKEM-640's communication and computational costs are
-already practical enough for conservative deployments, why not spend the same budget on increasing the security margin of ML-KEM? Our
-results suggest that this is a plausible alternative. Naively increasing the module rank does reach a correctness limit, but
-with \textsc{Kaiburr}'s modified noise distribution, the same bandwidth budget supports much larger module ranks, much higher
-security estimates, and up to three times the speed. What the comparison exposes, then, is a tradeoff between two forms of
-conservatism: removing algebraic structure, or retaining it and spending the resources on security margin instead.
- 
-Against HQC the picture is different, since HQC hedges against a different unknown. On cost alone, however, \textsc{Kaiburr}
-compares favorably in terms of performance. kaiburr-1792 is smaller than HQC-1 in combined pk+ct size and
-faster than HQC-5 in every operation on both machines, despite security estimates far beyond the category-5 target. HQC's
-advantage is concentrated in key generation, where every HQC parameter set beats the corresponding \textsc{Kaiburr}
-parameter set by a wide margin. On efficiency grounds, therefore, the margin hedge and the diversity hedge are not in
-tension, and a deployment that wants both can afford both.
- 
-Scaling the module rank also changes where the cost goes, and our ACC results demonstrate this concretely. Matrix generation accounts for
-73--84\% of total cycles, and its cost grows quadratically with $k$, since a $k \times k$ matrix requires $k^2$ sampled
-polynomials. Hardware SHAKE-128 acceleration does not remove this bottleneck because the core waits on the accelerator for only
-5.5--6.2\% of total cycles, with little change across parameter sets. The software rejection-sampling loop grows to
-69.9\% of total cycles for kaiburr-6144. For an accelerated implementation, the optimization target then moves from
-symmetric throughput to rejection sampling. This is consistent with prior work by Abdulrahman et al., who also identify
-rejection sampling as a target for further hardware optimization~\cite{SP:AOPPSS25}; in our setting, its cost grows with $k$
-until it dominates matrix generation.
- 
-As discussed in Section~\ref{sec:introduction}, our work explicitly explores increasing the security margin as a hedge against improvements
-in the best known attacks today. By this, we mean that \textsc{Kaiburr} is and will remain vulnerable to structural attacks that exploit the 
-module structure, a class of attacks FrodoKEM is immune against. Such a breakthrough would still motivate an unstructured scheme, so the two
-approaches remain complementary rather than substitutes. In principle, they could even be combined in a hybrid
-construction, deriving the final key from both a high-margin module KEM such as \textsc{Kaiburr} and an unstructured LWE KEM
-such as FrodoKEM. Such a construction would combine the security-margin and structural-diversity hedges, at the cost of
-increased communication and computation.
- 
-The purpose of designing and evaluating these high security variants of ML-KEM is not to argue that such security margins
-are currently necessary. Considering the relative stability of lattice cryptanalysis and security estimates in recent years, we do not expect improvements of
-the magnitude that would require such parameter sets in the near future. What we characterize instead is how much margin ML-KEM can 
-accommodate and it costs to obtain it, so that the tradeoff is already understood if it ever becomes necessary. Our work shows that, 
-if a much larger margin is ever needed, it need not come at the cost of ML-KEM's structure.
 
-\sia{TODO: add limitations here.}
+Our results show that \textsc{Kaiburr} remains computationally practical at much higher security margins. In our Intel benchmarks, every \textsc{Kaiburr}
+parameter set is substantially faster than FrodoKEM-640 in every operation. This includes our largest parameter set, \kaiburr-6144, which stays within
+FrodoKEM-640's communication budget, reaches Core-SVP estimates of 1717 bits classical and 1557 bits quantum, and is still 2.4--3.1 times faster.
 
-Several directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an interesting question whether
-the same construction could extend the security margin of other module-LWE schemes, such as ML-DSA. On the implementation
-side, our ACC results leave dedicated hardware support for rejection sampling as the natural next step, since that is what
-scaling $k$ makes the bottleneck. It also remains open whether scaling beyond $k=29$ is possible by modifying
-other parameters in ML-KEM while still preserving its essence. A machine-checked functional correctness and IND-CCA proof for
-\textsc{Kaiburr} extending \texttt{formosa-mlkem}~\cite{fvk} is also in scope. Finally, the hybrid construction sketched above, which derives
-the final key from both \textsc{Kaiburr} and FrodoKEM, remains to be implemented and benchmarked to quantify the combined
-cost of the security-margin and structural-diversity hedges.
+A gap this wide reflects the computational advantage of retaining module structure. It also shows that the bandwidth separating the two schemes can be
+spent in more than one way. Even ML-KEM-1024, the largest ML-KEM parameter set, has a public key 8,048 bytes and a ciphertext 8,152 bytes smaller than
+FrodoKEM-640, the smallest FrodoKEM parameter set. FrodoKEM spends that bandwidth on \emph{removing} algebraic structure, whereas \textsc{Kaiburr} spends it on
+a larger security margin while \emph{retaining} the structure. Framed this way, our work also raises a practical question for deployment.
+FrodoKEM-640's communication and computational costs are already considered acceptable for conservative deployments, such as those following the
+recommendations discussed in Section~\ref{sec:introduction}. Could a deployment that accepts these costs instead spend them on a high-margin
+variant of ML-KEM? Our work suggests that it can. Naively increasing the module rank reaches a correctness limit (Section~\ref{sec:warmup}), but with \textsc{Kaiburr}'s noise distribution, the same budget supports
+module ranks up to 24 and much higher security estimates, while every parameter set remains faster than FrodoKEM-640. Notably, the budget
+can also be split between the two by using a hybrid of \kaiburr-1792 and FrodoKEM-976, which has a smaller public key and ciphertext than 
+FrodoKEM-1344 (Section~\ref{sec:hybrid}).
+
+We find it important to stress that these two approaches remain complementary rather than substitutes, since they
+address different attacks. As discussed in Section~\ref{sec:introduction}, \textsc{Kaiburr}'s larger margin is a hedge against improvements to the best known lattice attacks
+and it offers no protection against attacks that exploit module structure, which by design do
+not apply to FrodoKEM. Such an attack would still motivate an unstructured scheme. This is also what makes splitting the budget worthwhile as the hybrid of
+\kaiburr-1792 and FrodoKEM-976 combines a large security margin with resistance to structural attacks. Compared with
+FrodoKEM-1344, it has a much higher lattice attack cost and, based on its component costs, is faster.
+
+HQC hedges against yet another possibility, a failure of the LWE assumption itself, so the comparison with HQC is one of cost only. \kaiburr-1792 is
+smaller than HQC-1 in combined public-key and ciphertext size and faster than HQC-5 in every operation on all three machines. For the larger parameter sets,
+HQC-3 and HQC-5 are faster than \kaiburr-4608 and \kaiburr-6144 in key generation and encapsulation, while decapsulation is comparable or faster for
+\textsc{Kaiburr}. Since their costs are of the same order, the choice between \textsc{Kaiburr} and HQC comes down to whether one believes improvements in lattice
+attacks are more likely than a break of the LWE assumption itself.
+
+An important consequence of changing the module rank is that it also changes where the cost goes, especially once Keccak, which is typically the 
+dominant cost of ML-KEM in software, is accelerated. In ML-KEM, only two steps scale quadratically with $k$. The first is generating the $k \times k$ matrix
+$\mathbf{A}$, which requires SHAKE-128 output and rejection sampling for $k^2$ polynomials. The second is the matrix--vector product in the NTT domain, which 
+requires $k^2$ base multiplications. All other steps, including noise sampling, the NTTs, and hashing, scale linearly~\cite{fips203}. Our ACC
+profiling results demonstrate this concretely. Matrix generation accounts for 73--84\% of total cycles and the base multiplication for 8--10\%, while 
+the share of the noise sampler falls from 6.3\% to 2.1\%. Hardware SHAKE-128 acceleration does not remove this bottleneck either. The core waits on the 
+accelerator for only 5.5--6.2\% of total cycles, with little change across parameter sets, while the software rejection-sampling loop grows to 69.9\% of 
+total cycles for \kaiburr-6144. For an accelerated implementation, the optimization target therefore moves from symmetric
+throughput to rejection sampling. This is consistent with Abdulrahman et al., who also identify rejection sampling as a target for further hardware 
+optimization~\cite{SP:AOPPSS25}. In our setting, we quantify how this dominant cost grows with the module rank, at parameters far
+beyond those commonly studied for ML-KEM.
+
+We make an important clarification about what our results do not intend to show. The purpose of designing and evaluating these high-security variants of
+ML-KEM is not to argue that such margins are currently necessary. Given the relative stability of lattice cryptanalysis and security estimates in recent
+years, we do not expect improvements of a magnitude that would require such parameter sets in the near future. What we characterize instead is how much
+margin ML-KEM can accommodate and what it costs, so that the tradeoff is understood if it ever becomes necessary.
+\sia{Is this paragraph needed? This is maybe not the best place to make this argument.}
+
+Our results also have several other limitations. The security figures are estimates; for \kaiburr-4608 and \kaiburr-6144, the cheapest attacks use 
+block sizes outside the range in which the MATZOV cost model was derived, and we obtained them with a modified estimator (Section~\ref{sec:distribution}). 
+Our decryption-failure target of $2^{-128}$ is less strict than what ML-KEM achieves, and a stricter target would lower the
+largest module rank each noise parameter $t$ supports. For the Jasmin
+implementation we machine-check constant-time behavior but not functional correctness. The constant-time behavior of the ACC
+implementation is also not machine-checked, and the ACC results are for a configuration with enlarged data memory. Finally, the hybrid of
+Section~\ref{sec:hybrid} has not been implemented, and its costs are sums of
+component measurements.
+
+Several directions follow from this work. Our noise family $f(t)$ is not specific to ML-KEM, so it is an interesting question whether the same
+construction could extend the security margin of other module-LWE schemes, such as ML-DSA. On the implementation side, our ACC results make dedicated
+hardware support for rejection sampling the natural next step. It also remains open whether scaling beyond $k=29$ is possible by modifying other
+parameters of ML-KEM while making minimal changes to existing implementations. A machine-checked functional-correctness and IND-CCA proof for 
+\textsc{Kaiburr} extending \texttt{formosa-mlkem}~\cite{fvk} is also in scope. Finally, implementing the hybrid as a single KEM with a concrete combiner, and benchmarking it end to
+end, remains to be done.

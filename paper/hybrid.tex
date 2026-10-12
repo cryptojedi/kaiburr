@@ -1,0 +1,72 @@
+\section{A hybrid approach}
+\label{sec:hybrid}
+
+As discussed in Section~\ref{sec:introduction}, a larger security margin and the removal of
+algebraic structure address different hypothetical classes of attack, representing different design principles. At this time, it is unclear which
+of the two stances on conservatism should be prioritized. A hybrid KEM does not require choosing between them. Hybrid KEMs run two KEMs side by side and
+derive a single shared key from both shared secrets and both ciphertexts; with an appropriate combiner, the result is IND-CCA secure as long as at
+least one component is~\cite{PKC:GiaHeuPoe18,PQCRYPTO:BBFGS19}.
+
+We consider a hybrid of \kaiburr-1792 and FrodoKEM-976 and compare it with FrodoKEM-1344, the most conservative standardized FrodoKEM parameter set. We
+have not implemented this hybrid as a single KEM. Its sizes in Table~\ref{tab:hybrid} are exact, since they are the sums of the component sizes. Its cycle
+counts in Table~\ref{tab:hybrid-cycles} are the sums of the measured component medians and do not
+include the combiner, which hashes both shared secrets and both ciphertexts.
+
+\begin{table}[t]
+  \centering
+  \caption{FrodoKEM-1344 versus a hybrid of \kaiburr-1792 and FrodoKEM-976.
+  The hybrid's sizes are the sums of its two components. Lattice attack costs
+  are log$_2$ of the cheapest attack found by the lattice estimator.}
+  \label{tab:hybrid}
+  \begin{tabular}{lcc}
+    \toprule
+    & FrodoKEM-1344 & \kaiburr-1792 + FrodoKEM-976 \\
+    \midrule
+    pk (bytes) & 21\,520 & 18\,352 \\
+    ct (bytes) & 21\,632 & 18\,816 \\
+    Cheapest lattice attack & $2^{281.7}$ & $2^{467.3}$ \\
+    \quad if module structure is broken & $2^{281.7}$ & $2^{225.2}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{Cycle counts on an Intel Core i7-8700K, AVX2 implementations,
+  measured as in Section~\ref{sec:benchmarks}. Values are median (Q1--Q3). The rows are the sums of the \kaiburr-1792 and
+  FrodoKEM-976 medians and exclude the combiner.}
+  \label{tab:hybrid-cycles}
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{llrrr}
+    \toprule
+    KEM & Impl. & KeyGen & Enc & Dec \\
+    \midrule
+    \kaiburr-1792 & C/asm  & 156156 & 159719 & 173015 \\
+                 &        & (155579--157778) & (159235--161416) & (172106--174398) \\
+    \kaiburr-1792 & Jasmin & 143857 & 144987 & 150435 \\
+                 &        & (143402--144559) & (144656--145831) & (149704--151098) \\
+    FrodoKEM-976 & \cite{frodoKEM-github} & 8270912 & 8528877 & 8411864 \\
+                 &        & (8266234--8274033) & (8523192--8530688) & (8402988--8419383) \\
+    \midrule
+    \kaiburr-1792 & C/asm  & 8427068 & 8688596 & 8584879 \\
+    + FrodoKEM-976 & & & & \\
+    \kaiburr-1792 & Jasmin & 8414769 & 8673864 & 8562299 \\
+    + FrodoKEM-976 & & & & \\
+    \midrule
+    FrodoKEM-1344 & \cite{frodoKEM-github} & 14508496 & 14790823 & 14614161 \\
+                  &        & (14505193--14510927) & (14788919--14793792) & (14611158--14617148) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The hybrid is smaller than FrodoKEM-1344, by 14.7\% in public-key size and 13.0\% in ciphertext size, and the sum of its component cycle counts is about
+1.7$\times$ lower. Almost all of this speedup comes from FrodoKEM-976 itself, and \kaiburr-1792 accounts for about 2\% of the hybrid's cycles.
+
+A hybrid KEM is as hard to break as the stronger component. Against improvements to lattice attacks in general, this is \kaiburr-1792: its
+cheapest known lattice attack costs $2^{467.3}$ compared with $2^{281.7}$ for FrodoKEM-1344. Against an attack that exploits the module structure of
+\textsc{Kaiburr} but does not apply to plain LWE, the hybrid retains a structural hedge, but at the level of FrodoKEM-976 ($2^{225.2}$) rather than
+FrodoKEM-1344 ($2^{281.7}$). The hybrid is therefore preferable to FrodoKEM-1344 when this level of protection against structural attacks is
+considered sufficient. A deployment that wants no reduction in structural margin can instead add \kaiburr-1792 to FrodoKEM-1344; by the same component
+measurements, this costs about 1\% more cycles before the combiner and 13--14\%
+more bandwidth.

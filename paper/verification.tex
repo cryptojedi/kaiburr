@@ -33,7 +33,7 @@ MLWE term is needed.
 
 \paragraph{Computing the bound.}
 The tail probability is computed outside EasyCrypt by OCaml code that mirrors the
-EasyCrypt expression. We report the results for kaiburr-1792 ($k=7$), kaiburr-4608 ($k=18$), and kaiburr-6144 ($k=24$) in Table~\ref{tab:bounds},
+EasyCrypt expression. We report the results for \kaiburr-1792 ($k=7$), \kaiburr-4608 ($k=18$), and \kaiburr-6144 ($k=24$) in Table~\ref{tab:bounds},
 alongside the failure probability obtained for each parameter set from the \textsc{Kyber} team's estimator scripts
 (Table~\ref{tab:kaiburr-params}).
 
@@ -46,9 +46,9 @@ alongside the failure probability obtained for each parameter set from the \text
     \toprule
     Scheme & $k$ & Verified bound (this work) & \textsc{Kyber}-script estimate \\
     \midrule
-    kaiburr-1792 & 7  & $2^{-133.3}$ & $2^{-133.7}$ \\
-    kaiburr-4608 & 18 & $2^{-133.8}$ & $2^{-134.1}$ \\
-    kaiburr-6144 & 24 & $2^{-139.6}$ & $2^{-139.9}$ \\
+    \kaiburr-1792 & 7  & $2^{-133.3}$ & $2^{-133.7}$ \\
+    \kaiburr-4608 & 18 & $2^{-133.8}$ & $2^{-134.1}$ \\
+    \kaiburr-6144 & 24 & $2^{-139.6}$ & $2^{-139.9}$ \\
     \bottomrule
   \end{tabular}
 \end{table}

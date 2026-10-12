@@ -40,8 +40,8 @@ $\pm 2$ tail, thinning it geometrically. A sample is drawn from uniform
 bits $a_1,\dots,a_t$ as $$x = (2a_t - 1)\Bigl(1 - a_1 + 2\textstyle\prod_{i=1}^{t-1} a_i\Bigr)$$
 (Algorithm~\ref{alg:sample-f}),
 which is branchless and therefore samples in constant time; we
-machine-check both constant-time (CT) and speculative constant-time (SCT)
-in Jasmin~\cite{CCS:ABBBGL17} (see Section~\ref{sec:implementation}). The standard deviation
+machine-check constant-time (CT) for all our Jasmin builds~\cite{CCS:ABBBGL17}, and speculative constant-time (SCT)
+for the AVX2 builds (see Section~\ref{sec:impl:assurance}). The standard deviation
 $\sigma(t) = \sqrt{0.5 + 2^{3-t}}$ decreases from $1$ at $t=4$ toward
 $\sqrt{0.5}$ as $t$ grows.
 
@@ -97,7 +97,7 @@ as the byte-aligned $t=4$ and $t=8$ cases. It is nonetheless interesting relativ
 First, it retains more of the $\pm2$ tail, giving a higher standard deviation and more security per dimension.
 Second, it spends fewer PRF bytes per coefficient ($0.75$ vs.\ $1$), which is relevant on platforms \emph{without} Keccak acceleration.
 For each choice of $t$, we pick the highest $k$ satisfying the failure probability bound of $2^{-128}$, staying within the communication budget of
-FrodoKEM640. 
+FrodoKEM-640. 
 
 We use FrodoKEM-640 as our baseline for parameter selection and comparison throughout the paper because it is the 
 smallest standardized FrodoKEM parameter set and hence imposes the tightest communication budget of 9,616 public-key 
@@ -122,62 +122,95 @@ $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
     \toprule
     Scheme & $k$ & noise & failure & class. & quant. & pk (B) & ct (B) \\
     \midrule
-    kaiburr-256  & 1  & $f(2)$ & $2^{-159.1}$ & 52   & 47   & 416  & 768  \\
-    kaiburr-768  & 3  & $f(3)$ & $2^{-139.3}$ & 191  & 174  & 1184 & 1536 \\
+    \kaiburr-256  & 1  & $f(2)$ & $2^{-159.1}$ & 52   & 47   & 416  & 768  \\
+    \kaiburr-768  & 3  & $f(3)$ & $2^{-139.3}$ & 191  & 174  & 1184 & 1536 \\
     \rowcolor{kaiburrbg}
-    kaiburr-1792 & 7  & $f(4)$ & $2^{-133.7}$ & 479  & 434  & 2720 & 3072 \\
-    kaiburr-3328 & 13 & $f(5)$ & $2^{-128.4}$ & 918  & 832  & 5024 & 5376 \\
+    \kaiburr-1792 & 7  & $f(4)$ & $2^{-133.7}$ & 479  & 434  & 2720 & 3072 \\
+    \kaiburr-3328 & 13 & $f(5)$ & $2^{-128.4}$ & 918  & 832  & 5024 & 5376 \\
     \rowcolor{kaiburrbg}
-    kaiburr-4608 & 18 & $f(6)$ & $2^{-134.1}$ & 1281 & 1162 & 6944 & 7296 \\
-    kaiburr-5888 & 23 & $f(7)$ & $2^{-129.8}$ & 1650 & 1497 & 8864 & 9216 \\
+    \kaiburr-4608 & 18 & $f(6)$ & $2^{-134.1}$ & 1281 & 1162 & 6944 & 7296 \\
+    \kaiburr-5888 & 23 & $f(7)$ & $2^{-129.8}$ & 1650 & 1497 & 8864 & 9216 \\
     \rowcolor{kaiburrbg}
-    kaiburr-6144 & 24 & $f(8)$ & $2^{-139.9}$ & 1717 & 1557 & 9248 & 9600 \\
+    \kaiburr-6144 & 24 & $f(8)$ & $2^{-139.9}$ & 1717 & 1557 & 9248 & 9600 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-As a cross-check, we also run the lattice estimator (Section~\ref{sec:preliminaries}). For kaiburr-1792, its cheapest attack is the dual-hybrid attack,
-at $2^{467.3}$ under its default cost model and $2^{452.3}$ in \texttt{rough} mode. Both are below the $479$ bits from the \textsc{Kyber} scripts,
-which do not model hybrid attacks. For kaiburr-4608 and kaiburr-6144, the estimator currently returns no
-finite cost for any attack, so for these parameter sets we report only the Core-SVP estimates from the \textsc{Kyber} scripts.
-\sia{I don't know why the estimator returns $\infty$ at $k=18,24$.}
-\sia{I think I do. TODO: Rerun the estimator by increasing the max block size.}
+To get more conservative estimates, we also run all eight attacks of the lattice estimator (Section~\ref{sec:preliminaries}) on the three
+selected parameter sets. Table~\ref{tab:estimator} summarizes the results. For
+\kaiburr-1792, the cheapest attack is the dual-hybrid attack at $2^{467.3}$, below the
+$479$ bits from the \textsc{Kyber} scripts, which do not model hybrid attacks. For \kaiburr-4608 and \kaiburr-6144, the cheapest
+attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits below their Core-SVP estimates.
+
+As explained in Section~\ref{sec:preliminaries}, to obtain finite costs for \kaiburr-4608 and \kaiburr-6144, we had to raise the
+estimator's block-size limit. The cheapest attacks on these sets use block sizes of roughly
+$4{,}400$ and $5{,}900$, which are outside the range in which the MATZOV cost model was derived. Our results for \kaiburr-4608 
+and \kaiburr-6144 are best understood as estimates obtained from a slightly modified estimator.
+
+\begin{table}[h]
+    \centering
+    \caption{Lattice estimator results ($\log_2$ of the cost) for all eight attacks, with the block-size limit raised to $16384$. 
+    The cheapest attack for each parameter set is in bold.}
+    \label{tab:estimator}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lrrr}
+        \toprule
+        Attack & \makecell[r]{\kaiburr-\\1792} & \makecell[r]{\kaiburr-\\4608} & \makecell[r]{\kaiburr-\\6144} \\
+        \midrule
+        uSVP            & 494.0          & 1275.5          & 1701.0 \\
+        BDD             & 488.7          & \textbf{1268.9}  & \textbf{1694.3} \\
+        BDD hybrid      & 488.7          & 1268.9          & 1694.3 \\
+        BDD MITM hybrid & 883.0          & 2411.1          & 3265.2 \\
+        dual            & 519.8          & 1400.8          & -- \\
+        dual hybrid     & \textbf{467.3}  & 1458.3          & 2120.4 \\
+        coded BKW       & --             & --              & -- \\
+        Arora--Ge (GB)  & $\infty$       & $\infty$        & $\infty$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{Sizes}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
-sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including kaiburr-6144, remain within the
-communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set. kaiburr-1792 is smaller in
+sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including \kaiburr-6144, remain within the
+communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set. \kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
-a third the size of HQC-5 (21,658 bytes)
+a third the size of HQC-5 (21,658 bytes).
 
 \begin{table}[h]
 \centering
-\caption{Public-key and ciphertext sizes across \textsc{Kaiburr},
-FrodoKEM~\cite{frodoKEM-github}, and HQC~\cite{hqc-github,hqc2025spec}.
-\textsc{Kaiburr}'s classical/quantum Core-SVP security is as computed with
-the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}); FrodoKEM
-and HQC security categories are as claimed by their designers against NIST's
-category 1/3/5 targets and are not directly comparable to the Core-SVP
-numbers.}
+\caption[Public-key and ciphertext sizes across \textsc{Kaiburr}, FrodoKEM, and HQC.]{Public-key and ciphertext sizes across \textsc{Kaiburr},
+FrodoKEM, and HQC. \textsc{Kaiburr}'s classical/quantum Core-SVP security is as computed with
+the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}). The lattice estimator
+column gives the $\log_2$ cost of the cheapest attack found by the lattice estimator for both
+\textsc{Kaiburr} and FrodoKEM.}
 \label{tab:size-comparison}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Scheme & Security & pk (bytes) & ct (bytes) & pk+ct (bytes) \\
+Scheme & \makecell{Core-SVP\\(class./quant.)} & \makecell{Lattice\\est.\footnotemark} & pk (bytes) & ct (bytes) & pk+ct (bytes) \\
 \midrule
-kaiburr-1792 & 479 / 434 (class./quant.) & 2720  & 3072  & 5792  \\
-kaiburr-4608 & 1281 / 1162 (class./quant.) & 6944  & 7296  & 14240 \\
-kaiburr-6144 & 1717 / 1557 (class./quant.) & 9248  & 9600  & 18848 \\
+\kaiburr-1792 & 479 / 434   & 467.3  & 2720  & 3072  & 5792  \\
+\kaiburr-4608 & 1281 / 1162 & 1268.9 & 6944  & 7296  & 14240 \\
+\kaiburr-6144 & 1717 / 1557 & 1694.3 & 9248  & 9600  & 18848 \\
 \midrule
-FrodoKEM-640  & Category 1 & 9616  & 9720  & 19336 \\
-FrodoKEM-976  & Category 3 & 15632 & 15744 & 31376 \\
-FrodoKEM-1344 & Category 5 & 21520 & 21632 & 43152 \\
+FrodoKEM-640  & --          & 162.9  & 9616  & 9720  & 19336 \\
+FrodoKEM-976  & --          & 225.2  & 15632 & 15744 & 31376 \\
+FrodoKEM-1344 & --          & 281.7  & 21520 & 21632 & 43152 \\
 \midrule
-HQC-1 & Category 1 & 2241 & 4433  & 6674  \\
-HQC-3 & Category 3 & 4514 & 8978  & 13492 \\
-HQC-5 & Category 5 & 7237 & 14421 & 21658 \\
+HQC-1 & \multicolumn{2}{c}{Category 1\footnotemark} & 2241 & 4433  & 6674  \\
+HQC-3 & \multicolumn{2}{c}{Category 3} & 4514 & 8978  & 13492 \\
+HQC-5 & \multicolumn{2}{c}{Category 5} & 7237 & 14421 & 21658 \\
 \bottomrule
 \end{tabular}
 \end{table}
+\addtocounter{footnote}{-1}
+\footnotetext{FrodoKEM was also evaluated using the same modified estimator with the maximum block 
+size set to $16384$ for consistency. We note that the estimated cost remains unchanged for any maximum block size setting, as 
+long as the cost was already finite under the original estimator.}
+\stepcounter{footnote}
+\footnotetext{The security categories for HQC are as claimed by the design team
+against NIST's category 1/3/5 targets. They are not directly comparable to
+either lattice figure, as HQC is a code-based scheme.}
 
 \subsection{The ceiling of the family}
 The family $f(t)$ is not unbounded. The lightest noise it can

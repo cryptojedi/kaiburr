@@ -2,9 +2,11 @@
 \label{sec:implementation}
 
 We provide three implementations of \textsc{Kaiburr}, each forked from an existing ML-KEM implementation: 
-a C implementation, a Jasmin implementation with machine-checked constant-time verification, and an assembly 
-implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).
-\footnote{\url{https://github.com/pavona/pavona}}
+a C implementation,\footnote{Forked from the \textsc{Kyber} reference and AVX2 implementations, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
+a Jasmin implementation with machine-checked constant-time verification,\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
+and an assembly
+implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).%
+\footnote{\url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
 The ACC reuses ML-KEM's 
 arithmetic core and accelerates Keccak in hardware. This provides us with a complementary hardware-accelerated setting 
 where we can evaluate the cost of scaling the module rank $k$. As upstream, the C and Jasmin code each have a 
@@ -13,7 +15,7 @@ portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-wr
 All three implementations make the same three changes to ML-KEM:
 \begin{enumerate}
   \item the module rank $k$ is scaled to $\{7,18,24\}$, giving the parameter
-        sets kaiburr-1792, -4608, and -6144 (named kaiburr4, kaiburr6, and
+        sets \kaiburr-1792, -4608, and -6144 (named kaiburr4, kaiburr6, and
         kaiburr8 in the code, after their noise parameter $t$; see
         Table~\ref{tab:kaiburr-params});
   \item ciphertext compression is removed, so both ciphertext polynomials are
@@ -73,9 +75,8 @@ The C and Jasmin code store the full matrix $\mathbf{A}$ on the stack. Its size
 grows quadratically with $k$, from $24.5$\,KiB at $k=7$ to $288$\,KiB at
 $k=24$. This is not suitable for ACC, whose
 stock configuration only provides $32$\,KiB of data memory. That is less than the
-working set of a single decapsulation at $k=24$, which is about $34$\,KiB for
-the ciphertext, re-encrypted ciphertext, secret key, and hashing buffers alone,
-before the matrix is counted.
+stack frame of a single decapsulation at $k=24$, which is about $34$\,KiB even without storing
+the matrix, before the input ciphertext and secret key are counted.
 
 We address this in two ways. First, the ACC implementation never stores
 $\mathbf{A}$. It generates one polynomial at a time, multiplies it into a
@@ -111,7 +112,7 @@ Table~\ref{tab:sampler-variants} summarizes their choices.
     C AVX2      & compare against a mask & conditional lane negate      & 8--32-bit lanes \\
     Jasmin ref  & carry propagation      & conditional two's-complement & scalar \\
     Jasmin AVX2 & compare against a mask & conditional two's-complement & 8--16-bit lanes \\
-    ACC         & carry propagation      & modular subtract + select    & 16-bit lanes \\
+    ACC         & carry propagation      & modular subtract + blend      & 16-bit lanes \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -150,8 +151,8 @@ unpacker that work in standard order, without the permutation.
 
 The new packer emits $24$ bytes per iteration as two $16$-byte stores twelve
 bytes apart, so its final iteration would write past the end of the buffer.
-The C code stages the final iteration through a scratch buffer, and the Jasmin
-code handles it as a separate case.
+The C code therefore writes every iteration to a scratch buffer and copies $24$ bytes out, and the Jasmin
+code handles the final iteration as a separate case.
 
 Removing compression also has a consequence beyond engineering. It makes the decryption-failure probability
 formally provable, which we develop in Section~\ref{sec:verification}.
@@ -165,11 +166,11 @@ whose EasyCrypt proofs establish functional correctness for ML-KEM. These
 proofs do not carry over to \textsc{Kaiburr}, since the sampler, module rank,
 and serialization all change. What we check is much narrower.
 
-Every exported function carries two annotations. A \texttt{ct} annotation is
-checked by Jasmin's constant-time checker, for both standard and speculative
-constant-time. A \texttt{safety} annotation establishes that array accesses
-stay in bounds and that all memory is initialized before use. Both properties
-are checked for all six builds.
+Every exported function carries a security-type annotation.
+We check all six builds with Jasmin's constant-time checker for constant-time (CT). The three AVX2 builds,
+whose exported functions carry \texttt{sct} annotations, are additionally checked for speculative constant-time
+(SCT)~\cite{SP:SBGLOP23}, which also rules out leaking secrets through instructions executed speculatively after
+a mispredicted branch (Spectre~v1). As upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
 
 \paragraph{Testing.}
 The C implementation relies on the deterministic round-trip self-tests
