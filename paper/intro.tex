@@ -2,7 +2,7 @@
 \label{sec:introduction}
 After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204}, 
 and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively. Later in 2025, NIST selected an additional KEM, HQC, 
-for standardization in the fourth round~\cite{fourthstatus}. Unlike ML-KEM, which is based on Module Learning With Errors (MLWE), 
+for standardization in the fourth round~\cite{fourthstatus}.\vadim{Also mention FN-DSA somewhere?)} Unlike ML-KEM, which is based on Module Learning With Errors (MLWE), 
 HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) 
 problem~\cite{hqc2025spec}, providing
 diversity beyond lattice-based assumptions. This choice also marked a shift away from the lattice-based KEMs that dominated the 
@@ -76,6 +76,8 @@ dedicated hardware-accelerated platforms. Next, we compare \textsc{Kaiburr} with
 and HQC. Finally, we show that combining \textsc{Kaiburr} with FrodoKEM in a hybrid hedges against both structural
 attacks and improvements to the best known lattice attacks at lower cost than FrodoKEM's most conservative parameter set.
 
+\vadim{I a have a general comment here. We should not be stressing that we somehow figured out how to do Kyber in a higher dimension -- it's clear to everyone that this can be done.  Our paper should be positioned more as a position paper saying that doing Kyber in a higher dimension with the parameters and noise distribution that we propose is efficient (we implemented / verified) and in our opinion is the more conservative option to just Frodo.  Also, the intro is not very ``tight'' in the sense that it's reads a bit all over the place to me.  I would just say that we want to increase the security of kyber, we want to keep the algebraic operations and simple constant-time bernoulli noise generation. Our result is an instantiation of a scheme whose noise distribution generalizes Kyber,  can be instantiated up to dimension 4000 or something which gives up to xxx bits of security. This allows us to compensate for dimension and algebraic risks in a, what we believe, is a more conservative way than Frodo within a given budget.  We furthermore implement, formally verify, benchmark, etc. our scheme.  I guess I just don't want it to read like we were somehow the first to figure out how to do MLWE in higher dimension :)...}  
+
 \subsection{Our contributions}
 We make several contributions in this work, summarized below.
 \peter{Clarify that we don't increase security globally, only increase the margin for MLWE. Specifically, we don't scale symmetric components in ML-KEM.}
@@ -83,7 +85,7 @@ We make several contributions in this work, summarized below.
   \item \emph{We show that naively scaling ML-KEM's module rank hits a correctness wall.} Raising $k$ alone, with \textsc{Kyber}'s noise and 
     modulus fixed, satisfies the $2^{-128}$ decryption-failure
     bound only up to $k=7$ and fails already at $k=8$, so larger module rank cannot buy additional
-    security margin on its own (Section~\ref{sec:warmup}).
+    security margin on its own (Section~\ref{sec:warmup}) \vadim{Maybe de-emphasize this observation}.
   \item \emph{We introduce a one-parameter noise family that allows us to scale further.} Our family $f(t)$
     generalizes \textsc{Kyber}'s centered binomial distribution, thinning its $\pm 2$ tail geometrically as $t$
     grows while leaving the $\pm 1$ mass unchanged.
