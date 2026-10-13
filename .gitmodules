@@ -10,3 +10,9 @@
 [submodule "src/kaiburr-c"]
 	path = src/kaiburr-c
 	url = https://github.com/swechchhaad/kaiburr-c
+[submodule "kaiburr-bounds"]
+	path = kaiburr-bounds
+	url = https://github.com/swechchhaad/kaiburr-bounds
+[submodule "kaiburr-lattice-estimator"]
+	path = kaiburr-lattice-estimator
+	url = https://github.com/swechchhaad/kaiburr-lattice-estimator
