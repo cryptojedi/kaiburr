@@ -47,7 +47,7 @@ Against a quantum adversary, however, the classical component offers no protecti
 is only as strong as its post-quantum half. This same principle extends naturally to combining two post-quantum KEMs, each covering
 a different failure mode.
 
-Of the single schemes available today, FrodoKEM-1344 comes closest to covering both the structure and margin hedges, as it avoids algebraic
+Of the standalone schemes available today, FrodoKEM-1344 comes closest to covering both the structure and margin hedges, as it avoids algebraic
 structure entirely and carries the largest security estimate among the standardized lattice KEMs. It is also by far the most expensive, with public
 keys and ciphertexts of over 21\,KB each, more than an order of magnitude larger than those of ML-KEM-1024~\cite{takeofffrodo,fips203}.
 This cost reflects the fact that structure determines the \emph{price} of buying margin. At matched security, an unstructured scheme already
