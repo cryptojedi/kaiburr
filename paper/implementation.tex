@@ -2,18 +2,23 @@
 \label{sec:implementation}
 
 We provide three implementations of \textsc{Kaiburr}, each forked from an existing ML-KEM implementation: 
-a C implementation,\footnote{Forked from the \textsc{Kyber} reference and AVX2 implementations, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
+a C implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
 a Jasmin implementation with machine-checked constant-time verification,\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
-and an assembly
-implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).%
-\footnote{\url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
-\peter{move footnotes before fullstop, comma, etc. consistently}
-The ACC reuses ML-KEM's 
-arithmetic core and accelerates Keccak in hardware. This provides us with a complementary hardware-accelerated setting 
-where we can evaluate the cost of scaling the module rank $k$. As upstream, the C and Jasmin code each have a 
+and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).
+\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
+As upstream, the C and Jasmin code each have a
 portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
 
-All three implementations make the same three changes to ML-KEM:
+The ACC is the coprocessor for public-key cryptography in the Pavona open-source silicon framework. To accelerate
+ML-KEM and ML-DSA, its post-quantum configuration adds a vector extension to its instruction set and a direct connection
+to the chip's KMAC block~\cite{SP:AOPPSS25,EPRINT:NiePha25}, a hardware SHA-3 and SHAKE engine, which the ACC feeds and
+reads through special registers. It has $32$ general-purpose
+registers of $32$ bits and $32$ wide data registers of $256$ bits. Its vector instructions interpret a wide register as
+$16$ lanes of $16$ bits or $8$ lanes of $32$ bits, so one wide register holds $16$ polynomial coefficients. Our
+implementation reuses the arithmetic of the existing ML-KEM implementation for the ACC, which provides us with a
+complementary hardware-accelerated setting where we can evaluate the cost of scaling $k$.
+
+All implementations make the same three changes to ML-KEM:
 \begin{enumerate}
   \item the module rank $k$ is scaled to $\{7,18,24\}$, giving the parameter
         sets \kaiburr-1792, -4608, and -6144 (named kaiburr4, kaiburr6, and
@@ -51,9 +56,8 @@ both products at $32$ bits and applies a single Montgomery reduction, so its ter
 $k \le 9$; it also fails at $k=18$ and $k=24$.
 
 The C and Jasmin implementations therefore Barrett-reduce the accumulator after every pointwise product, at 
-a cost of one extra reduction per term.\footnote{We note that reducing after every term is more conservative than
-necessary, since a Barrett reduction leaves headroom for several further terms.
-We did not implement this, as reduction is not a significant part of the cost.}
+a cost of one extra reduction per term.\footnote{Reducing after every term is more conservative than
+necessary, since a Barrett reduction leaves headroom for several further terms. We did not implement this optimization.}
 ACC needs no such change since it accumulates with \textcolor{hotpink}{\texttt{bn.addvm}},
 a modular addition against the \texttt{MOD} register, which is set to $2q$ throughout the basemul. Its accumulator
 stays below $2q$ for every $k$, and the reduction is free.
@@ -171,8 +175,7 @@ and serialization all change. What we check is much narrower.
 Every exported function carries a security-type annotation.
 We check all six builds with Jasmin's constant-time checker for constant-time (CT). The three AVX2 builds,
 whose exported functions carry \texttt{sct} annotations, are additionally checked for speculative constant-time
-(SCT)~\cite{SP:SBGLOP23}, which also rules out leaking secrets through instructions executed speculatively after
-a mispredicted branch (Spectre~v1). As upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
+(SCT)~\cite{SP:SBGLOP23}. As upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
 
 \paragraph{Testing.}
 The C implementation relies on the deterministic round-trip self-tests
