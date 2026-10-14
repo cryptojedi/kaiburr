@@ -86,13 +86,13 @@ We make several contributions in this work, summarized below.
   \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
     \kaiburr-1792, -4608, and -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
     bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (Section~\ref{sec:distribution}).
+  \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show
+    that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
+    compression causes for ML-KEM (Section~\ref{sec:verification}).
   \item \emph{Implementations across three targets.} Since \textsc{Kaiburr} keeps ML-KEM's ring, NTT arithmetic, and symmetric
     primitives, existing implementation techniques carry over. We implement all three parameter sets in C, in Jasmin with
     machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
     engineering consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
-  \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show
-    that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
-    compression causes for ML-KEM (Section~\ref{sec:verification}).
   \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our AVX2 and Jasmin implementations run
     substantially faster than FrodoKEM-640. \kaiburr-1792 outperforms HQC-5 in every operation; for the larger parameter sets, HQC is
     faster in key generation and encapsulation and similar in decapsulation, despite \textsc{Kaiburr}'s much larger margins
