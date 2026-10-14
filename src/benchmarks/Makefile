@@ -20,27 +20,30 @@ KAIBURR_C      := ../kaiburr-c
 KAIBURR_JASMIN := ../kaiburr-jasmin
 FRODO          := ../PQCrypto-LWEKE
 HQC            := ../hqc-next-release
+MLKEM          := ../kyber-upstream
 
 JASMINC ?= jasminc
 KECCAK  := $(KAIBURR_JASMIN)/formosa-keccak/src/amd64
 
 KAIBURR_VARIANTS := kaiburr4:7 kaiburr6:18 kaiburr8:24
+MLKEM_VARIANTS   := mlkem512:2 mlkem768:3 mlkem1024:4
 HQC_VARIANTS     := hqc-1 hqc-3 hqc-5
 FRODO_LEVELS     := 640 976 1344
 FRODO_GENS       := aes shake
 
 KAIBURR_C_BINS      := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-c-ref bin/$(firstword $(subst :, ,$(v)))-c-avx2)
 KAIBURR_JASMIN_BINS := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-jasmin-ref bin/$(firstword $(subst :, ,$(v)))-jasmin-avx2)
+MLKEM_BINS          := $(foreach v,$(MLKEM_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-c-ref bin/$(firstword $(subst :, ,$(v)))-c-avx2)
 HQC_BINS            := $(foreach v,$(HQC_VARIANTS),bin/$(v)-ref bin/$(v)-avx2)
 FRODO_BINS          := $(foreach l,$(FRODO_LEVELS),$(foreach g,$(FRODO_GENS),bin/frodo$(l)-$(g)-ref bin/frodo$(l)-$(g)-avx2))
 
 KAIBURR_BINS := $(KAIBURR_C_BINS) $(KAIBURR_JASMIN_BINS)
-ALL_BINS     := $(KAIBURR_BINS) $(HQC_BINS) $(FRODO_BINS)
+ALL_BINS     := $(KAIBURR_BINS) $(MLKEM_BINS) $(HQC_BINS) $(FRODO_BINS)
 
 .PHONY: default all run smoke help clean \
         compile compile-kaiburr compile-kaiburr-c compile-kaiburr-jasmin \
-        compile-hqc compile-frodo \
-        run-kaiburr run-kaiburr-c run-kaiburr-jasmin run-hqc run-frodo
+        compile-mlkem compile-hqc compile-frodo \
+        run-kaiburr run-kaiburr-c run-kaiburr-jasmin run-mlkem run-hqc run-frodo
 
 default: run
 
@@ -48,6 +51,7 @@ compile: $(ALL_BINS)
 compile-kaiburr:        $(KAIBURR_BINS)
 compile-kaiburr-c:      $(KAIBURR_C_BINS)
 compile-kaiburr-jasmin: $(KAIBURR_JASMIN_BINS)
+compile-mlkem:          $(MLKEM_BINS)
 compile-hqc:            $(HQC_BINS)
 compile-frodo:          $(FRODO_BINS)
 
@@ -60,6 +64,7 @@ endef
 run: $(ALL_BINS)
 	$(call run_group,$(KAIBURR_JASMIN_BINS),1)
 	$(call run_group,$(KAIBURR_C_BINS),0)
+	$(call run_group,$(MLKEM_BINS),0)
 	$(call run_group,$(HQC_BINS),0)
 	$(call run_group,$(FRODO_BINS),0)
 
@@ -69,6 +74,8 @@ run-kaiburr-c: $(KAIBURR_C_BINS)
 	$(call run_group,$(KAIBURR_C_BINS),1)
 run-kaiburr-jasmin: $(KAIBURR_JASMIN_BINS)
 	$(call run_group,$(KAIBURR_JASMIN_BINS),1)
+run-mlkem: $(MLKEM_BINS)
+	$(call run_group,$(MLKEM_BINS),1)
 run-hqc: $(HQC_BINS)
 	$(call run_group,$(HQC_BINS),1)
 run-frodo: $(FRODO_BINS)
@@ -116,6 +123,28 @@ endef
 
 $(foreach v,$(KAIBURR_VARIANTS),\
   $(eval $(call kaiburr_c_rule,$(firstword $(subst :, ,$(v))),$(word 2,$(subst :, ,$(v))))))
+
+MLKEM_REF_SRCS  = $(subst fn.c,cbd.c,$(KAIBURR_C_REF_SRCS))
+MLKEM_AVX2_SRCS = $(subst fn.c,cbd.c,$(KAIBURR_C_AVX2_SRCS))
+
+define mlkem_rule
+bin/$(1)-c-ref: $(RB) | bin
+	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) -o $$@ $$(DRIVER) \
+	  $$(call kaiburr_c_defs,$(3),$(2),ref) \
+	  -I$$(MLKEM)/ref $$(RBINC) \
+	  $$(addprefix $$(MLKEM)/ref/,$$(MLKEM_REF_SRCS)) $$(RB)
+
+bin/$(1)-c-avx2: $(RB) | bin
+	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) -mavx2 -mbmi2 -mpopcnt -o $$@ $$(DRIVER) \
+	  $$(call kaiburr_c_defs,$(3),$(2),avx2) \
+	  -I$$(MLKEM)/avx2 $$(RBINC) \
+	  $$(addprefix $$(MLKEM)/avx2/,$$(MLKEM_AVX2_SRCS)) $$(RB)
+endef
+
+mlkem_prefix = pqcrystals_kyber$(subst mlkem,,$(1))
+
+$(foreach v,$(MLKEM_VARIANTS),\
+  $(eval $(call mlkem_rule,$(firstword $(subst :, ,$(v))),$(word 2,$(subst :, ,$(v))),$(call mlkem_prefix,$(firstword $(subst :, ,$(v)))))))
 
 JBUILD := build-jasmin
 JSRC    = $(KAIBURR_JASMIN)/code/jasmin
@@ -219,6 +248,7 @@ help:
 	@echo "  make run-kaiburr          kaiburr4/6/8, C and Jasmin, ref and avx2"
 	@echo "  make run-kaiburr-c        kaiburr4/6/8, C only"
 	@echo "  make run-kaiburr-jasmin   kaiburr4/6/8, Jasmin only"
+	@echo "  make run-mlkem            ML-KEM-512/768/1024 (unmodified upstream C), ref and avx2"
 	@echo "  make run-hqc              hqc-1/3/5, ref and avx2"
 	@echo "  make run-frodo            FrodoKEM-640/976/1344, AES and SHAKE, ref and avx2"
 	@echo "  make compile[-<group>]    build without running"
