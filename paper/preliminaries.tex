@@ -3,10 +3,10 @@
 
 ML-KEM\footnote{We use \textsc{Kyber} and ML-KEM
 interchangeably, except when separating the NIST submission from the standardized version.}~\cite{fips203} is built in two layers. 
-At its core is an IND-CPA-secure public-key encryption scheme, K-PKE, whose security reduces to MLWE. ML-KEM uses a variant
+At its core is an IND-CPA-secure public-key encryption scheme, K-PKE, whose security reduces to module-learning-with-errors (MLWE). ML-KEM uses a variant
 of the Fujisaki--Okamoto (FO) transform to lift K-PKE to an IND-CCA2-secure KEM where decapsulation decrypts, re-encrypts the recovered message with the derived
 randomness, and returns a pseudorandom key if the result differs from the received ciphertext. In this work, we leave the
-FO transform and the symmetric primitives unchanged, so all of our changes are confined to K-PKE, which we describe in this section. 
+FO transform and the symmetric primitives unchanged, so all of our changes are confined to K-PKE, which we briefly review in this section. 
 We refer to~\cite{fips203} for the full specification.
 
 \paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $\Rq=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
@@ -39,9 +39,9 @@ family of Section~\ref{sec:distribution}.
 
 \paragraph{Decryption failure.} Decryption is correct as long as every coefficient of $\tilde{n}$ is smaller than $q/4$ in absolute value.
 We refer to the decryption-failure probability $\delta$ as the probability, over the randomness of key generation and
-encryption, that at least one of the $n$ coefficients of $\tilde{n}$ exceeds this threshold.\footnote{It is well established that once
+encryption, that at least one of the $n$ coefficients of $\tilde{n}$ exceeds this threshold\footnote{It is well established that once
 an attacker finds a single failure, they can use it as a compass to drastically accelerate finding more failures. This type of attack
-is known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}
+is known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}.
 To compute $\delta$, we adapt the \textsc{Kyber} team's scripts~\cite{kyber-scripts}. Each coefficient of
 $\mathbf{e}^T\mathbf{r}$ and of $\mathbf{s}^T\mathbf{e}_1$ is a signed sum of $kn$ products of two independent noise coefficients.
 The scripts compute the distribution of a single coefficient of $\tilde{n}$ by convolution, take its tail mass beyond $q/4$,
@@ -79,6 +79,7 @@ full estimate costs lattice reduction with the MATZOV model~\cite{matzov2022lwe}
 We model each \kaiburr parameter set as an LWE instance of dimension $256k$ with $256k$ samples, $q=3329$, and secret and error
 coefficients of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}). For FrodoKEM, we use the estimator's built-in
 parameter sets. We keep the estimator's defaults with one exception.
+\peter{Forward reference where we explain this exception}
 
 \paragraph{Raising the block-size limit.} By default, the estimator caps the BKZ block size at $1754$, where the Core-SVP cost
 reaches $2^{512}$, and reports an infinite cost for any attack beyond it, so every attack on the two largest \kaiburr parameter sets is

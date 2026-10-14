@@ -8,12 +8,12 @@ diversity beyond lattice-based assumptions. Among lattice-based designs, the Rou
 structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules (\textsc{Kyber}~\cite{kyberoriginal} and
 Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}), reflecting a trade-off between efficiency
 and conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a potential attack surface,
-which conservative designs avoid entirely; FrodoKEM, for example, rests on plain LWE, one reason it was recommended by BSI, ENISA, and
+which other designs avoid entirely; FrodoKEM, for example, rests on plain LWE, one reason it was recommended by BSI, ENISA, and
 NLNCSA~\cite{frodokem-news} and recently standardized by ISO~\cite{frodoiso}.
 
 The efficiency-vs.-conservatism framing bundles together two notions of conservatism that concern different classes of attack.
-The first arises from the choice of hardness assumption: FrodoKEM is grounded on unstructured LWE to avoid a hypothetical structure break,
-an attack that would exploit the algebraic structure of ring/module LWE but not apply directly to plain LWE.
+The first arises from the choice of hardness assumption: FrodoKEM is grounded on unstructured LWE to avoid
+a hypothetical attack that would exploit the algebraic structure of ring/module LWE but not apply directly to plain LWE.
 The second is the security margin a scheme carries above its target level, which protects against advances in the best known attacks,
 such as improved lattice reduction, dual attacks, or sharper cost models. Such advances would affect the concrete security of every
 lattice scheme at its current parameters, including FrodoKEM.

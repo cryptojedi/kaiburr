@@ -7,9 +7,9 @@ Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a 
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
-implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare\footnote{Additionally,
 we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \ref{sec:intro}, since no
-public hand-optimized implementation of the scheme exists.}
+public hand-optimized implementation of the scheme exists.}.
 We mainly compare against FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially
 more expensive than \textsc{Kaiburr}. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
 the hybrid comparison of Section~\ref{sec:hybrid}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
@@ -32,7 +32,7 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 \ref{tab:13900k}, respectively.
 
 
-\begin{table*}[t]
+\begin{table*}[h]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -93,7 +93,7 @@ HQC-5 & \cite{hqc-github} &
 \end{table*}
 
 
-\begin{table*}[t]
+\begin{table*}[h]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -170,7 +170,7 @@ HQC-5 & \cite{hqc-github} &
 \end{tabular}
 \end{table*}
 
-\begin{table*}[t]
+\begin{table*}[h]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
@@ -263,7 +263,7 @@ we build the keypair–encapsulate–decapsulate roundtrip three times, terminat
 and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
 and $\mathrm{Dec}=M_3-M_2$. Results are shown in Table~\ref{tab:acc}.
 
-\begin{table}[t]
+\begin{table}[h]
 \centering
 \caption{Benchmark results in cycles for the ACC implementation on Pavona's cycle-accurate RTL
 simulator. Values are exact cycle counts.}
@@ -288,7 +288,7 @@ is the software rejection-sampling loop itself, namely its mask/compare/select a
 (\textcolor{hotpink}{\texttt{bn.and}}, \textcolor{hotpink}{\texttt{bn.cmp}}, \textcolor{hotpink}{\texttt{bn.sel}})
 and the accept/reject branches (\textcolor{hotpink}{\texttt{bne}}, \textcolor{hotpink}{\texttt{beq}}).
 
-\begin{table}[t]
+\begin{table}[h]
 \centering
 \setlength{\tabcolsep}{4pt}
 \caption{Share of total roundtrip cycles in the ACC benchmark, from the simulator's per-function and

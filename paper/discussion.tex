@@ -1,10 +1,89 @@
 \section{Discussion}
 \label{sec:discussion}
 
-Our results show that \textsc{Kaiburr} remains computationally practical at much higher security margins. In our Intel benchmarks, every \textsc{Kaiburr}
-parameter set is substantially faster than FrodoKEM-640 in every operation. This includes our largest parameter set, \kaiburr-6144, which stays within
-FrodoKEM-640's communication budget, reaches Core-SVP estimates of 1717 bits classical and 1557 bits quantum, and is still 2.4--3.1 times faster.
+Our results show that with the proposed generalization of the noise distribution used in ML-KEM, 
+we can increase the module rank of ML-KEM and thereby obtain a massive security margin to hedge
+against possible future improvements in solving (M)LWE. The performance of the largest
+parameter set we propose, \kaiburr-6144 reaches Core-SVP estimates of 1717 bits classical and 1557 bits quantum,
+while still outperforming the \emph{smallest} parameter set of FrodoKEM in every regard:
+it has slightly smaller public keys and ciphertexts and is more than twice as fast.
+Also in comparison with HQC, \kaiburr is competitive in performance at a much larger
+security margin. 
 
+\begin{quote}
+  \emph{What does this mean for deployments of post-quantum cryptography that 
+aim for extra protection against possible future advances in cryptanalysis and are 
+willing to accept a significant performance decrease compared to, e.g., simply deploying
+  ML-KEM-1024?}
+\end{quote}
+
+Certainly, \emph{some} deployments are constrained to standardized schemes and parameter
+sets, possibly even to specific combiners or non-hybrid deployment. In the following 
+discussion, we ignore such constraints imposed by policy or certification requirements
+and instead focus purely technical aspects. We note however, that the smallest parameter
+set of FrodoKEM, which inspires our performance limit for \kaiburr, is \emph{not} standardized
+by ISO~\cite{San26}.
+
+The first observation is that for any post-quantum KEM at a performance profile in the ballpark of FrodoKEM,
+a hybrid combination with classical ECDH should be a no-brainer. To quantify this 
+statement, let us consider the performance of the NIST level-3 parameter set of FrodoKEM
+and of X25519 ECDH on the Intel Coffee Lake microarchitecture (cf. \cref{tab:8700k}). 
+Median cycles for FrodoKEM key generation are 8270912, for encapsulation 8528877,
+and for decapsulation 8411864. 
+According to SUPERCOP~\cite{XXX}, X25519 takes 27345 median cycles for
+key generation and 83438 cycles for shared-key computation on the same
+microarchitecture (specifically, on an Intel Xeon E-2124), so adding those
+cycles to FrodoKEM costs less than 2\% overhead (plus the cost of
+hashing incurred by the combiner). In terms of increase to public-key and
+ciphertext sizes the argument is even more obvious: adding 32 bytes to
+objects of more than 15\,KB should not be noticeable in pretty much any
+application. Given the remarkably stable security track record of ECC,
+this hybrid is very likely to protect ciphertexts until the arrival of
+large universal quantum computers, even if lattice cryptanalysis makes
+unexpected progress to the extent that FrodoKEM ciphertexts are no longer
+secure.
+
+A slightly less obvious recommendation is to always combine FrodoKEM 
+with at least a standardized parameter set of ML-KEM. As ML-KEM offers
+roughly comparable (in fact, somewhat better) performance as X25519,
+the argument for computational performance increase is similar as for
+X25519. With regards to increase in ciphertext and public-key size, the overhead
+becomes noticeable, but remains solidly at single-digit percentages.
+One might think that such a hybrid does not actually add much in terms
+of security, as a break of FrodoKEM is fairly likely to also affect
+ML-KEM. However, this is not true for software bugs and implementation attacks, 
+which may well affect only one of the two schemes. This is particularly
+true as implementation security of post-quantum schemes is more complex
+and by far not as mature as for for ECC.  Hence, adding ML-KEM
+to FrodoKEM offers additional \emph{post-quantum} security at a very low cost.
+
+Even more importantly, and this is the central messages of this paper,
+our results call into question the use of high-security parameter sets of FrodoKEM: 
+A combination of FrodoKEM-640 and \kaiburr-6144 offers significantly better performance than FrodoKEM-976
+both in terms of cycle counts and in terms of ciphertext and public-key sizes.
+\peter{TODO: double check that this is correct for sizes}
+Similarly, a combination of FrodoKEM-976 and \kaiburr-6144 offers much better
+performance than FrodoKEM-1344. In terms of security, hybrids of FrodoKEM and
+\kaiburr hedge simultanuously against even massive improvements in attacks
+against lattice schemes in general (through the huge margin of \kaiburr) and 
+against any improvements in attacks that only apply to structured lattices 
+(through the use of FrodoKEM). The only advantage of a higher-security FrodoKEM
+variant would only come into play if both structured lattices are completely
+broken and attacks against unstructured lattices improve significantly, but
+not by too much (i.e., within the slightly increased margin of the larger
+FrodoKEM parameters). Additionally, a combination of \kaiburr and FrodoKEM
+has the same benefits of some additional hedging against implementation
+attacks that standalone FrodoKEM is lacking.
+
+In fact, if one is willing to accept the performance budget of 
+\peter{TODO: Discussion about HQC}.
+
+
+
+
+
+
+\begin{comment}
 A gap this wide reflects the computational advantage of retaining module structure. It also shows that the bandwidth separating the two schemes can be
 spent in more than one way. Even ML-KEM-1024, the largest ML-KEM parameter set, has a public key 8,048 bytes and a ciphertext 8,152 bytes smaller than
 FrodoKEM-640, the smallest FrodoKEM parameter set. FrodoKEM spends that bandwidth on \emph{removing} algebraic structure, whereas \textsc{Kaiburr} spends it on
@@ -57,3 +136,4 @@ hardware support for rejection sampling the natural next step. It also remains o
 parameters of ML-KEM while making minimal changes to existing implementations. A machine-checked functional-correctness and IND-CCA proof for 
 \textsc{Kaiburr} extending \texttt{formosa-mlkem}~\cite{fvk} is also in scope. Finally, implementing the hybrid as a single KEM with a concrete combiner, and benchmarking it end to
 end, remains to be done.
+\end{comment}
