@@ -243,15 +243,12 @@ the 6700K, 1.73, 3.79, and 3.11 on the 8700K, and 1.68, 3.61, and 2.90 on the 13
 Interquartile ranges are narrow relative to the medians across all measurements, typically within
 1--2\% of the median (e.g., for \kaiburr-1792 C/asm, 1.3--1.5\% on the 6700K and 1.3--1.4\% on the 8700K).
 
-We additionally benchmark the ACC implementation described in Section~\ref{sec:implementation} on
-Pavona's cycle-accurate RTL simulator for the accelerator. Because the simulator is deterministic
-for a fixed random seed, repeated runs of the same test are identical in cycles. Therefore unlike the CPU benchmarks
-above, we report a single exact cycle count per operation rather than a median and interquartile
-range. We measure each KEM operation within a single keypair--encapsulate--decapsulate
-roundtrip and record cumulative execution statistics after each operation. The individual costs
-are then recovered by subtraction:
-$\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, and
-$\mathrm{Dec}=M_3-M_2$. Results are shown in Table~\ref{tab:acc}.
+We additionally benchmark the ACC implementation on Pavona's cycle-accurate RTL simulator. The simulator is 
+deterministic, so repeated runs on the same input are cycle-identical; we therefore run each operation once on a 
+fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
+we build the keypair–encapsulate–decapsulate roundtrip three times, terminating after KeyGen, after Enc, 
+and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
+and $\mathrm{Dec}=M_3-M_2$. Results are shown in Table~\ref{tab:acc}.
 
 \begin{table}[t]
 \centering
