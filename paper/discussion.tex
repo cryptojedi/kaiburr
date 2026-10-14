@@ -38,17 +38,9 @@ profiling results demonstrate this concretely. Matrix generation accounts for 73
 the share of the noise sampler falls from 6.3\% to 2.1\%. Hardware SHAKE-128 acceleration does not remove this bottleneck either. The core waits on the 
 accelerator for only 5.5--6.2\% of total cycles, with little change across parameter sets, while the software rejection-sampling loop grows to 69.9\% of 
 total cycles for \kaiburr-6144. For an accelerated implementation, the optimization target therefore moves from symmetric
-throughput to rejection sampling. This is consistent with Abdulrahman et al., who also identify rejection sampling as a target for further hardware 
-optimization~\cite{SP:AOPPSS25}. 
-\peter{Try to avoid saying ``et al.''. }
-In our setting, we quantify how this dominant cost grows with the module rank, at parameters far
+throughput to rejection sampling. This is consistent with prior work that also identifies rejection sampling as a target for further hardware
+optimization~\cite{SP:AOPPSS25}. In our setting, we quantify how this dominant cost grows with the module rank, at parameters far
 beyond those commonly studied for ML-KEM.
-
-We make an important clarification about what our results do not intend to show. The purpose of designing and evaluating these high-security variants of
-ML-KEM is not to argue that such margins are currently necessary. Given the relative stability of lattice cryptanalysis and security estimates in recent
-years, we do not expect improvements of a magnitude that would require such parameter sets in the near future. What we characterize instead is how much
-margin ML-KEM can accommodate and what it costs, so that the tradeoff is understood if it ever becomes necessary.
-\sia{Is this paragraph needed? This is maybe not the best place to make this argument.}
 
 Our results also have several other limitations. The security figures are estimates; for \kaiburr-4608 and \kaiburr-6144, the cheapest attacks use 
 block sizes outside the range in which the MATZOV cost model was derived, and we obtained them with a modified estimator (Section~\ref{sec:distribution}). 

@@ -3,20 +3,21 @@
 
 ML-KEM\footnote{We use \textsc{Kyber} and ML-KEM
 interchangeably, except when separating the NIST submission from the standardized version.}~\cite{fips203} is built in two layers. 
-At its core is an IND-CPA-secure public-key encryption scheme, K-PKE, whose security reduces to MLWE. It uses a variant 
+At its core is an IND-CPA-secure public-key encryption scheme, K-PKE, whose security reduces to MLWE. ML-KEM uses a variant
 of the Fujisaki--Okamoto (FO) transform to lift K-PKE to an IND-CCA2-secure KEM where decapsulation decrypts, re-encrypts the recovered message with the derived
 randomness, and returns a pseudorandom key if the result differs from the received ciphertext. In this work, we leave the
 FO transform and the symmetric primitives unchanged, so all of our changes are confined to K-PKE, which we describe in this section. 
 We refer to~\cite{fips203} for the full specification.
 
-\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $R_q=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
-base ring, with coefficients centered in $(-q/2,q/2]$. A module rank $k$ determines
-the dimensions of the public matrix $\mathbf{A}\in R_q^{k\times k}$ and of the secret and error vectors in $R_q^k$.
+\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $\Rq=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
+base ring, with coefficients centered in $(-q/2,q/2]$. The modulus satisfies $n \mid (q-1)$, which enables the number-theoretic
+transform (NTT) used for multiplication in $\Rq$. A module rank $k$ determines
+the dimensions of the public matrix $\mathbf{A}\in \Rq^{k\times k}$ and of the secret and error vectors in $\Rq^k$.
 $k=2,3,4$ give ML-KEM-512, -768, and -1024, respectively~\cite{fips203}.
 
-\paragraph{K-PKE.} Let $\chi$ be a noise distribution over $R_q$ with small coefficients, instantiated below.
+\paragraph{K-PKE.} Let $\chi$ be a noise distribution over $\Rq$ with small coefficients, instantiated below.
 \begin{itemize}
-  \item \emph{Key generation:} expand a public $32$-byte seed $\rho$ into $\mathbf{A}\in R_q^{k\times k}$ using SHAKE-128,
+  \item \emph{Key generation:} expand a public $32$-byte seed $\rho$ into $\mathbf{A}\in \Rq^{k\times k}$ using SHAKE-128,
     directly in the NTT domain. Sample $\mathbf{s},\mathbf{e}\leftarrow\chi^k$ and set $\mathbf{t}=\mathbf{A}\mathbf{s}+\mathbf{e}$.
     The public key is $(\mathbf{t},\rho)$ and the secret key is $\mathbf{s}$.
   \item \emph{Encryption} of a message $m\in\{0,1\}^{n}$, viewed as a polynomial with binary coefficients: sample
@@ -54,11 +55,11 @@ noise term becomes
 $$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v ,$$
 trading a higher $\delta$ for a smaller ciphertext. Throughout this work, ``ciphertext compression'' refers to this rounding of $\mathbf{u}$ and $v$.
 
-\paragraph{Module-LWE.} The decisional Module Learning With Errors (MLWE) problem~\cite{DCC:LanSte15} over $R_q$ asks an adversary
-to distinguish $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow R_q^{m\times k}$ is uniform and
-$\mathbf{s}\leftarrow \chi^k$, $\mathbf{e}\leftarrow \chi^m$, from a uniformly random pair in $R_q^{m\times k}\times R_q^m$.
-The IND-CPA security of K-PKE reduces to MLWE with $\chi$. The public key is an instance with $m=k$, and, with $\mathbf{t}$ replaced
-by a uniform vector, the ciphertext is an instance with $m=k+1$. Increasing $k$ increases the dimension $kn$ of the underlying lattice
+\paragraph{Module-LWE.} The decisional Module Learning With Errors (MLWE) problem~\cite{DCC:LanSte15} over $\Rq$ asks an adversary
+to distinguish $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A}\leftarrow \Rq^{\ell\times k}$ is uniform and
+$\mathbf{s}\leftarrow \chi^k$, $\mathbf{e}\leftarrow \chi^\ell$, from a uniformly random pair in $\Rq^{\ell\times k}\times \Rq^\ell$.
+The IND-CPA security of K-PKE reduces to MLWE with $\chi$. The public key is an instance with $\ell=k$, and, with $\mathbf{t}$ replaced
+by a uniform vector, the ciphertext is an instance with $\ell=k+1$. Increasing $k$ increases the dimension $kn$ of the underlying lattice
 problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
 
 \paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness with the standard Core-SVP methodology~\cite{USENIX:ADPS16}
@@ -66,15 +67,18 @@ used throughout the \textsc{Kyber} submission documents and implemented in the \
 scripts~\cite{kyber-scripts}. The adversary runs BKZ with block size $b$ in either the primal or the dual attack, and the cost of
 BKZ-$b$ is approximated by a single SVP call in dimension $b$, estimated as $2^{cb}$ operations with $c\approx 0.292$ for classical
 sieving~\cite{SODA:BDGL16} and $c\approx 0.265$ for quantum sieving~\cite{laarhoven-thesis}. For each parameter set, the scripts
-search over $b$ and the number of samples $m$ for the cheapest successful attack, primal or dual, and report its $\log_2$ cost as
+search over $b$ and the number of samples $\ell$ for the cheapest successful attack, primal or dual, and report its $\log_2$ cost as
 the \emph{classical} and \emph{quantum} Core-SVP security level. They depend on the noise distribution only through its standard
 deviation. For reference, the same scripts give classical/quantum levels of $117/106$, $181/164$, and $253/230$ for ML-KEM-512,
--768, and -1024.
+-768, and -1024, respectively.
 
-\paragraph{Lattice estimator.} We cross-check the Core-SVP numbers with the lattice estimator of Albrecht et al.~\cite{estimator},\footnote{Forked from \url{https://github.com/malb/lattice-estimator},
-commit \texttt{53da598}.} which aims to provide tighter estimates and evaluates a wider range of attacks than the \textsc{Kyber} scripts. Its 
-full estimate costs lattice reduction with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP. 
-We keep the estimator's defaults with one exception.
+\paragraph{Lattice estimator.} We cross-check the Core-SVP numbers with the lattice estimator~\cite{estimator}, which aims to
+provide tighter estimates and evaluates a wider range of attacks than the \textsc{Kyber} scripts.\footnote{Forked from
+\url{https://github.com/malb/lattice-estimator}, commit \texttt{53da598}.} Its
+full estimate costs lattice reduction with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP.
+We model each \kaiburr parameter set as an LWE instance of dimension $256k$ with $256k$ samples, $q=3329$, and secret and error
+coefficients of standard deviation $\sigma(t)$ (Section~\ref{sec:distribution}). For FrodoKEM, we use the estimator's built-in
+parameter sets. We keep the estimator's defaults with one exception.
 
 \paragraph{Raising the block-size limit.} By default, the estimator caps the BKZ block size at $1754$, where the Core-SVP cost
 reaches $2^{512}$, and reports an infinite cost for any attack beyond it, so every attack on the two largest \kaiburr parameter sets is
