@@ -97,10 +97,11 @@ We make several contributions in this work, summarized below.
     substantially faster than FrodoKEM-640. \kaiburr-1792 outperforms HQC-5 in every operation; for the larger parameter sets, HQC is
     faster in key generation and encapsulation and similar in decapsulation, despite \textsc{Kaiburr}'s much larger margins
     (Section~\ref{sec:benchmarks}).
-  \item \emph{A \textsc{Kaiburr}--FrodoKEM hybrid as a more prudent choice than FrodoKEM-1344.} A hybrid of \kaiburr-1792 and
-    FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344, retains FrodoKEM's hedge against structural attacks, and
-    has a much higher lattice attack cost ($2^{467.3}$ vs.\ $2^{281.7}$) (Section~\ref{sec:hybrid}). In Section~\ref{sec:discussion},
-    we discuss which configuration we consider the most prudent choice for conservative deployments.
+  \item \emph{\textsc{Kaiburr}--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question
+    the use of FrodoKEM's larger parameter sets. We show that, combined with FrodoKEM-640 or
+    FrodoKEM-976, \textsc{Kaiburr} is faster than the next-larger FrodoKEM parameter set. For example, the hybrid of \kaiburr-1792 and
+    FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344 and has a much higher lattice attack cost ($2^{467.3}$
+    vs.\ $2^{281.7}$) (Section~\ref{sec:discussion}).
 \end{itemize}
 \subsection{Access to artifacts}
 \makeatletter
