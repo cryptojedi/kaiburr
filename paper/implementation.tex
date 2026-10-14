@@ -4,12 +4,11 @@
 We provide three implementations of \textsc{Kaiburr}, each forked from an existing ML-KEM implementation: 
 a C implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
 a Jasmin implementation with machine-checked constant-time verification,\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
-and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).
-\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
+and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
 As upstream, the C and Jasmin code each have a
 portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
 
-The ACC is the coprocessor for public-key cryptography in the Pavona open-source silicon framework. To accelerate
+The ACC is the coprocessor for public-key cryptography in the Pavona open-source silicon project. To accelerate
 ML-KEM and ML-DSA, its post-quantum configuration adds a vector extension to its instruction set and a direct connection
 to the chip's KMAC block~\cite{SP:AOPPSS25,EPRINT:NiePha25}, a hardware SHA-3 and SHAKE engine, which the ACC feeds and
 reads through special registers. It has $32$ general-purpose
@@ -187,6 +186,5 @@ implementation is validated against a Python model based on
 disables ciphertext compression. For each parameter set, the model generates
 known-answer tests (KATs) for key generation, encapsulation, and decapsulation
 (including implicit rejection), as well as round-trip tests.
-Unlike the Jasmin code, ACC's constant-time behavior is not machine-checked;
-the hand-written kernels avoid secret-dependent branches
-by construction.
+Unlike the Jasmin code, the ACC implementation is not machine-checked for constant-time behavior, but the ACC is
+designed to resist side channels in hardware, with no caches, no speculative execution, and fixed-latency memory accesses.
