@@ -19,10 +19,6 @@ Since the noise only affects the secret and error terms and does not interact wi
 it can be replaced without altering the core implementation. What it changes are only the MLWE hardness estimate and the 
 decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
 
-
-In this sense, the error distribution is another part of the scheme alongside $k$ that moves both security and correctness without changing what 
-\textsc{Kyber} is at its core. This is the direction we pursue and where our main contribution lies.
-
 To scale past $k=7$, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving 
 \textsc{Kyber}'s \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \textsc{Kyber}'s use of a 
 centered binomial in the first place. This requirement rules out simply using a discrete Gaussian, as in FrodoKEM.
@@ -66,22 +62,11 @@ $$ which matches $\mathrm{CBD}_2$, the noise distribution used by ML-KEM-768 and
 mass vanishes and $f(t)$ approaches $\mathrm{CBD}_1$.
 
 \subsection{Finer control over the noise}
-A key property of $f(t)$ is that increasing $t$ reduces the probability of the $\pm2$ terms exponentially while leaving the $\pm1$ mass unchanged. As
-defined above, we have
-$$
-\Pr_{f(t)}[\pm2] = 2^{-t},
-\qquad
-\Pr_{f(t)}[\pm1] = \frac14.
-$$
-So, $t$ is the tunable parameter for thinning the tail of
-the distribution without changing the bulk $\pm1$ terms. This gives finer control over the noise than the standard centered binomial
+A key property of $f(t)$ is that increasing $t$ reduces the probability of the $\pm2$ terms exponentially while leaving the $\pm1$ mass unchanged. This gives finer control over the noise than the standard centered binomial
 choices. In particular, $\mathrm{CBD}_1$ and $\mathrm{CBD}_2$ have standard deviations $\sqrt{0.5}$ and $1$, 
-respectively, with no centered binomial parameter providing an intermediate distribution. As shown above, 
-$f(t)$ ranges from $\mathrm{CBD}_2$ toward $\mathrm{CBD}_1$ as $t$ increases.
+respectively, with no centered binomial parameter providing an intermediate distribution.
 
-This finer control is useful as the module rank $k$ increases. Increasing
-$k$ increases the amount of error accumulated during encryption and
-therefore makes the decryption-failure constraint more restrictive. Rather
+This finer control is useful as the module rank $k$ increases. Rather
 than moving directly from $\mathrm{CBD}_2$ to $\mathrm{CBD}_1$, we can
 increase $t$ as $k$ grows, reducing the $\pm2$ contribution
 while keeping the $\pm1$ contribution fixed.
@@ -90,10 +75,8 @@ while keeping the $\pm1$ contribution fixed.
 Since $t$ is the number of uniform bits per sample, vectorization-friendly
 values are natural, especially for AVX2 implementations (see Section~\ref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ distribution, so it serves
 as our anchor. Notice that $t=8$ consumes exactly one PRF byte per coefficient, meaning it
-admits one-byte-per-coefficient SIMD packing without cross-byte bit-splitting. This makes $t=8$ a very convenient choice.
-Our third choice, $t=6$, sits in the middle and does not share the byte-alignment of $t=4$ or $t=8$. Sampling four
-coefficients consumes $6 \times 4 = 24$ bits, i.e.\ three bytes of PRF output, which is not as natural to implement
-as the byte-aligned $t=4$ and $t=8$ cases. It is nonetheless interesting relative to $t=8$, for two reasons.
+admits one-byte-per-coefficient SIMD packing without cross-byte bit-splitting.
+Our third choice, $t=6$, sits in the middle and does not share the byte-alignment of $t=4$ or $t=8$. It is nonetheless interesting relative to $t=8$, for two reasons.
 First, it retains more of the $\pm2$ tail, giving a higher standard deviation and more security per dimension.
 Second, it spends fewer PRF bytes per coefficient ($0.75$ vs.\ $1$), which is relevant on platforms \emph{without} Keccak acceleration.
 For each choice of $t$, we pick the highest $k$ satisfying the failure probability bound of $2^{-128}$, staying within the communication budget of
@@ -103,8 +86,7 @@ We use FrodoKEM-640 as our baseline for parameter selection and comparison throu
 smallest standardized FrodoKEM parameter set and hence imposes the tightest communication budget of 9,616 public-key 
 bytes and 9,720 ciphertext bytes. This gives us 
 a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
-of a conservative lattice-based KEM.
-\peter{Rephrase ``conservative'' here, be more specific.}
+of an unstructured lattice-based KEM.
 
 Table~\ref{tab:kaiburr-params} lists, for every $t$ from $2$ to $8$, the largest $k$ that
 satisfies both constraints. The three parameter sets we carry forward are $f(4)$, $f(6)$, and
@@ -137,21 +119,17 @@ $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
   \end{tabular}
 \end{table}
 
-To get more conservative estimates, we also run all eight attacks of the lattice estimator (Section~\ref{sec:preliminaries}) on the three
+To get tighter estimates, we also run all eight attacks of the lattice estimator (Section~\ref{sec:preliminaries}) on the three
 selected parameter sets. Table~\ref{tab:estimator} summarizes the results. For
 \kaiburr-1792, the cheapest attack is the dual-hybrid attack at $2^{467.3}$, below the
 $479$ bits from the \textsc{Kyber} scripts, which do not model hybrid attacks. For \kaiburr-4608 and \kaiburr-6144, the cheapest
 attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits below their Core-SVP estimates.
 
-As explained in Section~\ref{sec:preliminaries}, to obtain finite costs for \kaiburr-4608 and \kaiburr-6144, we had to raise the
-estimator's block-size limit. The cheapest attacks on these sets use block sizes of roughly
-$4{,}400$ and $5{,}900$, which are outside the range in which the MATZOV cost model was derived. Our results for \kaiburr-4608 
-and \kaiburr-6144 are best understood as estimates obtained from a slightly modified estimator.
-
 \begin{table}[h]
     \centering
     \caption{Lattice estimator results ($\log_2$ of the cost) for all eight attacks, with the block-size limit raised to $16384$. 
-    The cheapest attack for each parameter set is in bold.}
+    The cheapest attack for each parameter set is in bold. Entries marked -- are attacks for which the estimator crashed and
+    returned no cost.}
     \label{tab:estimator}
     \small
     \setlength{\tabcolsep}{4pt}
@@ -173,8 +151,7 @@ and \kaiburr-6144 are best understood as estimates obtained from a slightly modi
 
 \subsection{Sizes}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
-sets alongside all standardized FrodoKEM and HQC parameter sets. All three \textsc{Kaiburr} variants, including \kaiburr-6144, remain within the
-communication budget of FrodoKEM-640, the smallest FrodoKEM parameter set. \kaiburr-1792 is smaller in
+sets alongside all standardized FrodoKEM and HQC parameter sets. \kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
 a third the size of HQC-5 (21,658 bytes).
 
@@ -182,13 +159,14 @@ a third the size of HQC-5 (21,658 bytes).
 \centering
 \caption[Public-key and ciphertext sizes across \textsc{Kaiburr}, FrodoKEM, and HQC.]{Public-key and ciphertext sizes across \textsc{Kaiburr},
 FrodoKEM, and HQC. \textsc{Kaiburr}'s classical/quantum Core-SVP security is as computed with
-the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}). The lattice estimator
-column gives the $\log_2$ cost of the cheapest attack found by the lattice estimator for both
-\textsc{Kaiburr} and FrodoKEM.}
+the \textsc{Kyber} scripts (Table~\ref{tab:kaiburr-params}); Core-SVP is not computed for FrodoKEM (--). The lattice estimator
+column gives the $\log_2$ cost of the cheapest attack found by the lattice estimator for
+\textsc{Kaiburr} and FrodoKEM, both evaluated with max block
+size set to $16384$.}
 \label{tab:size-comparison}
 \begin{tabular}{lccccc}
 \toprule
-Scheme & \makecell{Core-SVP\\(class./quant.)} & \makecell{Lattice\\est.\footnotemark} & pk (bytes) & ct (bytes) & pk+ct (bytes) \\
+Scheme & \makecell{Core-SVP\\(class./quant.)} & \makecell{Lattice\\est.} & pk (bytes) & ct (bytes) & pk+ct (bytes) \\
 \midrule
 \kaiburr-1792 & 479 / 434   & 467.3  & 2720  & 3072  & 5792  \\
 \kaiburr-4608 & 1281 / 1162 & 1268.9 & 6944  & 7296  & 14240 \\
@@ -204,11 +182,6 @@ HQC-5 & \multicolumn{2}{c}{Category 5} & 7237 & 14421 & 21658 \\
 \bottomrule
 \end{tabular}
 \end{table}
-\addtocounter{footnote}{-1}
-\footnotetext{FrodoKEM was also evaluated using the same modified estimator with the maximum block 
-size set to $16384$ for consistency. We note that the estimated cost remains unchanged for any maximum block size setting, as 
-long as the cost was already finite under the original estimator.}
-\stepcounter{footnote}
 \footnotetext{The security categories for HQC are as claimed by the design team
 against NIST's category 1/3/5 targets. They are not directly comparable to
 either lattice figure, as HQC is a code-based scheme.}
