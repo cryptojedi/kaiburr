@@ -8,11 +8,11 @@ We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE
 primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
 implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, the high-security KEM introduced in \ref{sec:intro}, since no
+we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \ref{sec:intro}, since no
 public hand-optimized implementation of the scheme exists.}
 We mainly compare against FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially
-more expensive than \textsc{Kaiburr}. On Coffee Lake, we additionally report FrodoKEM-976 and FrodoKEM-1344, which we use in
-the hybrid comparison of Section~\ref{sec:hybrid}.
+more expensive than \textsc{Kaiburr}. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
+the hybrid comparison of Section~\ref{sec:hybrid}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
 
 All three KEMs are evaluated using a common benchmark driver in which We first perform $1000$ untimed warm-up iterations, 
 followed by $10001$ timed iterations. We report the median 
@@ -104,6 +104,15 @@ The reference implementations are, on average, 540.8 percent slower for \textsc{
 \begin{tabular}{llrrr}
 \toprule
 KEM & Impl. & KeyGen & Enc & Dec \\
+\midrule
+ML-KEM-1024 & C/asm &
+\makecell[r]{59973\\(59693--60396)} &
+\makecell[r]{62274\\(62075--62548)} &
+\makecell[r]{67846\\(67282--68699)} \\
+ML-KEM-1024 & Jasmin &
+\makecell[r]{54393\\(54224--54701)} &
+\makecell[r]{56092\\(55947--56287)} &
+\makecell[r]{59425\\(58717--60114)} \\
 \midrule
 \kaiburr-1792 & C/asm &
 \makecell[r]{156156\\(155579--157778)} &
@@ -233,6 +242,10 @@ Raptor Lake (by 9.2--14.0\%).
 From \kaiburr-1792 ($k=7$) to \kaiburr-4608 ($k=18$) to \kaiburr-6144 ($k=24$), C/asm KeyGen grows by
 ${\approx}5.2\times$ and ${\approx}1.7\times$ on all three machines, between the growth of $k$
 ($2.57\times$, $1.33\times$) and of $k^2$ ($6.61\times$, $1.78\times$).
+
+On Coffee Lake, \kaiburr-1792 takes $2.5$--$2.6\times$ the cycles of ML-KEM-1024 in every operation, for both
+C/asm and Jasmin, which is expected. From $k=4$ to $k=7$, $k$ grows by $1.75\times$ and $k^2$ by
+$3.06\times$, and the ratio lies between the two, just as it does across \kaiburr parameter sets.
 
 \kaiburr-1792 is faster than HQC-5 in every operation on every machine (C/asm: 64--90\% fewer cycles).
 At matching indices (\kaiburr-1792/HQC-1, \kaiburr-4608/HQC-3, \kaiburr-6144/HQC-5), the comparison
