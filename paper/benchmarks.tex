@@ -5,25 +5,27 @@ We benchmark the C and Jasmin implementations on three Intel microarchitectures:
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled using \texttt{GCC 12.2.0}.
 
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
-primary comparison baseline. Both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
-However, FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
+primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
+FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
 implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, the KEM closest to \textsc{Kaiburr} in principle, since no
+we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, the high-security KEM introduced in \ref{sec:intro}, since no
 public hand-optimized implementation of the scheme exists.}
 We mainly compare against FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially
-more expensive than \textsc{Kaiburr}. On the i7-8700K, we additionally report FrodoKEM-976 and FrodoKEM-1344, which we use in
+more expensive than \textsc{Kaiburr}. On Coffee Lake, we additionally report FrodoKEM-976 and FrodoKEM-1344, which we use in
 the hybrid comparison of Section~\ref{sec:hybrid}.
 
-All three KEMs are evaluated using a common benchmark driver adapted from the implementation used in~\cite{fvk}. 
-We first perform $1000$ untimed warm-up iterations, followed by $10001$ timed iterations. We report the median 
+All three KEMs are evaluated using a common benchmark driver in which We first perform $1000$ untimed warm-up iterations, 
+followed by $10001$ timed iterations. We report the median 
 execution time and interquartile range ($Q_1$--$Q_3$). This procedure is repeated three times, and we report the 
 results from the run whose median is itself the median of the three runs, together with its corresponding quartiles. 
 Each iteration verifies that the decapsulated shared secret matches the encapsulated shared secret.
 
-Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \textsc{Kaiburr}
-call it within \texttt{keypair} and \texttt{enc}, so that syscall is inside
-the measured region. HQC instead seeds a SHAKE-256 PRNG once, which we seed
-from \texttt{getrandom} before timing begins.
+Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \textsc{Kaiburr} call it within \texttt{keypair} and \texttt{enc}, 
+so that syscall is inside the measured region. HQC instead draws randomness from a SHAKE-256 PRNG that the
+caller must seed; we seed it once from \texttt{getrandom} before timing begins, so HQC's timings exclude the syscall.
+\footnote{Each implementation keeps the
+randomness handling of its upstream codebase; we chose not to modify HQC.
+This also \emph{slightly} favors HQC in our comparison.}
 
 The benchmark results are reported separately for each processor. Results for the Intel Core i7-6700K,
 Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k}, \ref{tab:8700k}, and
@@ -219,32 +221,30 @@ HQC-5 & \cite{hqc-github} &
 \end{tabular}
 \end{table*}
 
-\textsc{Kaiburr} is faster than FrodoKEM-640 across every
+Our benchmarks show that \textsc{Kaiburr} is faster than FrodoKEM-640 across every
 \textbf{operation}, \textbf{parameter set}, \textbf{implementation}, and \textbf{machine}.
  \kaiburr-1792 is 21.5--28.0x faster, \kaiburr-4608 is 4.2--5.3x faster, and \kaiburr-6144 is
 2.4--3.1x faster than FrodoKEM-640.
 
-Comparing the \textsc{Kaiburr} C/asm and Jasmin implementations, the faster implementation depends on
-the microarchitecture. On the i7-6700K and i7-8700K, Jasmin is faster than C/asm for every parameter set
-and every operation, by 3.6--11.6\% and 5.4--13.1\%, respectively. On the i9-13900K, this reverses and C/asm is faster than Jasmin for every
-parameter set and every operation, by 9.2--14.0\%.
+Which \textsc{Kaiburr} implementation is faster depends on the microarchitecture: Jasmin beats C/asm in every
+operation on Skylake and Coffee Lake (by 3.6--13.1\%), while C/asm beats Jasmin in every operation on
+Raptor Lake (by 9.2--14.0\%).
 
-Across parameter sets, C/asm KeyGen cycle counts scale by a factor of 5.19 (6700K) / 5.22 (8700K) / 5.32 (13900K) from
-\kaiburr-1792 ($k=7$) to \kaiburr-4608 ($k=18$), and by a factor of 1.68 (6700K) / 1.68 (8700K) / 1.69 (13900K) from
-\kaiburr-4608 to \kaiburr-6144 ($k=24$). For reference, $k$ itself grows by factors of 2.57 and 1.33 over
-these two steps, and $k^2$ by factors of 6.61 and 1.78.
+From \kaiburr-1792 ($k=7$) to \kaiburr-4608 ($k=18$) to \kaiburr-6144 ($k=24$), C/asm KeyGen grows by
+${\approx}5.2\times$ and ${\approx}1.7\times$ on all three machines, between the growth of $k$
+($2.57\times$, $1.33\times$) and of $k^2$ ($6.61\times$, $1.78\times$).
 
-\kaiburr-1792 is faster than HQC-5 in every operation on all three machines; for the C/asm implementation, by 64.0--90.0\% on the
-6700K (KeyGen, Enc, Dec), 64.5--89.8\% on the 8700K, and 67.8--90.1\% on the 13900K. Comparing each \textsc{Kaiburr} parameter set to the
-HQC parameter set of the same index (\kaiburr-1792/HQC-1, \kaiburr-4608/HQC-3, \kaiburr-6144/HQC-5), HQC's
-KeyGen is faster than the corresponding \textsc{Kaiburr} KeyGen by a factor of 1.77, 3.86, and 3.14 on
-the 6700K, 1.73, 3.79, and 3.11 on the 8700K, and 1.68, 3.61, and 2.90 on the 13900K.
+\kaiburr-1792 is faster than HQC-5 in every operation on every machine (C/asm: 64--90\% fewer cycles).
+At matching indices (\kaiburr-1792/HQC-1, \kaiburr-4608/HQC-3, \kaiburr-6144/HQC-5), the comparison
+depends on the operation. HQC KeyGen is $1.7$--$3.9\times$ faster, and HQC Enc is $1.6$--$2.0\times$ faster
+for the two larger parameter sets. On the other hand, decapsulation which is HQC's most expensive operation favors \kaiburr
+meaningfully: \kaiburr-1792 is $2.3\times$ faster than HQC-1, \kaiburr-6144 is $1.2\times$ faster than HQC-5, and
+\kaiburr-4608 is within 2\% of HQC-3.
 
-Interquartile ranges are narrow relative to the medians across all measurements, typically within
-1--2\% of the median (e.g., for \kaiburr-1792 C/asm, 1.3--1.5\% on the 6700K and 1.3--1.4\% on the 8700K).
+Interquartile ranges are below 2\% of the median for every measurement.
 
 We additionally benchmark the ACC implementation on Pavona's cycle-accurate RTL simulator. The simulator is 
-deterministic, so repeated runs on the same input are cycle-identical; we therefore run each operation once on a 
+deterministic, so repeated runs on the same input are cycle-identical. We therefore run each operation once on a 
 fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
 we build the keypair–encapsulate–decapsulate roundtrip three times, terminating after KeyGen, after Enc, 
 and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
@@ -266,73 +266,40 @@ KEM & KeyGen & Enc & Dec \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:acc-profile} shows the three functions accounting for the largest share of cycles
-in the same roundtrip benchmark, obtained from the simulator's per-function execution statistics.
-Across all three parameter sets, matrix generation (\texttt{poly\_gen\_matrix}) dominates,
-consuming 73--84\% of total cycles.
+Table~\ref{tab:acc-profile} breaks down the same roundtrip using the simulator's per-function and
+per-instruction execution statistics. Matrix generation (\texttt{poly\_gen\_matrix}), which expands the
+public seed into $\mathbf{A}$ by rejection sampling on SHAKE-128 output, takes 73--84\% of all cycles.
+Almost none of this is spent waiting for the hardware SHAKE-128 core, since stalls on
+\textcolor{hotpink}{\texttt{bn.wsrr}} stay at about 6\% of the total for every parameter set. The cost
+is the software rejection-sampling loop itself, namely its mask/compare/select arithmetic
+(\textcolor{hotpink}{\texttt{bn.and}}, \textcolor{hotpink}{\texttt{bn.cmp}}, \textcolor{hotpink}{\texttt{bn.sel}})
+and the accept/reject branches (\textcolor{hotpink}{\texttt{bne}}, \textcolor{hotpink}{\texttt{beq}}).
 
 \begin{table}[t]
 \centering
-\caption{The three functions with the largest share of total cycles in the ACC roundtrip
-benchmark, ranked 1st to 3rd, obtained from the simulator's per-function execution statistics.
-All values are percentages of each variant's total roundtrip cycles. Cell shading is scaled to
-the largest value in the table.}
+\setlength{\tabcolsep}{4pt}
+\caption{Share of total roundtrip cycles in the ACC benchmark, from the simulator's per-function and
+per-instruction execution statistics. The four middle columns split \texttt{poly\_gen\_matrix} by
+instruction class. All values are percentages of each variant's total roundtrip cycles and cell shading
+is scaled to the largest value in the table.}
 \label{tab:acc-profile}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-KEM & 1st & 2nd & 3rd \\
+& & \multicolumn{4}{c}{of which} & & \\
+\cmidrule(lr){3-6}
+KEM & \makecell[r]{\texttt{poly\_gen}\\\texttt{\_matrix}} & \makecell[r]{Rejection\\sampling}
+    & \makecell[r]{Branch\\overhead} & \makecell[r]{Keccak\\wait} & \makecell[r]{Memory\\latency}
+    & \makecell[r]{\texttt{basemul}\\\texttt{\_acc}} & \makecell[r]{Noise\\$f(t)$} \\
 \midrule
-\kaiburr-1792 &
-\heat{72.60}{83.56}{\texttt{poly\_gen\_matrix} 72.60} &
-\heat{8.08}{83.56}{\texttt{basemul\_acc} 8.08} &
-\heat{6.26}{83.56}{\texttt{f4} 6.26} \\
-\kaiburr-4608 &
-\heat{80.78}{83.56}{\texttt{poly\_gen\_matrix} 80.78} &
-\heat{9.23}{83.56}{\texttt{basemul\_acc} 9.23} &
-\heat{3.96}{83.56}{\texttt{f6} 3.96} \\
-\kaiburr-6144 &
-\heat{83.56}{83.56}{\texttt{poly\_gen\_matrix} 83.56} &
-\heat{9.57}{83.56}{\texttt{basemul\_acc} 9.57} &
-\heat{2.05}{83.56}{\texttt{f8} 2.05} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\texttt{poly\_gen\_matrix} expands the public seed into the uniformly random matrix
-$\mathbf{A}$ via rejection sampling on SHAKE-128 output. Since it dominates the ACC cycle counts,
-we break down its costs further using the simulator's per-instruction execution statistics.
-For \kaiburr-6144, this instruction-level breakdown of \texttt{poly\_gen\_matrix} shows that
-rejection sampling is responsible for the vast majority of its
-cost. Only 464{,}022 of its 6{,}235{,}212 cycles (7.4\%, or 6.2\% of the entire benchmark) are
-spent stalled on \textcolor{hotpink}{\texttt{bn.wsrr}} waiting for the hardware SHAKE-128 core to produce the next
-squeeze block. The remaining 92.6\% is software cost of the rejection-sampling loop itself. 83.6\%
-of \texttt{poly\_gen\_matrix}'s cycles (69.9\% of the whole benchmark) are retired arithmetic
-instructions (\textcolor{hotpink}{\texttt{bn.and}}, \textcolor{hotpink}{\texttt{bn.cmp}}, and \textcolor{hotpink}{\texttt{bn.sel}}) performing the
-mask/compare/accumulate operations of rejection sampling, and a further 8.5\% (7.1\% of the whole
-benchmark) comes from branch overhead (\textcolor{hotpink}{\texttt{bne}} and \textcolor{hotpink}{\texttt{beq}}) in the accept/reject loop.
-We repeated this instruction-level breakdown for \kaiburr-1792 and \kaiburr-4608 and found the same
-pattern. The hardware-Keccak-wait share stays flat (5.5\% and 6.0\% of each
-benchmark's total cycles, respectively, versus 6.2\% for \kaiburr-6144), while the rejection-sampling
-arithmetic share grows with the parameter set (60.6\% and 67.6\%, versus 69.9\% for \kaiburr-6144).
-Table~\ref{tab:acc-keccak} gives the full comparison.
-
-\begin{table}[t]
-\centering
-\caption{Cycle breakdown of \texttt{poly\_gen\_matrix} across parameter sets, obtained from the
-simulator's per-instruction execution statistics. All values are percentages of each variant's
-total roundtrip cycles. Cell shading is scaled to the largest value in the table.}
-\label{tab:acc-keccak}
-\begin{tabular}{lrrrr}
-\toprule
-KEM & \makecell[r]{Rejection\\sampling} & \makecell[r]{Branch\\overhead}
-    & \makecell[r]{Keccak\\wait} & \makecell[r]{Memory\\latency} \\
-\midrule
-\kaiburr-1792 &
-\heat{60.6}{69.9}{60.6} & \heat{6.2}{69.9}{6.2} & \heat{5.5}{69.9}{5.5} & \heat{0.3}{69.9}{0.3} \\
-\kaiburr-4608 &
-\heat{67.6}{69.9}{67.6} & \heat{6.8}{69.9}{6.8} & \heat{6.0}{69.9}{6.0} & \heat{0.4}{69.9}{0.4} \\
-\kaiburr-6144 &
-\heat{69.9}{69.9}{69.9} & \heat{7.1}{69.9}{7.1} & \heat{6.2}{69.9}{6.2} & \heat{0.4}{69.9}{0.4} \\
+\kaiburr-1792 & \heat{72.6}{83.6}{72.6} &
+\heat{60.6}{83.6}{60.6} & \heat{6.2}{83.6}{6.2} & \heat{5.5}{83.6}{5.5} & \heat{0.3}{83.6}{0.3} &
+\heat{8.1}{83.6}{8.1} & \heat{6.3}{83.6}{6.3} \\
+\kaiburr-4608 & \heat{80.8}{83.6}{80.8} &
+\heat{67.6}{83.6}{67.6} & \heat{6.8}{83.6}{6.8} & \heat{6.0}{83.6}{6.0} & \heat{0.4}{83.6}{0.4} &
+\heat{9.2}{83.6}{9.2} & \heat{4.0}{83.6}{4.0} \\
+\kaiburr-6144 & \heat{83.6}{83.6}{83.6} &
+\heat{69.9}{83.6}{69.9} & \heat{7.1}{83.6}{7.1} & \heat{6.2}{83.6}{6.2} & \heat{0.4}{83.6}{0.4} &
+\heat{9.6}{83.6}{9.6} & \heat{2.1}{83.6}{2.1} \\
 \bottomrule
 \end{tabular}
 \end{table}
