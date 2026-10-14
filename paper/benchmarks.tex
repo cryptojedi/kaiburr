@@ -3,6 +3,7 @@
 
 We benchmark the C and Jasmin implementations on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with Hyper-Threading and Turbo 
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All code is compiled using \texttt{GCC 12.2.0}.
+\peter{What compiler flags?}
 
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.

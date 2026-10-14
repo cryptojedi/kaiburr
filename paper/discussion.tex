@@ -20,12 +20,13 @@ willing to accept a significant performance decrease compared to, e.g., simply d
 Certainly, \emph{some} deployments are constrained to standardized schemes and parameter
 sets, possibly even to specific combiners or non-hybrid deployment. In the following 
 discussion, we ignore such constraints imposed by policy or certification requirements
-and instead focus purely technical aspects. We note however, that the smallest parameter
+and instead focus purely on security and performance. We note however, that the smallest parameter
 set of FrodoKEM, which inspires our performance limit for \kaiburr, is \emph{not} standardized
 by ISO~\cite{San26}.
 
+\paragraph{General hybridization remarks.}
 The first observation is that for any post-quantum KEM at a performance profile in the ballpark of FrodoKEM,
-a hybrid combination with classical ECDH should be a no-brainer. To quantify this 
+a hybrid combination with classical ECDH should be a no-brainer. To support this 
 statement, let us consider the performance of the NIST level-3 parameter set of FrodoKEM
 and of X25519 ECDH on the Intel Coffee Lake microarchitecture (cf. \cref{tab:8700k}). 
 Median cycles for FrodoKEM key generation are 8270912, for encapsulation 8528877,
@@ -44,6 +45,7 @@ unexpected progress to the extent that FrodoKEM ciphertexts are no longer
 secure.
 
 A slightly less obvious recommendation is to always combine FrodoKEM 
+(or any other post-quantum KEM at a similar performance profile)
 with at least a standardized parameter set of ML-KEM. As ML-KEM offers
 roughly comparable (in fact, somewhat better) performance as X25519,
 the argument for computational performance increase is similar as for
@@ -57,7 +59,8 @@ true as implementation security of post-quantum schemes is more complex
 and by far not as mature as for for ECC.  Hence, adding ML-KEM
 to FrodoKEM offers additional \emph{post-quantum} security at a very low cost.
 
-Even more importantly, and this is the central messages of this paper,
+\paragraph{FrodoKEM vs. FrodoKEM$+$\kaiburr hybrids.}
+Even more importantly, and this is the central message of this paper,
 our results call into question the use of high-security parameter sets of FrodoKEM: 
 A combination of FrodoKEM-640 and \kaiburr-6144 offers significantly better performance than FrodoKEM-976
 both in terms of cycle counts and in terms of ciphertext and public-key sizes.
@@ -67,13 +70,13 @@ performance than FrodoKEM-1344. In terms of security, hybrids of FrodoKEM and
 \kaiburr hedge simultanuously against even massive improvements in attacks
 against lattice schemes in general (through the huge margin of \kaiburr) and 
 against any improvements in attacks that only apply to structured lattices 
-(through the use of FrodoKEM). The only advantage of a higher-security FrodoKEM
-variant would only come into play if both structured lattices are completely
+(through the use of FrodoKEM). An advantage of a higher-security FrodoKEM
+variant would come into play only if both structured lattices are completely
 broken and attacks against unstructured lattices improve significantly, but
 not by too much (i.e., within the slightly increased margin of the larger
 FrodoKEM parameters). Additionally, a combination of \kaiburr and FrodoKEM
 has the same benefits of some additional hedging against implementation
-attacks that standalone FrodoKEM is lacking.
+attacks that we mention above in the context of hybridization with ML-KEM.
 
 In fact, if one is willing to accept the performance budget of 
 \peter{TODO: Discussion about HQC}.

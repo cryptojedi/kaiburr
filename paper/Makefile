@@ -31,4 +31,3 @@ clean:
 	-rm draft.log
 	-rm draft.out
 	-rm draft.pdf
-	-$(MAKE) -C proposal clean
