@@ -27,6 +27,7 @@ KECCAK  := $(KAIBURR_JASMIN)/formosa-keccak/src/amd64
 
 KAIBURR_VARIANTS := kaiburr4:7 kaiburr6:18 kaiburr8:24
 MLKEM_VARIANTS   := mlkem512:2 mlkem768:3 mlkem1024:4
+MLKEM_JASMIN_VARIANTS := 768 1024
 HQC_VARIANTS     := hqc-1 hqc-3 hqc-5
 FRODO_LEVELS     := 640 976 1344
 FRODO_GENS       := aes shake
@@ -34,16 +35,17 @@ FRODO_GENS       := aes shake
 KAIBURR_C_BINS      := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-c-ref bin/$(firstword $(subst :, ,$(v)))-c-avx2)
 KAIBURR_JASMIN_BINS := $(foreach v,$(KAIBURR_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-jasmin-ref bin/$(firstword $(subst :, ,$(v)))-jasmin-avx2)
 MLKEM_BINS          := $(foreach v,$(MLKEM_VARIANTS),bin/$(firstword $(subst :, ,$(v)))-c-ref bin/$(firstword $(subst :, ,$(v)))-c-avx2)
+MLKEM_JASMIN_BINS   := $(foreach l,$(MLKEM_JASMIN_VARIANTS),bin/mlkem$(l)-jasmin-ref bin/mlkem$(l)-jasmin-avx2)
 HQC_BINS            := $(foreach v,$(HQC_VARIANTS),bin/$(v)-ref bin/$(v)-avx2)
 FRODO_BINS          := $(foreach l,$(FRODO_LEVELS),$(foreach g,$(FRODO_GENS),bin/frodo$(l)-$(g)-ref bin/frodo$(l)-$(g)-avx2))
 
 KAIBURR_BINS := $(KAIBURR_C_BINS) $(KAIBURR_JASMIN_BINS)
-ALL_BINS     := $(KAIBURR_BINS) $(MLKEM_BINS) $(HQC_BINS) $(FRODO_BINS)
+ALL_BINS     := $(KAIBURR_BINS) $(MLKEM_BINS) $(MLKEM_JASMIN_BINS) $(HQC_BINS) $(FRODO_BINS)
 
 .PHONY: default all run smoke help clean \
         compile compile-kaiburr compile-kaiburr-c compile-kaiburr-jasmin \
-        compile-mlkem compile-hqc compile-frodo \
-        run-kaiburr run-kaiburr-c run-kaiburr-jasmin run-mlkem run-hqc run-frodo
+        compile-mlkem compile-mlkem-jasmin compile-hqc compile-frodo \
+        run-kaiburr run-kaiburr-c run-kaiburr-jasmin run-mlkem run-mlkem-jasmin run-hqc run-frodo
 
 default: run
 
@@ -52,6 +54,7 @@ compile-kaiburr:        $(KAIBURR_BINS)
 compile-kaiburr-c:      $(KAIBURR_C_BINS)
 compile-kaiburr-jasmin: $(KAIBURR_JASMIN_BINS)
 compile-mlkem:          $(MLKEM_BINS)
+compile-mlkem-jasmin:   $(MLKEM_JASMIN_BINS)
 compile-hqc:            $(HQC_BINS)
 compile-frodo:          $(FRODO_BINS)
 
@@ -65,6 +68,7 @@ run: $(ALL_BINS)
 	$(call run_group,$(KAIBURR_JASMIN_BINS),1)
 	$(call run_group,$(KAIBURR_C_BINS),0)
 	$(call run_group,$(MLKEM_BINS),0)
+	$(call run_group,$(MLKEM_JASMIN_BINS),0)
 	$(call run_group,$(HQC_BINS),0)
 	$(call run_group,$(FRODO_BINS),0)
 
@@ -76,6 +80,8 @@ run-kaiburr-jasmin: $(KAIBURR_JASMIN_BINS)
 	$(call run_group,$(KAIBURR_JASMIN_BINS),1)
 run-mlkem: $(MLKEM_BINS)
 	$(call run_group,$(MLKEM_BINS),1)
+run-mlkem-jasmin: $(MLKEM_JASMIN_BINS)
+	$(call run_group,$(MLKEM_JASMIN_BINS),1)
 run-hqc: $(HQC_BINS)
 	$(call run_group,$(HQC_BINS),1)
 run-frodo: $(FRODO_BINS)
@@ -169,6 +175,33 @@ $(foreach v,$(KAIBURR_VARIANTS),\
   $(foreach i,ref avx2,\
     $(eval $(call kaiburr_jasmin_rule,$(firstword $(subst :, ,$(v))),$(i)))))
 
+MLKEM_JASMIN_REV := 475b874
+MLKEM_JBUILD     := $(JBUILD)/mlkem-$(MLKEM_JASMIN_REV)
+MLKEM_JSRC        = $(MLKEM_JBUILD)/src/code/jasmin
+
+$(MLKEM_JBUILD)/src/.stamp:
+	@mkdir -p $(@D)
+	git -C $(KAIBURR_JASMIN) archive $(MLKEM_JASMIN_REV) code/jasmin | tar -x -C $(@D)
+	@touch $@
+
+define mlkem_jasmin_rule
+$$(MLKEM_JBUILD)/$(1)/$(2)/jkem.s: $$(MLKEM_JBUILD)/src/.stamp
+	@mkdir -p $$(@D)
+	cd $$(MLKEM_JSRC)/$(1)/$(2) && \
+	  $$(JASMINC) -I Keccak=$$(abspath $$(KECCAK)) -o $$(abspath $$@) jkem.jazz
+
+bin/mlkem$(1)-jasmin-$(2): $(RB) $$(MLKEM_JBUILD)/$(1)/$(2)/jkem.s | bin
+	$$(CC) $$(CFLAGS) $$(BENCHFLAGS) -o $$@ $$(DRIVER) \
+	  -DJADE_NAMESPACE=JADE_KEM_mlkem_mlkem$(1)_amd64_$(2) \
+	  -DJADE_NAMESPACE_LC=jade_kem_mlkem_mlkem$(1)_amd64_$(2) \
+	  -I$$(MLKEM_JSRC)/$(1)/$(2)/include $$(RBINC) \
+	  $$(MLKEM_JBUILD)/$(1)/$(2)/jkem.s $$(RB)
+endef
+
+$(foreach l,$(MLKEM_JASMIN_VARIANTS),\
+  $(foreach i,ref avx2,\
+    $(eval $(call mlkem_jasmin_rule,$(l),$(i)))))
+
 HQC_BUILD_REF  := build-hqc-ref
 HQC_BUILD_AVX2 := build-hqc-avx2
 
@@ -249,6 +282,7 @@ help:
 	@echo "  make run-kaiburr-c        kaiburr4/6/8, C only"
 	@echo "  make run-kaiburr-jasmin   kaiburr4/6/8, Jasmin only"
 	@echo "  make run-mlkem            ML-KEM-512/768/1024 (unmodified upstream C), ref and avx2"
+	@echo "  make run-mlkem-jasmin     ML-KEM-768/1024 (unmodified upstream Jasmin), ref and avx2"
 	@echo "  make run-hqc              hqc-1/3/5, ref and avx2"
 	@echo "  make run-frodo            FrodoKEM-640/976/1344, AES and SHAKE, ref and avx2"
 	@echo "  make compile[-<group>]    build without running"
