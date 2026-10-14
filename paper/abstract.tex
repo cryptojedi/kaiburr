@@ -6,7 +6,8 @@
   combining multiple different post-quantum schemes. 
   The typical question asked in these discussion is what the ``best''
   or ``most conservative'' approach is within a certain performance
-  budget.  \vadim{because you mention Frodo later in the abstract, it would be good to say here that people also looked for schemes that eliminate potential points of weakness, such as Frodo, which aims to eliminate the algebraic structure.  I think the main motivation of our paper is that Frodo+Kaiburr is safer than Frodo, so we should state something about Frodo up front.}
+  budget.  
+  % \vadim{because you mention Frodo later in the abstract, it would be good to say here that people also looked for schemes that eliminate potential points of weakness, such as Frodo, which aims to eliminate the algebraic structure.  I think the main motivation of our paper is that Frodo+Kaiburr is safer than Frodo, so we should state something about Frodo up front.}
 
   In this paper we add a data point to this discussion by investigating
   how to scale ML-KEM to (much) higher security levels of the underlying
@@ -15,7 +16,8 @@
   quickly reaches a limit imposed by decryption failure probability.
   We then propose a generalization of the noise distribution, which enables scaling
   to much larger module rank and MLWE hardness, while preserving the essence
-  of ML-KEM, most notably arithmetic in the ring $\Z_{3329}[X]/(X^{256}+1)$ \vadim{and simple noise generation}.
+  of ML-KEM, most notably arithmetic in the ring $\Z_{3329}[X]/(X^{256}+1)$ 
+  % \vadim{and simple noise generation}.
 
   We select three concrete parameter sets of this high-security variant
   of ML-KEM, which we call \textsc{Kaiburr}. We present benchmarking results

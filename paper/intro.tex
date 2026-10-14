@@ -1,117 +1,106 @@
 \section{Introduction}
 \label{sec:introduction}
-After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204}, 
-and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively. Later in 2025, NIST selected an additional KEM, HQC, 
-for standardization in the fourth round~\cite{fourthstatus}.\vadim{Also mention FN-DSA somewhere?)} Unlike ML-KEM, which is based on Module Learning With Errors (MLWE), 
-HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) 
-problem~\cite{hqc2025spec}, providing
-diversity beyond lattice-based assumptions. This choice also marked a shift away from the lattice-based KEMs that dominated the 
-Round 3 submissions. Four of the schemes in the PQC Round
-3 Submissions~\cite{nistpqc-round3} span a spectrum of algebraic structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules
-(\textsc{Kyber}~\cite{kyberoriginal} and Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}).
-This spectrum reflects different design principles, commonly understood as
-structure vs.\ conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, 
-but is also seen as a potential attack surface, so conservative designs discard it entirely~\cite{takeofffrodo}. FrodoKEM, for example,
-is based on a more conservative hardness assumption of plain LWE, one of the reasons why it was
-recommended by bodies such as BSI, ENISA, and NLNCSA~\cite{frodokem-news} and recently standardized by ISO~\cite{frodoiso}.
+After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204},
+and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively, with FN-DSA to follow in FIPS-206~\cite{fips206}.
+In 2025, NIST selected an additional KEM, HQC, for standardization in the fourth round~\cite{fourthstatus}. Unlike ML-KEM, which is based on
+Module Learning With Errors (MLWE), HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) problem~\cite{hqc2025spec}, providing
+diversity beyond lattice-based assumptions. Among lattice-based designs, the Round 3 KEMs~\cite{nistpqc-round3} span a spectrum of algebraic
+structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules (\textsc{Kyber}~\cite{kyberoriginal} and
+Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}), reflecting a trade-off between efficiency
+and conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a potential attack surface,
+which conservative designs avoid entirely; FrodoKEM, for example, rests on plain LWE, one reason it was recommended by BSI, ENISA, and
+NLNCSA~\cite{frodokem-news} and recently standardized by ISO~\cite{frodoiso}.
 
-It is useful to separate the two notions of conservatism this framing bundles together as they concern two different
-classes of attack. The first arises from the choice of hardness assumption. 
-FrodoKEM rests on unstructured LWE to avoid a hypothetical structure break, an attack that would exploit the algebraic structure of 
-ring/module LWE but not apply directly to plain LWE.
-The second involves the security margin a scheme carries above its target level, which protects against advances 
-in the best known attacks today. This could include improved lattice reduction, dual attacks, or sharper cost models 
-that would affect the concrete security of every lattice scheme at its current parameters, including FrodoKEM.
+The efficiency-vs.-conservatism framing bundles together two notions of conservatism that concern different classes of attack.
+The first arises from the choice of hardness assumption: FrodoKEM is grounded on unstructured LWE to avoid a hypothetical structure break,
+an attack that would exploit the algebraic structure of ring/module LWE but not apply directly to plain LWE.
+The second is the security margin a scheme carries above its target level, which protects against advances in the best known attacks,
+such as improved lattice reduction, dual attacks, or sharper cost models. Such advances would affect the concrete security of every
+lattice scheme at its current parameters, including FrodoKEM.
 A third, orthogonal hedge is to change the hardness 
-assumption altogether, as HQC does by relying on QCSD instead of LWE. This provides diversity, and at first glance, some additional assurance
+assumption, as HQC does by relying on QCSD instead of LWE. This provides diversity, and at first glance, some additional assurance
 since a break of LWE could still leave HQC secure. However, it is not entirely certain that the two hardness assumptions are cryptanalytically independent.
-Recent work has demonstrated connections between lattice and code-based cryptanalysis, including adaptations of lattice-sieving techniques to codes~\cite{EC:DEEK24}. 
-The quasi-cyclic structure of HQC has also been noted to have important parallels with the ring and module structures used in structured lattice schemes~\cite{hqc-forum}.
-These approaches address different (hypothetical) failure modes: unstructured LWE protects against attacks that exploit algebraic structure, 
-additional parameter margin protects against improvements to existing attacks, and QCSD provides diversity against a failure of the LWE assumption itself.
-At this time, it is impossible to predict which one of the cryptanalytic breakthroughs is more likely to occur.
-Additionally, hybrid deployments, which combine two KEMs so that an attacker has to break both~\cite{PKC:GiaHeuPoe18,PQCRYPTO:BBFGS19},
-provide an extra safety net. They offer a way to hedge against more than one of the attacks at once, so the question becomes which combination is the most prudent
-within a given performance budget.
+Recent work has shown connections between lattice and code-based cryptanalysis, 
+including adaptations of lattice-sieving techniques to codes~\cite{EC:DEEK24}. The quasi-cyclic structure of HQC has also been noted to 
+have important parallels with the ring and module structures used in structured lattice schemes~\cite{hqc-forum}.
 
-% \footnote{Both of these 
-% hedges are distinct, but not entirely independent: additional parameter margin can also increase the cost of a 
-% hypothetical structural attack, and removing algebraic structure can affect the cost of known attacks.} 
+Of all these hedges, increasing the margin has the longest proven track record. For computationally secure schemes, a concrete security estimate is the cost
+of the best attack known at the time, and such estimates evolve as cryptanalysis matures. The standard response has been to increase
+parameters whenever bandwidth allows; for instance the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond
+as factoring algorithms and available computation advanced~\cite{nist-sp800-57pt1r5}. Lattice estimates are not static either.
+The attacks and the cost models used to estimate them have evolved over more than a decade~\cite{bkz2,estimator}, and while the
+underlying framework has remained stable, with BKZ-based lattice reduction at its core, the cost of the best known attacks continues
+to drift in both directions as improvements are proposed~\cite{fasterdual,matzov2022lwe}, scrutinized~\cite{doesitwork}, and
+refined~\cite{variantofmatzov}. This drift affects structured and unstructured schemes alike, and its impact depends on how much margin is available to accommodate it.
 
-\peter{Add a bit more hybrid discussion/storytelling here...?}
+This consideration is important because additional margin comes at a cost, requiring larger parameters and hence higher bandwidth and runtime, 
+so no scheme can withstand advances in cryptanalysis indefinitely simply by scaling its parameters. For LWE-family KEMs there is a further constraint, since the parameters 
+that determine security also control the decryption failure probability, so increasing the noise for higher lattice security necessarily affects correctness.
 
-Faced with many such uncertainties, increasing the margin has been a historically standard response, provided 
-that sufficient bandwidth is available. For 
-computationally secure schemes, a concrete security estimate is the cost of the best attack known at the time, and such estimates evolve as cryptanalysis matures.
-For instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond as factoring 
-algorithms and available computation advanced~\cite{nist-sp800-57pt1r5}. Lattice estimates are not static either. The cost models used for
-estimation and the attacks have evolved over more than a decade~\cite{bkz2,estimator}. The core framework for estimating
-the security of LWE-based schemes has nevertheless remained stable, with BKZ-based lattice reduction at its core. Within this framework, the cost of the best known
-attacks continues to drift in both directions as improvements are proposed~\cite{fasterdual,matzov2022lwe}, scrutinized~\cite{doesitwork}, and refined~\cite{variantofmatzov}.
+Since margin comes at a growing cost, and it is impossible to predict which of the (hypothetical) breakthroughs above is most likely,
+a natural response is also to combine schemes.
+Hybrid key exchange, which combines two KEMs so that an attacker has to break both~\cite{PKC:GiaHeuPoe18,PQCRYPTO:BBFGS19},
+is already standard practice in the post-quantum transition, where it typically pairs a post-quantum KEM with a classical one,
+as in the X25519+ML-KEM combinations now deployed in TLS~\cite{tls-hybrid}. There, the classical component is a safety net, as
+post-quantum schemes are young and have received far less cryptanalytic scrutiny than their classical counterparts.
+Against a quantum adversary, however, the classical component offers no protection, so for long-term confidentiality the combination
+is only as strong as its post-quantum half. This same principle extends naturally to combining two post-quantum KEMs, each covering
+a different failure mode.
 
-If the best known attacks continue to improve, how much margin is required remains open, and the useful question is not whether 
-today's KEMs carry enough but how much margin they can carry at all. This reframing matters because additional margin comes at a cost, 
-requiring larger parameters and hence higher bandwidth and runtime, so no scheme can indefinitely withstand advances in 
-cryptanalysis simply by scaling its parameters. For LWE-family KEMs there is a further constraint, since the parameters 
-that determine security also control the decryption failure probability, so increasing the noise to gain a larger security 
-margin necessarily affects correctness.
+Of the single schemes available today, FrodoKEM-1344 comes closest to covering both the structure and margin hedges, as it avoids algebraic
+structure entirely and carries the largest security estimate among the standardized lattice KEMs. It is also by far the most expensive, with public
+keys and ciphertexts of over 21\,KB each, more than an order of magnitude larger than those of ML-KEM-1024~\cite{takeofffrodo,fips203}.
+This cost reflects the fact that structure determines the \emph{price} of buying margin. At matched security, an unstructured scheme already
+needs roughly an order of magnitude more bandwidth and considerably more computation than a module scheme~\cite{takeofffrodo,kyberoriginal}.
+Within FrodoKEM's communication budget, a structured scheme can therefore afford far larger parameters, and, combined in a hybrid with a
+smaller FrodoKEM parameter set, potentially cover both hedges more cheaply than FrodoKEM-1344 alone.
 
-Crucially, what structure determines is the \emph{price} of buying additional margin. At matched security levels, an unstructured scheme 
-already requires roughly an order of magnitude more bandwidth than a module scheme~\cite{takeofffrodo,kyberoriginal}. Since these communication costs are
-considered practical enough for conservative deployments, a module scheme can spend the same bandwidth budget on larger parameters and obtain
-a conservative security margin while retaining the efficiency advantages of NTT arithmetic. 
+The natural way to obtain such a module scheme is to scale ML-KEM itself, whose parameter sets already
+differ mainly in their module rank $k$, so it allows lattice security to be adjusted by changing $k$
+while reusing the same ring arithmetic~\cite{kyberoriginal}. Recent work has explored the analogous high-margin regime for unstructured LWE in the form of KyFrog~\cite{kyfrog}, which increases
+the LWE dimension and adjusts the noise distribution to reach substantially higher security estimates at the cost of much larger
+ciphertexts. What has received less attention is how far module rank can be pushed before the correctness limit discussed above
+takes over, and what it costs to push past it. We therefore ask:
+\begin{quote}
+\emph{Can a scaled ML-KEM remain correct and efficient within FrodoKEM's tighest communication budget, and, combined with FrodoKEM in a hybrid,
+provide a better hedge than FrodoKEM-1344?}
+\end{quote}
 
-Recent work has explored this high-margin regime from the perspective of unstructured LWE. KyFrog~\cite{kyfrog} increases the LWE dimension and
-adjusts the noise distribution to achieve substantially higher security estimates for much larger ciphertexts. This leaves open the corresponding question for module-based KEMs:
-
-\emph{How much additional security margin can their algebraic structure buy within the communication budget of an unstructured LWE scheme, and at what computational cost?}
-
-\peter{Emphasize our goal to change ML-KEM/Kyber as little as possible, re-use HW or optimized SW, etc.}
-
-We answer this question with \textsc{Kaiburr}, a module KEM that scales ML-KEM's 
-module rank and introduces a generalized noise distribution to preserve correctness. We first characterize 
-the correctness and security limits of naively increasing ML-KEM's module rank, then introduce a noise family that 
-allows further scaling. We then build three different parameter sets with the new noise sampler, and implement them across conventional software and
-dedicated hardware-accelerated platforms. Next, we compare \textsc{Kaiburr} with existing KEMs, including FrodoKEM
-and HQC. Finally, we show that combining \textsc{Kaiburr} with FrodoKEM in a hybrid hedges against both structural
-attacks and improvements to the best known lattice attacks at lower cost than FrodoKEM's most conservative parameter set.
-
-\vadim{I a have a general comment here. We should not be stressing that we somehow figured out how to do Kyber in a higher dimension -- it's clear to everyone that this can be done.  Our paper should be positioned more as a position paper saying that doing Kyber in a higher dimension with the parameters and noise distribution that we propose is efficient (we implemented / verified) and in our opinion is the more conservative option to just Frodo.  Also, the intro is not very ``tight'' in the sense that it's reads a bit all over the place to me.  I would just say that we want to increase the security of kyber, we want to keep the algebraic operations and simple constant-time bernoulli noise generation. Our result is an instantiation of a scheme whose noise distribution generalizes Kyber,  can be instantiated up to dimension 4000 or something which gives up to xxx bits of security. This allows us to compensate for dimension and algebraic risks in a, what we believe, is a more conservative way than Frodo within a given budget.  We furthermore implement, formally verify, benchmark, etc. our scheme.  I guess I just don't want it to read like we were somehow the first to figure out how to do MLWE in higher dimension :)...}  
+We answer both parts affirmatively through \textsc{Kaiburr}, which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
+generalized one-parameter family that remains easy to sample, and removes ciphertext compression. The ring,
+NTT arithmetic, symmetric primitives, and FO transform are unchanged, so existing optimized ML-KEM software and hardware can largely be
+reused. We instantiate \textsc{Kaiburr} up to module dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
+FrodoKEM-640's communication budget, and show that a hybrid of \textsc{Kaiburr} with FrodoKEM hedges against both structural attacks
+and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 
 \subsection{Our contributions}
+
+% \vadim{I a have a general comment here. We should not be stressing that we somehow figured out how to do Kyber in a higher dimension -- it's clear to everyone that this can be done.  Our paper should be positioned more as a position paper saying that doing Kyber in a higher dimension with the parameters and noise distribution that we propose is efficient (we implemented / verified) and in our opinion is the more conservative option to just Frodo.  Also, the intro is not very ``tight'' in the sense that it's reads a bit all over the place to me.  I would just say that we want to increase the security of kyber, we want to keep the algebraic operations and simple constant-time bernoulli noise generation. Our result is an instantiation of a scheme whose noise distribution generalizes Kyber,  can be instantiated up to dimension 4000 or something which gives up to xxx bits of security. This allows us to compensate for dimension and algebraic risks in a, what we believe, is a more conservative way than Frodo within a given budget.  We furthermore implement, formally verify, benchmark, etc. our scheme.  I guess I just don't want it to read like we were somehow the first to figure out how to do MLWE in higher dimension :)...}  
 We make several contributions in this work, summarized below.
-\peter{Clarify that we don't increase security globally, only increase the margin for MLWE. Specifically, we don't scale symmetric components in ML-KEM.}
 \begin{itemize}
-  \item \emph{We show that naively scaling ML-KEM's module rank hits a correctness wall.} Raising $k$ alone, with \textsc{Kyber}'s noise and 
-    modulus fixed, satisfies the $2^{-128}$ decryption-failure
-    bound only up to $k=7$ and fails already at $k=8$, so larger module rank cannot buy additional
-    security margin on its own (Section~\ref{sec:warmup}) \vadim{Maybe de-emphasize this observation}.
-  \item \emph{We introduce a one-parameter noise family that allows us to scale further.} Our family $f(t)$
-    generalizes \textsc{Kyber}'s centered binomial distribution, thinning its $\pm 2$ tail geometrically as $t$
-    grows while leaving the $\pm 1$ mass unchanged.
-    The parameter $t$ can be tuned against module rank $k$ to keep decryption failure below
-    $2^{-128}$ as $k$ increases (Section~\ref{sec:distribution}).
-  \item \emph{We select concrete parameter sets that reach large security margins within FrodoKEM-640's
-    communication budget.} Using this trade-off, we obtain three parameter sets, \kaiburr-1792, -4608, and
-    -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
-    bits while their public keys and ciphertexts stay within the communication budget of FrodoKEM-640, its smallest standardized
-    parameter set (Section~\ref{sec:distribution}).
-  \item \emph{We build \textsc{Kaiburr} across three implementation targets.} We implement all three
-    parameter sets in C, in Jasmin with machine-checked constant-time verification,
-    and as an ACC variant targeting the Pavona hardware root of trust, detailing the engineering
-    consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
-  \item \emph{We give a formally verified bound on \textsc{Kaiburr}'s decryption-failure probability.} 
-  Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show that removing ciphertext compression is what 
-  makes this bound provable rather than heuristic, avoiding the gap between the provable and heuristic bounds
-  that compression causes for ML-KEM (Section~\ref{sec:verification}).
-    \peter{Did we actually do these proofs?}
-  \item \emph{We benchmark \textsc{Kaiburr} against FrodoKEM and HQC.} Across three Intel
-    microarchitectures, we show that our AVX2 and Jasmin implementations run substantially faster than FrodoKEM-640.
-    \kaiburr-1792 is faster than HQC-5 in every operation, and for the larger parameter sets HQC is faster in key generation
-    and encapsulation while decapsulation is of similar cost, despite \textsc{Kaiburr}'s (much) larger security margins (Section~\ref{sec:benchmarks}).
-  \item \emph{We show that a \textsc{Kaiburr}--FrodoKEM hybrid is a more prudent choice than FrodoKEM-1344.} A hybrid of
-    \kaiburr-1792 and FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344, retains its hedge against
-    structural attacks, and has a much higher lattice attack cost ($2^{467.3}$ vs.\ $2^{281.7}$) (Section~\ref{sec:hybrid}).
+  \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \textsc{Kyber}'s noise and
+    modulus fixed, keeps decryption failure below $2^{-128}$ only up to $k=7$ (Section~\ref{sec:warmup}). We therefore introduce
+    $f(t)$, a one-parameter family that generalizes \textsc{Kyber}'s centered binomial distribution and 
+    retains simple constant-time sampling. Tuning $t$ against
+    $k$ keeps decryption failure below $2^{-128}$ as $k$ grows (Section~\ref{sec:distribution}).
+  \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
+    \kaiburr-1792, -4608, and -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
+    bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (Section~\ref{sec:distribution}).
+  \item \emph{Implementations across three targets.} Since \textsc{Kaiburr} keeps ML-KEM's ring, NTT arithmetic, and symmetric
+    primitives, existing implementation techniques carry over. We implement all three parameter sets in C, in Jasmin with
+    machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
+    engineering consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
+  \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show
+    that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
+    compression causes for ML-KEM (Section~\ref{sec:verification}).
+  \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our AVX2 and Jasmin implementations run
+    substantially faster than FrodoKEM-640. \kaiburr-1792 outperforms HQC-5 in every operation; for the larger parameter sets, HQC is
+    faster in key generation and encapsulation and similar in decapsulation, despite \textsc{Kaiburr}'s much larger margins
+    (Section~\ref{sec:benchmarks}).
+  \item \emph{A \textsc{Kaiburr}--FrodoKEM hybrid as a more prudent choice than FrodoKEM-1344.} A hybrid of \kaiburr-1792 and
+    FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344, retains FrodoKEM's hedge against structural attacks, and
+    has a much higher lattice attack cost ($2^{467.3}$ vs.\ $2^{281.7}$) (Section~\ref{sec:hybrid}). In Section~\ref{sec:discussion},
+    we discuss which configuration we consider the most prudent choice for conservative deployments.
 \end{itemize}
 \subsection{Access to artifacts}
 \makeatletter
