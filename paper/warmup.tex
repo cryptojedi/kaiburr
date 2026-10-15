@@ -2,32 +2,40 @@
 \label{sec:warmup}
 The main mechanism to increase the security margin in \textsc{Kyber} is to raise
 the module rank $k$~\cite{kyberround1}. Fixing the ML-KEM base ring, noise distribution, and
-modulus, and varying only $k$, we measure the decryption-failure
-probability $\delta$ using the \textsc{Kyber} team's scripts~\cite{kyber-scripts}.
+modulus, and varying only $k$, we compute the decryption-failure probability.
 Throughout we use the centered binomial noise $\mathrm{CBD}_2$
 (the noise of ML-KEM-768 and -1024; recall that ML-KEM-512 uses $\eta_1=3$).
 The ranks $k=3 \text{ and } 4$ recover the uncompressed analogue of standardized sets ML-KEM-768, and -1024,
 while $k \geq 5$ is an extrapolation.
 
-We require $\delta\le 2^{-128}$ throughout the paper. This is the same bar as for
-\textsc{Kyber}, whose parameter sets all achieve a failure probability below $2^{-128}$
-with some margin~\cite{kyberround3}. Since $\delta$ is information-theoretic in the
-classical random-oracle model, it does not need to decrease with the security
-parameter. Here $\delta$ must be the failure
-probability in the adversarial sense used by Fujisaki--Okamoto proofs, in which the
-adversary knows the secret key and chooses the message. The scripts instead compute the
-statistical failure probability of Section~\ref{sec:preliminaries}, that is, the probability
-over the randomness of key generation and encryption that some coefficient of $\tilde{n}$
-exceeds $q/4$. Without ciphertext compression, as in all experiments in this paper,
-$\tilde{n}$ does not depend on the message, so the adversarial failure probability is
-bounded by the statistical one. We machine-check this in EasyCrypt
-(Section~\ref{sec:verification}) and report the resulting bounds alongside the script
-estimates in Table~\ref{tab:cbd-baseline}.
+We will see that increasing $k$ also increases the decryption-failure
+probability. This is a problem for IND-CCA security. In fact, the failure
+probability is part of the attackers advantage in the security proofs of
+(variants of) the FO transform; for details see~\cite{TCC:HofHovKil17}.
+Those proofs require a notion of correctness based on a game in which
+the adversary chooses ciphertexts and wins if decryption fails. 
+In this game, the adversary selects the knows both public and secret key. 
+However, for ML-KEM and FrodoKEM, it was shown in~\cite{CCS:BKLSS25} that
+the attackers can only minimally improve the chances of success by choosing
+a ciphertext and that it is possible to move to a purely statistical 
+(information-theoretic) notion. Throughout the paper we require this
+failure probability $\delta$ to be smaller than $2^{128}$; this is also
+in line with the standardized parameter sets of ML-KEM, which reach the
+highest value for ML-KEM-512 at $\delta = 2^{-138.8}$~\cite[Table~1]{fips203}.
+We initially determine the failure probability using an adapted version
+of the Python scripts provided by the Kyber team~\cite{kyber-scripts}.
+Furthermore, we adapt the EasyCrypt proofs of the tight failure-probability 
+bounds for FrodoKEM presented in~\cite{CCS:BKLSS25}. Note that the bounds
+for ML-KEM in~\cite{CCS:BKLSS25} are either non-tight or heuristic. 
+For \kaiburr we are able to prove tight non-heuristic bounds because 
+\kaiburr does not use any ciphertext compression.
 
-Against this target, the bound holds at $k=7$ ($2^{-133.7}$ by the scripts, $2^{-133}$
-machine-checked) but fails at $k=8$ ($2^{-116.8}$ and $2^{-116}$, respectively), which demonstrates that raising
-$k$ alone cannot buy higher security without sacrificing correctness.
-
+The results of our analysis are shown in \cref{tab:cbd-baseline}; we see
+that our failure-probability upper bound of $2^{-128}$ 
+holds at $k=7$ ($2^{-133.7}$ by the scripts, $2^{-133}$
+machine-checked) but fails at $k=8$ ($2^{-116.8}$ and $2^{-116}$, 
+respectively). This demonstrates that raising
+$k$ alone cannot buy much higher security.
 With \textsc{Kyber}'s ciphertext compression, the rounding of $\mathbf{u}$ and $v$ would add
 further noise, so the correctness limit on $k$ would be reached even earlier.
 
