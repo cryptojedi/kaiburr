@@ -56,7 +56,7 @@ of security, as a break of FrodoKEM is fairly likely to also affect
 ML-KEM. However, this is not true for software bugs and implementation attacks, 
 which may well affect only one of the two schemes. This is particularly
 true as implementation security of post-quantum schemes is more complex
-and by far not as mature as for for ECC.  Hence, adding ML-KEM
+and by far not as mature as for ECC.  Hence, adding ML-KEM
 to FrodoKEM offers additional \emph{post-quantum} security at a very low cost.
 
 \paragraph{FrodoKEM vs. FrodoKEM$+$\kaiburr hybrids.}
@@ -69,9 +69,9 @@ than FrodoKEM-976 and has only slightly larger ciphertext and public key.
 
 Similarly, a combination of FrodoKEM-976 and \kaiburr-1792 offers much better
 performance than FrodoKEM-1344 both in terms of speed and size and a combination
-of FrodoKEM-976 and kaiburr-4608 is still faster than FrodoKEM-1344 with public keys
+of FrodoKEM-976 and \kaiburr-4608 is still faster than FrodoKEM-1344 with public keys
 and ciphertexts only about $6$\% larger. In terms of security, such hybrids 
-of FrodoKEM and \kaiburr hedge simultanuously against even immense improvements 
+of FrodoKEM and \kaiburr hedge simultaneously against even immense improvements 
 of attacks against lattice schemes in general (through the huge margin of \kaiburr) and 
 against any improvements in attacks that only apply to structured lattices 
 (through the use of FrodoKEM). An advantage of a higher-security FrodoKEM
@@ -96,8 +96,8 @@ of ML-KEM from~\cite{TCHES:ABBGLL23,C:AOBBDG24,SP:AABBEH25} to our
 Jasmin implementations of \kaiburr. Deployments on Pavona's ACC will
 require significantly increased data memory, but if such a deployment
 were considered, one may want to consider also adding hardware acceleration
-for the rejection sampling to generate the matrix $\mathbf{A}$. In \kaiburr
-this is by far the most epensive step in \kaiburr, 
+for the rejection sampling to generate the matrix $\mathbf{A}$. This
+is by far the most expensive step in \kaiburr on the ACC,
 accounting for between $73$\% and $84$\% of the total cycles 
 (for the different parameter sets). 
 Finally, for this paper we refrained from actually implementing all the hybrid combinations, 
