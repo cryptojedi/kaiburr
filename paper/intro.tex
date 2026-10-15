@@ -1,6 +1,6 @@
 \section{Introduction}
 \label{sec:introduction}
-\paragraph{Efficiency vs. conservatism.}After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204},
+After a multi-year, multi-round public competition, NIST published its first post-quantum standards FIPS-203~\cite{fips203}, FIPS-204~\cite{fips204},
 and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, respectively, with FN-DSA to follow in FIPS-206~\cite{fips206}.
 In 2025, NIST selected an additional KEM, HQC, for standardization in the fourth round~\cite{fourthstatus}. Unlike ML-KEM, which is based on
 Module Learning With Errors (MLWE), HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) problem~\cite{hqc2025spec}, providing
@@ -101,6 +101,11 @@ We make several contributions in this work, summarized below.
     FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344 and has a much higher lattice attack cost ($2^{467.3}$
     vs.\ $2^{281.7}$) (Section~\ref{sec:discussion}).
 \end{itemize}
+\paragraph{Acknowledgements.}
+The EasyCrypt proof for correctness bounds explained in Section~\ref{sec:warmup} and then in Section~\ref{sec:verification}
+were adapted from~\cite{BarbosaKLSS25} to \kaiburr with the help of AI (mainly Claude Opus 5.5). Some of the tests discussed in Section~\ref{sec:impl:assurance},
+(specifically those not directly inherited from upstream) were also generated using Opus 5.5. 
+
 \paragraph{Access to artifacts.}
 \makeatletter
 \if@submission
