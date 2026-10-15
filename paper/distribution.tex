@@ -83,7 +83,7 @@ For each choice of $t$, we pick the highest $k$ satisfying the failure probabili
 FrodoKEM-640. 
 
 We use FrodoKEM-640 as our baseline for parameter selection and comparison throughout the paper because it is the 
-smallest standardized FrodoKEM parameter set and hence imposes the tightest communication budget of 9,616 public-key 
+smallest FrodoKEM parameter set (NIST Level 1) and hence imposes the tightest communication budget of 9,616 public-key 
 bytes and 9,720 ciphertext bytes. This gives us 
 a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
 of an unstructured lattice-based KEM.
@@ -151,7 +151,7 @@ attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits bel
 
 \subsection{Sizes}
 Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
-sets alongside all standardized FrodoKEM and HQC parameter sets. \kaiburr-1792 is smaller in
+sets alongside all FrodoKEM and HQC parameter sets. \kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
 a third the size of HQC-5 (21,658 bytes).
 
