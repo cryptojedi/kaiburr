@@ -3,17 +3,17 @@
 
 We benchmark the C and Jasmin implementations on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with Hyper-Threading and Turbo 
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All \kaiburr code is compiled using \texttt{GCC 12.2.0}
-with \texttt{-O3 -march=native -fomit-frame-pointer}.
+with the flags \texttt{-O3}, \texttt{-march=native}, and \texttt{-fomit-frame-pointer}.
 
 We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
-implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare\footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \ref{sec:intro}, since no
-public hand-optimized implementation of the scheme exists.}.
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
+we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in Section~\ref{sec:introduction}, since no
+public hand-optimized implementation of the scheme exists.}
 We mainly compare against FrodoKEM-640, the smallest standardized FrodoKEM parameter set, since it is already substantially
 more expensive than \textsc{Kaiburr}. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
-the hybrid comparison of Section~\ref{sec:hybrid}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
+the hybrid comparison of Section~\ref{sec:discussion}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
 
 All three KEMs are evaluated using a common benchmark driver in which We first perform $1000$ untimed warm-up iterations, 
 followed by $10001$ timed iterations. We report the median 

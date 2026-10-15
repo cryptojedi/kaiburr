@@ -65,7 +65,7 @@ takes over, and what it costs to push past it. We therefore ask:
 provide a better hedge than FrodoKEM-1344?}
 \end{quote}
 
-\paragraph{Our approach.}We answer both parts affirmatively through \textsc{Kaiburr}, which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
+\paragraph{Our approach.}We answer both parts affirmatively through \textsc{Kaiburr},\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}} which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
 generalized one-parameter family that remains easy to sample, and removes ciphertext compression. The ring,
 NTT arithmetic, symmetric primitives, and FO transform are unchanged, so existing optimized ML-KEM software and hardware can largely be
 reused. We instantiate \textsc{Kaiburr} up to module dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
@@ -73,7 +73,6 @@ FrodoKEM-640's communication budget, and show that a hybrid of \textsc{Kaiburr} 
 and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 
 \paragraph{Our contributions.}
-\vadim{I a have a general comment here. We should not be stressing that we somehow figured out how to do Kyber in a higher dimension -- it's clear to everyone that this can be done.  Our paper should be positioned more as a position paper saying that doing Kyber in a higher dimension with the parameters and noise distribution that we propose is efficient (we implemented / verified) and in our opinion is the more conservative option to just Frodo.  Also, the intro is not very ``tight'' in the sense that it's reads a bit all over the place to me.  I would just say that we want to increase the security of kyber, we want to keep the algebraic operations and simple constant-time bernoulli noise generation. Our result is an instantiation of a scheme whose noise distribution generalizes Kyber,  can be instantiated up to dimension 4000 or something which gives up to xxx bits of security. This allows us to compensate for dimension and algebraic risks in a, what we believe, is a more conservative way than Frodo within a given budget.  We furthermore implement, formally verify, benchmark, etc. our scheme.  I guess I just don't want it to read like we were somehow the first to figure out how to do MLWE in higher dimension :)...}  
 We make several contributions in this work, summarized below.
 \begin{itemize}
   \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \textsc{Kyber}'s noise and
