@@ -20,10 +20,8 @@ complementary hardware-accelerated setting where we can evaluate the cost of sca
 All implementations make the same three changes to ML-KEM:
 \begin{enumerate}
   \item the module rank $k$ is scaled to $\{7,18,24\}$, giving the parameter
-        sets \kaiburr-1792, -4608, and -6144 (named kaiburr4, kaiburr6, and
-        kaiburr8 in the code, after their noise parameter $t$; see
+        sets \kaiburr-1792, -4608, and -6144 (see
         Table~\ref{tab:kaiburr-params});
-        \peter{can we change the name in the code to kaiburr1792 etc.?}
   \item ciphertext compression is removed, so both ciphertext polynomials are
         serialized at full $12$-bit precision; and
   \item the centered binomial sampler is replaced by a sampler for the noise
