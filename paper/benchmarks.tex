@@ -233,15 +233,15 @@ HQC-5 & \cite{hqc-github} &
 
 Our benchmarks show that \textsc{Kaiburr} is faster than FrodoKEM-640 across every
 \textbf{operation}, \textbf{parameter set}, \textbf{implementation}, and \textbf{machine}.
- \kaiburr-1792 is 21.5--28.0x faster, \kaiburr-4608 is 4.2--5.3x faster, and \kaiburr-6144 is
-2.4--3.1x faster than FrodoKEM-640.
+ \kaiburr-1792 is $21.5$--$28.0\times$ faster, \kaiburr-4608 is $4.2$--$5.3\times$ faster, and \kaiburr-6144 is
+$2.4$--$3.1\times$ faster than FrodoKEM-640.
 
 Which \textsc{Kaiburr} implementation is faster depends on the microarchitecture: Jasmin beats C/asm in every
 operation on Skylake and Coffee Lake (by 3.6--13.1\%), while C/asm beats Jasmin in every operation on
 Raptor Lake (by 9.2--14.0\%).
 
 From \kaiburr-1792 ($k=7$) to \kaiburr-4608 ($k=18$) to \kaiburr-6144 ($k=24$), C/asm KeyGen grows by
-${\approx}5.2\times$ and ${\approx}1.7\times$ on all three machines, between the growth of $k$
+${\approx}5.2\times$ and ${\approx}1.7\times$ on all three machines, which lies between the growth of $k$
 ($2.57\times$, $1.33\times$) and of $k^2$ ($6.61\times$, $1.78\times$).
 
 On Coffee Lake, \kaiburr-1792 takes $2.5$--$2.6\times$ the cycles of ML-KEM-1024 in every operation, for both
@@ -251,7 +251,7 @@ $3.06\times$, and the ratio lies between the two, just as it does across \kaibur
 \kaiburr-1792 is faster than HQC-5 in every operation on every machine (C/asm: 64--90\% fewer cycles).
 At matching indices (\kaiburr-1792/HQC-1, \kaiburr-4608/HQC-3, \kaiburr-6144/HQC-5), the comparison
 depends on the operation. HQC KeyGen is $1.7$--$3.9\times$ faster, and HQC Enc is $1.6$--$2.0\times$ faster
-for the two larger parameter sets. On the other hand, decapsulation which is HQC's most expensive operation favors \kaiburr
+for the two larger parameter sets. On the other hand, decapsulation, which is HQC's most expensive operation, favors \kaiburr
 meaningfully: \kaiburr-1792 is $2.3\times$ faster than HQC-1, \kaiburr-6144 is $1.2\times$ faster than HQC-5, and
 \kaiburr-4608 is within 2\% of HQC-3.
 
@@ -260,7 +260,7 @@ Interquartile ranges are below 2\% of the median for every measurement.
 We additionally benchmark the ACC implementation on Pavona's cycle-accurate RTL simulator. The simulator is 
 deterministic, so repeated runs on the same input are cycle-identical. We therefore run each operation once on a 
 fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
-we build the keypair–encapsulate–decapsulate roundtrip three times, terminating after KeyGen, after Enc, 
+we build the keypair--encapsulate--decapsulate round trip three times, terminating after KeyGen, after Enc, 
 and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
 and $\mathrm{Dec}=M_3-M_2$. Results are shown in Table~\ref{tab:acc}.
 
@@ -280,7 +280,7 @@ KEM & KeyGen & Enc & Dec \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:acc-profile} breaks down the same roundtrip using the simulator's per-function and
+Table~\ref{tab:acc-profile} breaks down the same round trip using the simulator's per-function and
 per-instruction execution statistics. Matrix generation (\texttt{poly\_gen\_matrix}), which expands the
 public seed into $\mathbf{A}$ by rejection sampling on SHAKE-128 output, takes 73--84\% of all cycles.
 Almost none of this is spent waiting for the hardware SHAKE-128 core, since stalls on
@@ -292,9 +292,9 @@ and the accept/reject branches (\textcolor{hotpink}{\texttt{bne}}, \textcolor{ho
 \begin{table}[h]
 \centering
 \setlength{\tabcolsep}{4pt}
-\caption{Share of total roundtrip cycles in the ACC benchmark, from the simulator's per-function and
+\caption{Share of total round-trip cycles in the ACC benchmark, from the simulator's per-function and
 per-instruction execution statistics. The four middle columns split \texttt{poly\_gen\_matrix} by
-instruction class. All values are percentages of each variant's total roundtrip cycles and cell shading
+instruction class. All values are percentages of each variant's total round-trip cycles, and cell shading
 is scaled to the largest value in the table.}
 \label{tab:acc-profile}
 \begin{tabular}{lrrrrrrr}

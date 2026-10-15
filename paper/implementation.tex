@@ -5,7 +5,7 @@ We implement \textsc{Kaiburr} on three platforms, each forked from an existing M
 a C implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
 a Jasmin implementation with machine-checked constant-time verification,\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
 and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
-As upstream, the C and Jasmin code each have a
+As in upstream, the C and Jasmin code each have a
 portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
 
 The ACC is the coprocessor for public-key cryptography in the Pavona open-source silicon project. To accelerate
@@ -164,7 +164,7 @@ formally provable, as shown in Section~\ref{sec:verification}.
 \label{sec:impl:assurance}
 
 \paragraph{Jasmin.}
-The Jasmin implementation is a fork of \texttt{formosa-mlkem}~\cite{fvk},
+The Jasmin implementation is a fork of \texttt{formosa-mlkem}~\cite{TCHES:ABBGLL23},
 whose EasyCrypt proofs establish functional correctness for ML-KEM. These
 proofs do not carry over to \textsc{Kaiburr}, since the sampler, module rank,
 and serialization all change. What we check is much narrower.
@@ -172,7 +172,7 @@ and serialization all change. What we check is much narrower.
 Every exported function carries a security-type annotation.
 We check all six builds with Jasmin's constant-time checker for constant-time (CT). The three AVX2 builds,
 whose exported functions carry \texttt{sct} annotations, are additionally checked for speculative constant-time
-(SCT)~\cite{SP:SBGLOP23}. As upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
+(SCT)~\cite{SP:SBGLOP23}. As in upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
 
 \paragraph{Testing.}
 The C implementation relies on the deterministic round-trip self-tests
@@ -180,7 +180,7 @@ inherited from its upstream ML-KEM codebase. The Jasmin implementation runs
 the same kind of self-test, and additionally cross-checks its output against
 the C implementation, bit-for-bit, across all six builds. The ACC
 implementation is validated against a Python model based on
-\texttt{kyber-py}\footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
+\texttt{kyber-py},\footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
 disables ciphertext compression. For each parameter set, the model generates
 known-answer tests (KATs) for key generation, encapsulation, and decapsulation
 (including implicit rejection), as well as round-trip tests.

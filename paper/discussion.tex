@@ -3,8 +3,8 @@
 
 Our results show that with the proposed generalization of the noise distribution used in ML-KEM, 
 we can increase the module rank of ML-KEM and thereby obtain a massive security margin to hedge
-against possible future improvements in solving (M)LWE. The performance of the largest
-parameter set we propose, \kaiburr-6144 reaches Core-SVP estimates of 1717 bits classical and 1557 bits quantum,
+against possible future improvements in solving (M)LWE. The largest
+parameter set we propose, \kaiburr-6144, reaches Core-SVP estimates of 1717 bits classical and 1557 bits quantum,
 while still outperforming the \emph{smallest} parameter set of FrodoKEM in every regard:
 it has slightly smaller public keys and ciphertexts and is more than twice as fast.
 Also in comparison with HQC, \kaiburr is competitive in performance at a much larger
@@ -20,7 +20,7 @@ willing to accept a significant performance decrease compared to, e.g., simply d
 Certainly, \emph{some} deployments are constrained to standardized schemes and parameter
 sets, possibly even to specific combiners or non-hybrid deployment. In the following 
 discussion, we ignore such constraints imposed by policy or certification requirements
-and instead focus purely on security and performance. We note however, that the smallest parameter
+and instead focus purely on security and performance. We note, however, that the smallest parameter
 set of FrodoKEM, which inspires our performance limit for \kaiburr, is \emph{not} standardized
 by ISO~\cite{San26}.
 
@@ -47,16 +47,16 @@ secure.
 A slightly less obvious recommendation is to always combine FrodoKEM 
 (or any other post-quantum KEM at a similar performance profile)
 with at least a standardized parameter set of ML-KEM. As ML-KEM offers
-roughly comparable (in fact, somewhat better) performance as X25519,
-the argument for computational performance increase is similar as for
-X25519. With regards to increase in ciphertext and public-key size, the overhead
+performance roughly comparable to (in fact, somewhat better than) that of X25519,
+the argument regarding computational overhead is similar to that for
+X25519. With regard to the increase in ciphertext and public-key size, the overhead
 becomes noticeable, but remains solidly at single-digit percentages.
 One might think that such a hybrid does not actually add much in terms
 of security, as a break of FrodoKEM is fairly likely to also affect
 ML-KEM. However, this is not true for software bugs and implementation attacks, 
 which may well affect only one of the two schemes. This is particularly
 true as implementation security of post-quantum schemes is more complex
-and by far not as mature as for ECC.  Hence, adding ML-KEM
+and far less mature than for ECC.  Hence, adding ML-KEM
 to FrodoKEM offers additional \emph{post-quantum} security at a very low cost.
 
 \paragraph{FrodoKEM vs. FrodoKEM$+$\kaiburr hybrids.}
@@ -91,7 +91,7 @@ than $20$\% larger and public keys less than $30$\% larger.
 \paragraph{Future work.}
 We see various directions of future work, mostly on the engineering and
 assurance side. For example, if one were to actually deploy \kaiburr
-software, then we recommend extending the functional correctness proof
+software, then we would recommend extending the functional correctness proof
 of ML-KEM from~\cite{TCHES:ABBGLL23,C:AOBBDG24,SP:AABBEH25} to our 
 Jasmin implementations of \kaiburr. Deployments on Pavona's ACC will
 require significantly increased data memory, but if such a deployment

@@ -26,7 +26,7 @@ have important parallels with the ring and module structures used in structured 
 
 \paragraph{Security margin.}Of all these hedges, increasing the margin has the longest proven track record. For computationally secure schemes, a concrete security estimate is the cost
 of the best attack known at the time, and such estimates evolve as cryptanalysis matures. The standard response has been to increase
-parameters whenever bandwidth allows; for instance the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond
+parameters whenever bandwidth allows; for instance, the recommended size of an RSA modulus climbed from $512$ to $1024$ to $2048$ bits and beyond
 as factoring algorithms and available computation advanced~\cite{nist-sp800-57pt1r5}. Lattice estimates are not static either.
 The attacks and the cost models used to estimate them have evolved over more than a decade~\cite{bkz2,estimator}, and while the
 underlying framework has remained stable, with BKZ-based lattice reduction at its core, the cost of the best known attacks continues
@@ -68,7 +68,7 @@ provide a better hedge than FrodoKEM-1344?}
 \paragraph{Our approach.}We answer both parts affirmatively through \textsc{Kaiburr},\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}} which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
 generalized one-parameter family that remains easy to sample, and removes ciphertext compression. The ring,
 NTT arithmetic, symmetric primitives, and FO transform are unchanged, so existing optimized ML-KEM software and hardware can largely be
-reused. We instantiate \textsc{Kaiburr} up to module dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
+reused. We instantiate \textsc{Kaiburr} up to lattice dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
 FrodoKEM-640's communication budget, and show that a hybrid of \textsc{Kaiburr} with FrodoKEM hedges against both structural attacks
 and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 
@@ -83,7 +83,7 @@ We make several contributions in this work, summarized below.
   \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
     \kaiburr-1792, -4608, and -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
     bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (Section~\ref{sec:distribution}).
-  \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{BarbosaKLSS25}, we show
+  \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{CCS:BKLSS25}, we show
     that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
     compression causes for ML-KEM (Section~\ref{sec:verification}).
   \item \emph{Implementations across three targets.} Since \textsc{Kaiburr} keeps ML-KEM's ring, NTT arithmetic, and symmetric
@@ -102,8 +102,8 @@ We make several contributions in this work, summarized below.
 \end{itemize}
 
 \paragraph{Use of generative AI.}
-The EasyCrypt proof for correctness bounds explained in Section~\ref{sec:warmup} and then in Section~\ref{sec:verification}
-were adapted from~\cite{BarbosaKLSS25} to \kaiburr with the help of AI (mainly Claude Opus 5.5). Some of the tests discussed in Section~\ref{sec:impl:assurance},
+The EasyCrypt proofs for the correctness bounds explained in Section~\ref{sec:warmup} and then in Section~\ref{sec:verification}
+were adapted from~\cite{CCS:BKLSS25} to \kaiburr with the help of AI (mainly Claude Opus 5.5). Some of the tests discussed in Section~\ref{sec:impl:assurance}
 (specifically those not directly inherited from upstream) were also generated using Opus 5.5. 
 
 \paragraph{Access to artifacts.}

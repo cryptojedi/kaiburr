@@ -5,21 +5,21 @@ the module rank $k$~\cite{kyberround1}. Fixing the ML-KEM base ring, noise distr
 modulus, and varying only $k$, we compute the decryption-failure probability.
 Throughout we use the centered binomial noise $\mathrm{CBD}_2$
 (the noise of ML-KEM-768 and -1024; recall that ML-KEM-512 uses $\eta_1=3$).
-The ranks $k=3 \text{ and } 4$ recover the uncompressed analogue of standardized sets ML-KEM-768, and -1024,
+The ranks $k=3$ and $4$ recover the uncompressed analogues of the standardized sets ML-KEM-768 and -1024,
 while $k \geq 5$ is an extrapolation.
 
 We will see that increasing $k$ also increases the decryption-failure
 probability. This is a problem for IND-CCA security. In fact, the failure
-probability is part of the attackers advantage in the security proofs of
+probability is part of the attacker's advantage in the security proofs of
 (variants of) the FO transform; for details see~\cite{TCC:HofHovKil17}.
 Those proofs require a notion of correctness based on a game in which
-the adversary chooses ciphertexts and wins if decryption fails. 
-In this game, the adversary selects the knows both public and secret key. 
+the adversary chooses a message and wins if decryption fails. 
+In this game, the adversary knows both the public and the secret key. 
 However, for ML-KEM and FrodoKEM, it was shown in~\cite{CCS:BKLSS25} that
-the attackers can only minimally improve the chances of success by choosing
-a ciphertext and that it is possible to move to a purely statistical 
+an attacker can only minimally improve its chances of success by choosing
+a message and that it is possible to move to a purely statistical 
 (information-theoretic) notion. Throughout the paper we require this
-failure probability $\delta$ to be smaller than $2^{128}$; this is also
+failure probability $\delta$ to be smaller than $2^{-128}$; this is also
 in line with the standardized parameter sets of ML-KEM, which reach the
 highest value for ML-KEM-512 at $\delta = 2^{-138.8}$~\cite[Table~1]{fips203}.
 We initially determine the failure probability using an adapted version
@@ -45,7 +45,7 @@ further noise, so the correctness limit on $k$ would be reached even earlier.
 \caption{Decryption-failure probability and public-key and ciphertext
 sizes as a function of module rank $k$, at fixed ML-KEM noise and modulus,
 without ciphertext compression. Ranks $k=3,4$ correspond to
-uncompressed ML-KEM-768, and -1024. \emph{Script}: estimate from the \textsc{Kyber} team's
+uncompressed ML-KEM-768 and -1024. \emph{Script}: estimate from the \textsc{Kyber} team's
 scripts. \emph{Machine-checked}: upper bound on the adversarial failure probability proved in
 EasyCrypt (Section~\ref{sec:verification}), with the final tail probability computed by OCaml
 code that rounds upward.}
