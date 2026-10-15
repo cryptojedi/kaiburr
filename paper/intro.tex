@@ -90,10 +90,10 @@ We make several contributions in this work, summarized below.
     primitives, existing implementation techniques carry over. We implement all three parameter sets in C, in Jasmin with
     machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
     engineering consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
-  \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our AVX2 and Jasmin implementations run
-    substantially faster than FrodoKEM-640. \kaiburr-1792 outperforms HQC-5 in every operation; for the larger parameter sets, HQC is
-    faster in key generation and encapsulation and similar in decapsulation, despite \textsc{Kaiburr}'s much larger margins
-    (Section~\ref{sec:benchmarks}).
+  \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our C and Jasmin AVX2 implementations run
+    substantially faster than FrodoKEM-640 and hence the larger FrodoKEM parameter sets. \kaiburr-1792 outperforms HQC-5 in every operation. Against HQC-1/3/5 at matching
+    indices, HQC is faster in key generation, and in encapsulation for the two larger parameter sets, while decapsulation, HQC's
+    most expensive operation, favors \textsc{Kaiburr} (Section~\ref{sec:benchmarks}).
   \item \emph{\textsc{Kaiburr}--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question
     the use of FrodoKEM's larger parameter sets. We show that, combined with FrodoKEM-640 or
     FrodoKEM-976, \textsc{Kaiburr} is faster than the next-larger FrodoKEM parameter set. For example, the hybrid of \kaiburr-1792 and
