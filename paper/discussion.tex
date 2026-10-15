@@ -82,11 +82,11 @@ FrodoKEM parameters). Additionally, a combination of \kaiburr and FrodoKEM
 has the same benefits of some additional hedging against implementation
 attacks that we mention above in the context of hybridization with ML-KEM.
 
-In fact, if one is willing to accept the performance budget of FrodoKEM-1344
-in terms of speed and is willing to accept somewhat larger sizes, one may
-want to consider a hybrid of FrodoKEM-976, \kaiburr-1792, and HQC-3. This
-hybrid is \emph{still} faster than FrodoKEM-1344, with ciphertexts less
-than $20$\% larger and public keys less than $30$\% larger.
+In fact, if one is willing to accept the speed of FrodoKEM-1344 and somewhat larger sizes, a hybrid
+of FrodoKEM-976, \kaiburr-1792, and HQC-3 is worth considering. On Coffee Lake,
+it is \emph{still} $1.5$--$1.7\times$ faster than FrodoKEM-1344 ($8.6$--$9.4$M
+vs.\ $14.5$--$14.8$M cycles per operation), with public keys only $6$\% larger 
+and ciphertexts $28$\% larger.
 
 \paragraph{Future work.}
 We see various directions of future work, mostly on the engineering and
