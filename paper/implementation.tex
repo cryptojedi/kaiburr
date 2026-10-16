@@ -1,25 +1,28 @@
 \section{Implementation}
 \label{sec:implementation}
 
-We implement \textsc{Kaiburr} on three platforms, each forked from an existing ML-KEM implementation: 
-a C implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
-a Jasmin implementation with machine-checked constant-time verification,\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
+We present three implementations of \kaiburr, each forked from an existing ML-KEM implementation: 
+a C/asm implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
+a Jasmin implementation with machine-checked constant-time verification;\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
 and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
-As in upstream, the C and Jasmin code each have a
-portable \texttt{ref} path and an AVX2-vectorized path; ACC has a single hand-written path.
+As in upstream, the C and Jasmin code each contain a reference implementation
+and an implementation using AVX2 vector instructions. 
 
+The choice of optimized implementations targeting modern 64-bit Intel CPUs is motivated by
+the fact that such CPUs were declared by NIST as the reference platform for performance comparison
+in the PQC standardization project~\cite{pqcfp}. 
+The reason for targeting Pavona's ACC is to obtain benchmarks on a platform with
+hardware-accelerated Keccak.
 The ACC is the coprocessor for public-key cryptography in the Pavona open-source silicon project. To accelerate
 ML-KEM and ML-DSA, its post-quantum configuration adds a vector extension to its instruction set and a direct connection
-to the chip's KMAC block~\cite{SP:AOPPSS25,EPRINT:NiePha25}, a hardware SHA-3 and SHAKE engine, which the ACC feeds and
+to the chip's KMAC block~\cite{SP:AOPPSS25,TCHES:NiePha26}, a hardware SHA-3 and SHAKE engine, which the ACC feeds and
 reads through special registers. It has $32$ general-purpose
 registers of $32$ bits and $32$ wide data registers of $256$ bits. Its vector instructions interpret a wide register as
-$16$ lanes of $16$ bits or $8$ lanes of $32$ bits, so one wide register holds $16$ polynomial coefficients. Our
-implementation reuses the arithmetic of the existing ML-KEM implementation for the ACC, which provides us with a
-complementary hardware-accelerated setting where we can evaluate the cost of scaling $k$.
+$16$ lanes of $16$ bits or $8$ lanes of $32$ bits, so one wide register holds $16$ polynomial coefficients. 
 
 All implementations make the same three changes to ML-KEM:
 \begin{enumerate}
-  \item the module rank $k$ is scaled to $\{7,18,24\}$, giving the parameter
+  \item the module rank $k$ is scaled to $\{7,18,24\}$, yielding the parameter
         sets \kaiburr-1792, -4608, and -6144 (see
         Table~\ref{tab:kaiburr-params});
   \item ciphertext compression is removed, so both ciphertext polynomials are
@@ -46,7 +49,7 @@ implementation (Section~\ref{sec:impl:assurance}).
 Larger values of $k$ can overflow the matrix-vector product. In the NTT domain, each polynomial of the 
 product is a sum of $k$ pointwise products, which
 ML-KEM accumulates in an \texttt{int16\_t} and reduces once at the end. In the C reference, the 
-C AVX2, and the Jasmin reference code, each output coefficient is the sum of two separately
+C/asm AVX2-optimized, and the Jasmin reference code, each output coefficient is the sum of two separately
 Montgomery-reduced products, so it is bounded by $2(q-1) = 6656$ rather than by
 $q$, and the sum of $k$ terms fits only while $2kq < 2^{15}$, i.e.\ $k \le 4$. On the other hand, the Jasmin AVX2 code accumulates 
 both products at $32$ bits and applies a single Montgomery reduction, so its terms are bounded by $q$ and it is safe to
@@ -61,7 +64,7 @@ stays below $2q$ for every $k$, and the reduction is free.
 
 \paragraph{Matrix generation.}
 The AVX2 matrix sampler in ML-KEM hardcodes how the $k^2$
-matrix entries are grouped into batches of four for the $4$-way Keccak for each $k \le 4$. We
+matrix entries are grouped into batches of four for the $4$-way-parallel Keccak for each $k \le 4$. We
 replace this with a generic loop; it samples four entries at a time with 4-way Keccak and handles 
 any remaining entries with a scalar tail. Only $k=7$ has a
 remainder, of one entry.
@@ -88,6 +91,8 @@ memory from $31$\,KiB to $127$\,KiB in the hardware description, out of
 $128$\,KiB of physical DMEM including a $1$\,KiB scratch region. The ACC
 results in Section~\ref{sec:benchmarks} are therefore for this modified hardware
 configuration.
+\peter{We could explore applying the same ``use and discard'' approach on Intel as well.
+This should be more cache-friendly.}
 
 \subsection{The noise sampler}
 \label{sec:impl:sampler}
@@ -145,20 +150,20 @@ at full $12$-bit precision, so the ciphertext grows to $(k+1)\cdot 384$ bytes.
 The public key keeps its size of $384k+32$ bytes, since ML-KEM never
 compresses it.
 
-The reference code and ACC reuse their existing $12$-bit packer unchanged. The
-AVX2 code needs a new one. Its existing packer is used only for the public key,
+The reference code and ACC reuse their existing $12$-bit serialization routine unchanged. 
+The AVX2 code needs a new one. Its existing serialization routine is used only for the public key,
 which is stored in the permuted coefficient order of the AVX2 NTT, so it
 applies that permutation while packing. Ciphertext polynomials leave the
-inverse NTT in standard order. Both AVX2 forks therefore add a packer and
-unpacker that work in standard order, without the permutation.
-
-The new packer emits $24$ bytes per iteration as two $16$-byte stores twelve
+inverse NTT in standard order. Both AVX2 forks (C/asm and Jasmin) therefore 
+add a serialization routine and corresponding deserialization routine 
+that work in standard order, without the permutation.
+This new routine emits $24$ bytes per iteration as two $16$-byte stores twelve
 bytes apart, so its final iteration would write past the end of the buffer.
 The C code therefore writes every iteration to a scratch buffer and copies $24$ bytes out, and the Jasmin
 code handles the final iteration as a separate case.
 
-Removing compression also has a consequence beyond engineering. It makes the decryption-failure probability
-formally provable, as shown in Section~\ref{sec:verification}.
+%Removing compression also has a consequence beyond engineering. It makes the decryption-failure probability
+%formally provable, as shown in Section~\ref{sec:verification}.
 
 \subsection{Assurance}
 \label{sec:impl:assurance}
@@ -172,17 +177,25 @@ and serialization all change. What we check is much narrower.
 Every exported function carries a security-type annotation.
 We check all six builds with Jasmin's constant-time checker for constant-time (CT). The three AVX2 builds,
 whose exported functions carry \texttt{sct} annotations, are additionally checked for speculative constant-time
-(SCT)~\cite{SP:SBGLOP23}. As in upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
+(SCT)~\cite{SP:SBGLOP23}, or, more specifically, the absence of Spectre-v1-type leakage.
+As in upstream, the reference builds carry \texttt{ct} annotations and are checked for CT only.
 
 \paragraph{Testing.}
 The C implementation relies on the deterministic round-trip self-tests
 inherited from its upstream ML-KEM codebase. The Jasmin implementation runs
 the same kind of self-test, and additionally cross-checks its output against
-the C implementation, bit-for-bit, across all six builds. The ACC
+the C implementation across all six builds. The ACC
 implementation is validated against a Python model based on
-\texttt{kyber-py},\footnote{\url{https://github.com/GiacomoPope/kyber-py}} which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
+\texttt{kyber-py}\footnote{\url{https://github.com/GiacomoPope/kyber-py}}, which subclasses \texttt{ML\_KEM}, overrides the noise sampler, and
 disables ciphertext compression. For each parameter set, the model generates
 known-answer tests (KATs) for key generation, encapsulation, and decapsulation
 (including implicit rejection), as well as round-trip tests.
-Unlike the Jasmin code, the ACC implementation is not machine-checked for constant-time behavior, but the ACC aims to 
-resist side channels in hardware, with no caches, no speculative execution, and fixed-latency memory accesses.
+Unlike the Jasmin code, the ACC implementation is not machine-checked for constant-time behavior, 
+but also avoids secret-dependent branches.
+The ACC's focus on security rather than sheer performance 
+generally makes it easier to protect against timing side channels, 
+as it features 
+no caches, 
+no speculative execution, 
+and fixed-latency memory accesses.
+
