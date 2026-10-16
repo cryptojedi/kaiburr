@@ -9,11 +9,11 @@ We compare the \kaiburr variants with FrodoKEM and HQC. We use the SHAKE-based v
 primary comparison baseline, as both FrodoKEM-SHAKE and \kaiburr use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
 implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in Section~\ref{sec:introduction}, since no
+we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \cref{sec:introduction}, since no
 public hand-optimized implementation of the scheme exists.}
 We mainly compare against FrodoKEM-640, the smallest FrodoKEM parameter set, since it is already substantially
 more expensive than \kaiburr. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
-the hybrid comparison of Section~\ref{sec:discussion}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
+the hybrid comparison of \cref{sec:discussion}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
 
 All three KEMs are evaluated using a common benchmark driver in which we first perform $1000$ untimed warm-up iterations, 
 followed by $10001$ timed iterations. We report the median 
@@ -29,8 +29,8 @@ randomness handling of its upstream codebase; we chose not to modify HQC.
 This also \emph{slightly} favors HQC in our comparison.}
 
 The benchmark results are reported separately for each processor. Results for the Intel Core i7-6700K,
-Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k}, \ref{tab:8700k}, and
-\ref{tab:13900k}, respectively.
+Intel Core i7-8700K, and Intel Core i9-13900K are given in \cref{tab:6700k}, \cref{tab:8700k}, and
+\cref{tab:13900k}, respectively.
 
 
 \begin{table*}[h]
@@ -262,7 +262,7 @@ deterministic, so repeated runs on the same input are cycle-identical. We theref
 fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
 we build the keypair--encapsulate--decapsulate round trip three times, terminating after KeyGen, after Enc, 
 and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
-and $\mathrm{Dec}=M_3-M_2$. Results are shown in Table~\ref{tab:acc}.
+and $\mathrm{Dec}=M_3-M_2$. Results are shown in \cref{tab:acc}.
 
 \begin{table}[h]
 \centering
@@ -280,7 +280,7 @@ KEM & KeyGen & Enc & Dec \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:acc-profile} breaks down the same round trip using the simulator's per-function and
+\cref{tab:acc-profile} breaks down the same round trip using the simulator's per-function and
 per-instruction execution statistics. Matrix generation (\texttt{poly\_gen\_matrix}), which expands the
 public seed into $\mathbf{A}$ by rejection sampling on SHAKE-128 output, takes 73--84\% of all cycles.
 Almost none of this is spent waiting for the hardware SHAKE-128 core, since stalls on

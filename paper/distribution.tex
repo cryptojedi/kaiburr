@@ -34,10 +34,10 @@ $$
 The mass at $\pm 1$ is fixed. The single parameter $t$ acts only on the
 $\pm 2$ tail, thinning it geometrically. A sample is drawn from uniform
 bits $a_1,\dots,a_t$ as $$x = (2a_t - 1)\Bigl(1 - a_1 + 2\textstyle\prod_{i=1}^{t-1} a_i\Bigr)$$
-(Algorithm~\ref{alg:sample-f}),
+(\cref{alg:sample-f}),
 which is branchless and therefore samples in constant time; we
 machine-check constant-time (CT) for all our Jasmin builds~\cite{CCS:ABBBGL17}, and speculative constant-time (SCT)
-for the AVX2 builds (see Section~\ref{sec:impl:assurance}). The standard deviation
+for the AVX2 builds (see \cref{sec:impl:assurance}). The standard deviation
 $\sigma(t) = \sqrt{0.5 + 2^{3-t}}$ decreases from $1$ at $t=4$ toward
 $\sqrt{0.5}$ as $t$ grows.
 
@@ -73,7 +73,7 @@ while keeping the $\pm1$ contribution fixed.
 
 \subsection{Selecting $t$}
 Since $t$ is the number of uniform bits per sample, vectorization-friendly
-values are natural, especially for AVX2 implementations (see Section~\ref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ distribution, so it serves
+values are natural, especially for AVX2 implementations (see \cref{sec:implementation}). As shown above, $t=4$ recovers the $\mathrm{CBD}_2$ distribution, so it serves
 as our anchor. Notice that $t=8$ consumes exactly one PRF byte per coefficient, meaning it
 admits one-byte-per-coefficient SIMD packing without cross-byte bit-splitting.
 Our third choice, $t=6$, sits in the middle and does not share the byte-alignment of $t=4$ or $t=8$. It is nonetheless interesting relative to $t=8$, for two reasons.
@@ -88,7 +88,7 @@ bytes and 9,720 ciphertext bytes. This gives us
 a restrictive baseline for asking how much security margin \kaiburr can achieve within the communication cost 
 of an unstructured lattice-based KEM.
 
-Table~\ref{tab:kaiburr-params} lists, for every $t$ from $2$ to $8$, the largest $k$ that
+\cref{tab:kaiburr-params} lists, for every $t$ from $2$ to $8$, the largest $k$ that
 satisfies both constraints. The three parameter sets we carry forward are $f(4)$, $f(6)$, and
 $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
 
@@ -119,8 +119,8 @@ $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
   \end{tabular}
 \end{table}
 
-To get tighter estimates, we also run all eight attacks of the lattice estimator (Section~\ref{sec:preliminaries}) on the three
-selected parameter sets. Table~\ref{tab:estimator} summarizes the results. For
+To get tighter estimates, we also run all eight attacks of the lattice estimator (\cref{sec:preliminaries}) on the three
+selected parameter sets. \cref{tab:estimator} summarizes the results. For
 \kaiburr-1792, the cheapest attack is the dual-hybrid attack at $2^{467.3}$, below the
 $479$ bits from the \kyber scripts, which do not model hybrid attacks. For \kaiburr-4608 and \kaiburr-6144, the cheapest
 attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits below their Core-SVP estimates.
@@ -150,7 +150,7 @@ attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits bel
 \end{table}
 
 \subsection{Sizes}
-Table~\ref{tab:size-comparison} places the three \kaiburr parameter
+\cref{tab:size-comparison} places the three \kaiburr parameter
 sets alongside all FrodoKEM and HQC parameter sets. \kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
 a third the size of HQC-5 (21,658 bytes).
@@ -159,7 +159,7 @@ a third the size of HQC-5 (21,658 bytes).
 \centering
 \caption[Public-key and ciphertext sizes across \kaiburr, FrodoKEM, and HQC.]{Public-key and ciphertext sizes across \kaiburr,
 FrodoKEM, and HQC. \kaiburr's classical/quantum Core-SVP security is as computed with
-the \kyber scripts (Table~\ref{tab:kaiburr-params}); Core-SVP is not computed for FrodoKEM (--). The lattice estimator
+the \kyber scripts (\cref{tab:kaiburr-params}); Core-SVP is not computed for FrodoKEM (--). The lattice estimator
 column gives the $\log_2$ cost of the cheapest attack found by the lattice estimator for
 \kaiburr and FrodoKEM, both evaluated with max block
 size set to $16384$.}
@@ -192,7 +192,7 @@ produce is its limit $f(\infty)$, with $\Pr[\pm 1]=\tfrac14$,
 $\Pr[0]=\tfrac12$, $\Pr[\pm 2]=0$, and minimal variance
 $\sigma^2=0.5$. At $n=256$ and $q=3329$, the failure probability crosses
 $2^{-128}$ at $k=30$, so $k=29$ is the largest rank that $f(t)$ can
-support (Table~\ref{tab:theoretical-ceiling}). Reaching higher
+support (\cref{tab:theoretical-ceiling}). Reaching higher
 security levels would require another change, such as changing the noise family or modifying $q$ or $n$.
 
 \begin{table}[h]

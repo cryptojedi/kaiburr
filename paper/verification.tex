@@ -7,7 +7,7 @@ existing work avoids with a comparison technique~\cite{TCHES:BGRSV21}. We do not
 
 \paragraph{Why compression is the obstruction.}
 In the noise expression for ML-KEM,
-$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v$ (Section~\ref{sec:preliminaries}),
+$\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v$ (\cref{sec:preliminaries}),
 the rounding errors $\mathbf{c}_u$ and $c_v$ are the only source of difficulty~\cite{CCS:BKLSS25}. Because the correctness adversary
 holds the secret key, no direct MLWE reduction is available, which forces a worst-case elimination of $c_v$ and a split into two
 sub-bounds. For ML-KEM-768, the fully provable bound is therefore $2^{-80}$, while the heuristic bound that just assumes
@@ -18,19 +18,19 @@ has no such gap.
 We adapt the EasyCrypt framework of~\cite{CCS:BKLSS25}, including its theory of distributions over the ring and its OCaml
 implementation for computing a sound upper bound on the final tail probability, to \kaiburr. For each parameter set, we
 prove that for every adversary that receives both the public and the secret key and chooses the message, decryption fails with
-probability at most $\delta$, the bound in Table~\ref{tab:bounds}. This is the notion of correctness used in the Fujisaki--Okamoto
+probability at most $\delta$, the bound in \cref{tab:bounds}. This is the notion of correctness used in the Fujisaki--Okamoto
 bound. Since the rounding terms vanish, the noise collapses to
 $\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 + e_2$, which does not depend on the message chosen by the adversary.
 Since $f(t)$ is non-trivial and symmetric around 0, every coefficient is then identically distributed, and a union bound reduces the
 failure probability to $256$ times the tail of a single coefficient, with no additional MLWE term. As in~\cite{CCS:BKLSS25}, the
 proof is in the random-oracle model, and the tail is computed outside EasyCrypt by OCaml code that mirrors the EasyCrypt
 expression and rounds upward, which is the only step not checked in EasyCrypt.
-The same framework with the original $\mathrm{CBD}_2$ gives the machine-checked bounds for the warmup in Table~\ref{tab:cbd-baseline}.
+The same framework with the original $\mathrm{CBD}_2$ gives the machine-checked bounds for the warmup in \cref{tab:cbd-baseline}.
 
 \begin{table}[h]
   \centering
   \caption{Decryption-failure probability for each \kaiburr parameter set: the formally verified bound
-  obtained in this work, and the estimate from the \kyber team's scripts (Table~\ref{tab:kaiburr-params}).}
+  obtained in this work, and the estimate from the \kyber team's scripts (\cref{tab:kaiburr-params}).}
   \label{tab:bounds}
   \begin{tabular}{lccc}
     \toprule
@@ -44,6 +44,6 @@ The same framework with the original $\mathrm{CBD}_2$ gives the machine-checked 
 \end{table}
 
 \paragraph{Results.}
-Table~\ref{tab:bounds} shows that our provable bound closely tracks the \kyber team's own estimate for every parameter set,
+\cref{tab:bounds} shows that our provable bound closely tracks the \kyber team's own estimate for every parameter set,
 so for \kaiburr there is no gap between a heuristic and a provable bound to close. The price \kaiburr pays for this
 is ciphertext size, which remains within our fixed communication budget.

@@ -24,7 +24,7 @@ All implementations make the same three changes to ML-KEM:
 \begin{enumerate}
   \item the module rank $k$ is scaled to $\{7,18,24\}$, yielding the parameter
         sets \kaiburr-1792, -4608, and -6144 (see
-        Table~\ref{tab:kaiburr-params});
+        \cref{tab:kaiburr-params});
   \item ciphertext compression is removed, so both ciphertext polynomials are
         serialized at full $12$-bit precision; and
   \item the centered binomial sampler is replaced by a sampler for the noise
@@ -37,10 +37,10 @@ unchanged.
 These modifications nonetheless require more than just mechanical changes to the code. ML-KEM
 implementations assume $k \le 4$ in several places, and the AVX2 packers
 assume a particular coefficient order. Most of the rewritten code follows from
-scaling $k$, which we describe first (Section~\ref{sec:impl:k}). We then cover
-the noise sampler (Section~\ref{sec:impl:sampler}), the removal of compression
-(Section~\ref{sec:impl:compression}), and what is checked about each
-implementation (Section~\ref{sec:impl:assurance}).
+scaling $k$, which we describe first (\cref{sec:impl:k}). We then cover
+the noise sampler (\cref{sec:impl:sampler}), the removal of compression
+(\cref{sec:impl:compression}), and what is checked about each
+implementation (\cref{sec:impl:assurance}).
 
 \subsection{Scaling $k$}
 \label{sec:impl:k}
@@ -89,7 +89,7 @@ $\mathbf{A}$. It generates one polynomial at a time, multiplies it into a
 running accumulator, and discards it. Second, we enlarge ACC's visible data
 memory from $31$\,KiB to $127$\,KiB in the hardware description, out of
 $128$\,KiB of physical DMEM including a $1$\,KiB scratch region. The ACC
-results in Section~\ref{sec:benchmarks} are therefore for this modified hardware
+results in \cref{sec:benchmarks} are therefore for this modified hardware
 configuration.
 \peter{We could explore applying the same ``use and discard'' approach on Intel as well.
 This should be more cache-friendly.}
@@ -104,7 +104,7 @@ All our implementations replace the centered binomial sampler with this
 expression, and the PRF output grows to $t\cdot n/8$ bytes per polynomial. The
 five variants differ in how they compute two parts of the expression: the
 product term $\prod_{i<t}a_i$ and the sign $(2a_t-1)$.
-Table~\ref{tab:sampler-variants} summarizes their choices.
+\cref{tab:sampler-variants} summarizes their choices.
 
 \begin{table}[h]
   \centering
@@ -134,7 +134,7 @@ vectorized and assembly variant, we then apply the sign separately and
 without branching.
 
 Extracting $t$-bit fields from the PRF output is simplest for $t=8$ and $t=4$,
-which align with bytes and nibbles, and hardest for $t=6$, as explained in Section~\ref{sec:distribution}. Both AVX2 kernels use an extra 
+which align with bytes and nibbles, and hardest for $t=6$, as explained in \cref{sec:distribution}. Both AVX2 kernels use an extra 
 shuffle or gather for this step. The C kernel also reads slightly beyond the end of the PRF output, so the buffer includes 32 bytes of 
 trailing slack. ACC lacks a byte-shuffle instruction, so it instead uses a sequence of \textcolor{hotpink}{\texttt{bn.rshi}} shifts to
 move the 6-bit fields across register boundaries.
@@ -163,7 +163,7 @@ The C code therefore writes every iteration to a scratch buffer and copies $24$ 
 code handles the final iteration as a separate case.
 
 %Removing compression also has a consequence beyond engineering. It makes the decryption-failure probability
-%formally provable, as shown in Section~\ref{sec:verification}.
+%formally provable, as shown in \cref{sec:verification}.
 
 \subsection{Assurance}
 \label{sec:impl:assurance}

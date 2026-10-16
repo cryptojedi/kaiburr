@@ -76,34 +76,34 @@ and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 We make several contributions in this work, summarized below.
 \begin{itemize}
   \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \kyber's noise and
-    modulus fixed, keeps decryption failure below $2^{-128}$ only up to $k=7$ (Section~\ref{sec:warmup}). We therefore introduce
+    modulus fixed, keeps decryption failure below $2^{-128}$ only up to $k=7$ (\cref{sec:warmup}). We therefore introduce
     $f(t)$, a one-parameter family that generalizes \kyber's centered binomial distribution and 
     retains simple constant-time sampling. Tuning $t$ against
-    $k$ keeps decryption failure below $2^{-128}$ as $k$ grows (Section~\ref{sec:distribution}).
+    $k$ keeps decryption failure below $2^{-128}$ as $k$ grows (\cref{sec:distribution}).
   \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
     \kaiburr-1792, -4608, and -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
-    bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (Section~\ref{sec:distribution}).
+    bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (\cref{sec:distribution}).
   \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{CCS:BKLSS25}, we show
     that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
-    compression causes for ML-KEM (Section~\ref{sec:verification}).
+    compression causes for ML-KEM (\cref{sec:verification}).
   \item \emph{Implementations across three targets.} Since \kaiburr keeps ML-KEM's ring, NTT arithmetic, and symmetric
     primitives, existing implementation techniques carry over. We implement all three parameter sets in C, in Jasmin with
     machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
-    engineering consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
+    engineering consequences of scaling $k$ and removing ciphertext compression (\cref{sec:implementation}).
   \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our C and Jasmin AVX2 implementations run
     substantially faster than FrodoKEM-640 and hence the larger FrodoKEM parameter sets. \kaiburr-1792 outperforms HQC-5 in every operation. Against HQC-1/3/5 at matching
     indices, HQC is faster in key generation, and in encapsulation for the two larger parameter sets, while decapsulation, HQC's
-    most expensive operation, favors \kaiburr (Section~\ref{sec:benchmarks}).
+    most expensive operation, favors \kaiburr (\cref{sec:benchmarks}).
   \item \emph{\kaiburr--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question
     the use of FrodoKEM's larger parameter sets. We show that, combined with FrodoKEM-640 or
     FrodoKEM-976, \kaiburr is faster than the next-larger FrodoKEM parameter set. For example, the hybrid of \kaiburr-1792 and
     FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344 and has a much higher lattice attack cost ($2^{467.3}$
-    vs.\ $2^{281.7}$) (Section~\ref{sec:discussion}).
+    vs.\ $2^{281.7}$) (\cref{sec:discussion}).
 \end{itemize}
 
 \paragraph{Use of generative AI.}
-The EasyCrypt proofs for the correctness bounds explained in Section~\ref{sec:warmup} and then in Section~\ref{sec:verification}
-were adapted from~\cite{CCS:BKLSS25} to \kaiburr with the help of AI (mainly Claude Opus 5.5). Some of the tests discussed in Section~\ref{sec:impl:assurance}
+The EasyCrypt proofs for the correctness bounds explained in \cref{sec:warmup} and then in \cref{sec:verification}
+were adapted from~\cite{CCS:BKLSS25} to \kaiburr with the help of AI (mainly Claude Opus 5.5). Some of the tests discussed in \cref{sec:impl:assurance}
 (specifically those not directly inherited from upstream) were also generated using Opus 5.5. 
 
 \paragraph{Access to artifacts.}

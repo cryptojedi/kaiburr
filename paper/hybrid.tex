@@ -1,15 +1,15 @@
 \section{A hybrid approach}
 \label{sec:hybrid}
 
-As discussed in Section~\ref{sec:introduction}, a larger security margin and the removal of
+As discussed in \cref{sec:introduction}, a larger security margin and the removal of
 algebraic structure address different hypothetical classes of attack, representing different design principles. At this time, it is unclear which
 of the two stances on conservatism should be prioritized. A hybrid KEM does not require choosing between them. Hybrid KEMs run two KEMs side by side and
 derive a single shared key from both shared secrets and both ciphertexts; with an appropriate combiner, the result is IND-CCA secure as long as at
 least one component is~\cite{PKC:GiaHeuPoe18,PQCRYPTO:BBFGS19}.
 
 We consider a hybrid of \kaiburr-1792 and FrodoKEM-976 and compare it with FrodoKEM-1344, the most conservative standardized FrodoKEM parameter set. We
-have not implemented this hybrid as a single KEM. Its sizes in Table~\ref{tab:hybrid} are exact, since they are the sums of the component sizes. Its cycle
-counts in Table~\ref{tab:hybrid-cycles} are the sums of the measured component medians and do not
+have not implemented this hybrid as a single KEM. Its sizes in \cref{tab:hybrid} are exact, since they are the sums of the component sizes. Its cycle
+counts in \cref{tab:hybrid-cycles} are the sums of the measured component medians and do not
 include the combiner, which hashes both shared secrets and both ciphertexts.
 
 \begin{table}[t]
@@ -33,7 +33,7 @@ include the combiner, which hashes both shared secrets and both ciphertexts.
 \begin{table}[t]
   \centering
   \caption{Cycle counts on an Intel Core i7-8700K, AVX2 implementations,
-  measured as in Section~\ref{sec:benchmarks}. Values are median (Q1--Q3). The rows are the sums of the \kaiburr-1792 and
+  measured as in \cref{sec:benchmarks}. Values are median (Q1--Q3). The rows are the sums of the \kaiburr-1792 and
   FrodoKEM-976 medians and exclude the combiner.}
   \label{tab:hybrid-cycles}
   \small
