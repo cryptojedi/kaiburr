@@ -1,16 +1,18 @@
 \section{Benchmarks}
 \label{sec:benchmarks}
 
-We benchmark the C and Jasmin implementations on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with Hyper-Threading and Turbo 
+\subsection{Benchmarks on 64-bit Intel CPUs}
+\label{sec:intelbench}
+We benchmark the C/asm and Jasmin implementations on three Intel microarchitectures: Skylake, Coffee Lake, and Raptor Lake, with hyper-threading and Turbo 
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All \kaiburr code is compiled using \texttt{GCC 12.2.0}
 with the flags \texttt{-O3}, \texttt{-march=native}, and \texttt{-fomit-frame-pointer}.
 
 We compare the \kaiburr variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
 primary comparison baseline, as both FrodoKEM-SHAKE and \kaiburr use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
-implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
-we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \cref{sec:introduction}, since no
-public hand-optimized implementation of the scheme exists.}
+implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare%
+\footnote{Additionally, we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in \cref{sec:introduction}, since no
+public hand-optimized implementation of the scheme exists.}.
 We mainly compare against FrodoKEM-640, the smallest FrodoKEM parameter set, since it is already substantially
 more expensive than \kaiburr. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
 the hybrid comparison of \cref{sec:discussion}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
@@ -23,10 +25,10 @@ Each iteration verifies that the decapsulated shared secret matches the encapsul
 
 Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \kaiburr call it within \texttt{keypair} and \texttt{enc}, 
 so that syscall is inside the measured region. HQC instead draws randomness from a SHAKE-256 PRNG that the
-caller must seed; we seed it once from \texttt{getrandom} before timing begins, so HQC's timings exclude the syscall.
+caller must seed; we seed it once from \texttt{getrandom} before timing begins, so HQC's timings exclude the syscall%
 \footnote{Each implementation keeps the
 randomness handling of its upstream codebase; we chose not to modify HQC.
-This also \emph{slightly} favors HQC in our comparison.}
+This also \emph{slightly} favors HQC in our comparison.}.
 
 The benchmark results are reported separately for each processor. Results for the Intel Core i7-6700K,
 Intel Core i7-8700K, and Intel Core i9-13900K are given in \cref{tab:6700k}, \cref{tab:8700k}, and
@@ -248,15 +250,17 @@ On Coffee Lake, \kaiburr-1792 takes $2.5$--$2.6\times$ the cycles of ML-KEM-1024
 C/asm and Jasmin, which is expected. From $k=4$ to $k=7$, $k$ grows by $1.75\times$ and $k^2$ by
 $3.06\times$, and the ratio lies between the two, just as it does across \kaiburr parameter sets.
 
-\kaiburr-1792 is faster than HQC-5 in every operation on every machine (C/asm: 64--90\% fewer cycles).
+\kaiburr-1792 is faster than HQC-5 in every operation on every machine (C/asm: $64$--$90$\% fewer cycles).
 At matching indices (\kaiburr-1792/HQC-1, \kaiburr-4608/HQC-3, \kaiburr-6144/HQC-5), the comparison
 depends on the operation. With C/asm, HQC KeyGen is $1.7$--$3.9\times$ faster, and HQC Enc is $1.6$--$2.0\times$ faster
 for the two larger parameter sets. On the other hand, decapsulation, which is HQC's most expensive operation, favors \kaiburr
 meaningfully: \kaiburr-1792 is $2.3\times$ faster than HQC-1, \kaiburr-6144 is $1.2\times$ faster than HQC-5, and
 \kaiburr-4608 is within 2\% of HQC-3.
 
-Interquartile ranges are below 2\% of the median for every measurement.
+%Interquartile ranges are below 2\% of the median for every measurement.
 
+\subsection{Benchmarks on Pavona's ACC}
+\label{sec:accbench}
 We additionally benchmark the ACC implementation on Pavona's cycle-accurate RTL simulator. The simulator is 
 deterministic, so repeated runs on the same input are cycle-identical. We therefore run each operation once on a 
 fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
