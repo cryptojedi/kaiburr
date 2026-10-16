@@ -2,7 +2,7 @@
 \label{sec:implementation}
 
 We present three implementations of \kaiburr, each forked from an existing ML-KEM implementation: 
-a C/asm implementation,\footnote{Forked from \textsc{Kyber}, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
+a C/asm implementation,\footnote{Forked from \kyber, \url{https://github.com/pq-crystals/kyber}, commit \texttt{4768bd3}.}
 a Jasmin implementation with machine-checked constant-time verification;\footnote{Forked from \texttt{formosa-mlkem}, \url{https://github.com/formosa-crypto/formosa-mlkem}, commit \texttt{475b874}.}
 and an assembly implementation for Pavona's Asymmetric Cryptography Coprocessor (ACC).\footnote{Forked from \url{https://github.com/pavona/pavona}, commit \texttt{07ccb24}.}
 As in upstream, the C and Jasmin code each contain a reference implementation
@@ -145,7 +145,7 @@ groups of four using the $4$-way Keccak.
 \subsection{Removing compression}
 \label{sec:impl:compression}
 
-\textsc{Kaiburr} serializes both ciphertext polynomials $\mathbf{u}$ and $v$
+\kaiburr serializes both ciphertext polynomials $\mathbf{u}$ and $v$
 at full $12$-bit precision, so the ciphertext grows to $(k+1)\cdot 384$ bytes.
 The public key keeps its size of $384k+32$ bytes, since ML-KEM never
 compresses it.
@@ -171,7 +171,7 @@ code handles the final iteration as a separate case.
 \paragraph{Jasmin.}
 The Jasmin implementation is a fork of \texttt{formosa-mlkem}~\cite{TCHES:ABBGLL23},
 whose EasyCrypt proofs establish functional correctness for ML-KEM. These
-proofs do not carry over to \textsc{Kaiburr}, since the sampler, module rank,
+proofs do not carry over to \kaiburr, since the sampler, module rank,
 and serialization all change. What we check is much narrower.
 
 Every exported function carries a security-type annotation.

@@ -1,6 +1,6 @@
 \section{Warmup: Simply increasing the module rank}
 \label{sec:warmup}
-The main mechanism to increase the security margin in \textsc{Kyber} is to raise
+The main mechanism to increase the security margin in \kyber is to raise
 the module rank $k$~\cite{kyberround1}. Fixing the ML-KEM base ring, noise distribution, and
 modulus, and varying only $k$, we compute the decryption-failure probability.
 Throughout we use the centered binomial noise $\mathrm{CBD}_2$
@@ -37,7 +37,7 @@ holds at $k=7$ ($2^{-133.7}$ by the scripts, $2^{-133}$
 machine-checked) but fails at $k=8$ ($2^{-116.8}$ and $2^{-116}$, 
 respectively). This demonstrates that raising
 $k$ alone cannot buy much higher security.
-With \textsc{Kyber}'s ciphertext compression, the rounding of $\mathbf{u}$ and $v$ would add
+With \kyber's ciphertext compression, the rounding of $\mathbf{u}$ and $v$ would add
 further noise, so the correctness limit on $k$ would be reached even earlier.
 
 \begin{table}[h]
@@ -45,7 +45,7 @@ further noise, so the correctness limit on $k$ would be reached even earlier.
 \caption{Decryption-failure probability and public-key and ciphertext
 sizes as a function of module rank $k$, at fixed ML-KEM noise and modulus,
 without ciphertext compression. Ranks $k=3,4$ correspond to
-uncompressed ML-KEM-768 and -1024. \emph{Script}: estimate from the \textsc{Kyber} team's
+uncompressed ML-KEM-768 and -1024. \emph{Script}: estimate from the \kyber team's
 scripts. \emph{Machine-checked}: upper bound on the adversarial failure probability proved in
 EasyCrypt (Section~\ref{sec:verification}), with the final tail probability computed by OCaml
 code that rounds upward.}

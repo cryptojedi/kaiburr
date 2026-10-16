@@ -16,7 +16,7 @@ has no such gap.
 
 \paragraph{What we prove.}
 We adapt the EasyCrypt framework of~\cite{CCS:BKLSS25}, including its theory of distributions over the ring and its OCaml
-implementation for computing a sound upper bound on the final tail probability, to \textsc{Kaiburr}. For each parameter set, we
+implementation for computing a sound upper bound on the final tail probability, to \kaiburr. For each parameter set, we
 prove that for every adversary that receives both the public and the secret key and chooses the message, decryption fails with
 probability at most $\delta$, the bound in Table~\ref{tab:bounds}. This is the notion of correctness used in the Fujisaki--Okamoto
 bound. Since the rounding terms vanish, the noise collapses to
@@ -29,12 +29,12 @@ The same framework with the original $\mathrm{CBD}_2$ gives the machine-checked 
 
 \begin{table}[h]
   \centering
-  \caption{Decryption-failure probability for each \textsc{Kaiburr} parameter set: the formally verified bound
-  obtained in this work, and the estimate from the \textsc{Kyber} team's scripts (Table~\ref{tab:kaiburr-params}).}
+  \caption{Decryption-failure probability for each \kaiburr parameter set: the formally verified bound
+  obtained in this work, and the estimate from the \kyber team's scripts (Table~\ref{tab:kaiburr-params}).}
   \label{tab:bounds}
   \begin{tabular}{lccc}
     \toprule
-    Scheme & $k$ & Verified bound (this work) & \textsc{Kyber}-script estimate \\
+    Scheme & $k$ & Verified bound (this work) & \kyber-script estimate \\
     \midrule
     \kaiburr-1792 & 7  & $2^{-133}$ & $2^{-133.7}$ \\
     \kaiburr-4608 & 18 & $2^{-133}$ & $2^{-134.1}$ \\
@@ -44,6 +44,6 @@ The same framework with the original $\mathrm{CBD}_2$ gives the machine-checked 
 \end{table}
 
 \paragraph{Results.}
-Table~\ref{tab:bounds} shows that our provable bound closely tracks the \textsc{Kyber} team's own estimate for every parameter set,
-so for \textsc{Kaiburr} there is no gap between a heuristic and a provable bound to close. The price \textsc{Kaiburr} pays for this
+Table~\ref{tab:bounds} shows that our provable bound closely tracks the \kyber team's own estimate for every parameter set,
+so for \kaiburr there is no gap between a heuristic and a provable bound to close. The price \kaiburr pays for this
 is ciphertext size, which remains within our fixed communication budget.

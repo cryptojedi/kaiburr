@@ -5,7 +5,7 @@ and FIPS-205~\cite{fips205} in 2024, specifying ML-KEM, ML-DSA, and SLH-DSA, res
 In 2025, NIST selected an additional KEM, HQC, for standardization in the fourth round~\cite{fourthstatus}. Unlike ML-KEM, which is based on
 Module Learning With Errors (MLWE), HQC relies on the Quasi-Cyclic Syndrome Decoding (QCSD) problem~\cite{hqc2025spec}, providing
 diversity beyond lattice-based assumptions. Among lattice-based designs, the Round 3 KEMs~\cite{nistpqc-round3} span a spectrum of algebraic
-structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules (\textsc{Kyber}~\cite{kyberoriginal} and
+structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules (\kyber~\cite{kyberoriginal} and
 Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}), reflecting a trade-off between efficiency
 and conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a potential attack surface,
 which other designs avoid entirely; FrodoKEM, for example, rests on plain LWE, one reason it was recommended by BSI, ENISA, and
@@ -65,19 +65,19 @@ takes over, and what it costs to push past it. We therefore ask:
 provide a better hedge than FrodoKEM-1344?}
 \end{quote}
 
-\paragraph{Our approach.}We answer both parts affirmatively through \textsc{Kaiburr},\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}} which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
+\paragraph{Our approach.}We answer both parts affirmatively through \kaiburr,\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}} which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
 generalized one-parameter family that remains easy to sample, and removes ciphertext compression. The ring,
 NTT arithmetic, symmetric primitives, and FO transform are unchanged, so existing optimized ML-KEM software and hardware can largely be
-reused. We instantiate \textsc{Kaiburr} up to lattice dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
-FrodoKEM-640's communication budget, and show that a hybrid of \textsc{Kaiburr} with FrodoKEM hedges against both structural attacks
+reused. We instantiate \kaiburr up to lattice dimension $6144$, reaching $1717$ bits of classical Core-SVP security within
+FrodoKEM-640's communication budget, and show that a hybrid of \kaiburr with FrodoKEM hedges against both structural attacks
 and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 
 \paragraph{Our contributions.}
 We make several contributions in this work, summarized below.
 \begin{itemize}
-  \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \textsc{Kyber}'s noise and
+  \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \kyber's noise and
     modulus fixed, keeps decryption failure below $2^{-128}$ only up to $k=7$ (Section~\ref{sec:warmup}). We therefore introduce
-    $f(t)$, a one-parameter family that generalizes \textsc{Kyber}'s centered binomial distribution and 
+    $f(t)$, a one-parameter family that generalizes \kyber's centered binomial distribution and 
     retains simple constant-time sampling. Tuning $t$ against
     $k$ keeps decryption failure below $2^{-128}$ as $k$ grows (Section~\ref{sec:distribution}).
   \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
@@ -86,17 +86,17 @@ We make several contributions in this work, summarized below.
   \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{CCS:BKLSS25}, we show
     that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
     compression causes for ML-KEM (Section~\ref{sec:verification}).
-  \item \emph{Implementations across three targets.} Since \textsc{Kaiburr} keeps ML-KEM's ring, NTT arithmetic, and symmetric
+  \item \emph{Implementations across three targets.} Since \kaiburr keeps ML-KEM's ring, NTT arithmetic, and symmetric
     primitives, existing implementation techniques carry over. We implement all three parameter sets in C, in Jasmin with
     machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
     engineering consequences of scaling $k$ and removing ciphertext compression (Section~\ref{sec:implementation}).
   \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our C and Jasmin AVX2 implementations run
     substantially faster than FrodoKEM-640 and hence the larger FrodoKEM parameter sets. \kaiburr-1792 outperforms HQC-5 in every operation. Against HQC-1/3/5 at matching
     indices, HQC is faster in key generation, and in encapsulation for the two larger parameter sets, while decapsulation, HQC's
-    most expensive operation, favors \textsc{Kaiburr} (Section~\ref{sec:benchmarks}).
-  \item \emph{\textsc{Kaiburr}--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question
+    most expensive operation, favors \kaiburr (Section~\ref{sec:benchmarks}).
+  \item \emph{\kaiburr--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question
     the use of FrodoKEM's larger parameter sets. We show that, combined with FrodoKEM-640 or
-    FrodoKEM-976, \textsc{Kaiburr} is faster than the next-larger FrodoKEM parameter set. For example, the hybrid of \kaiburr-1792 and
+    FrodoKEM-976, \kaiburr is faster than the next-larger FrodoKEM parameter set. For example, the hybrid of \kaiburr-1792 and
     FrodoKEM-976 is smaller and about $1.7\times$ faster than FrodoKEM-1344 and has a much higher lattice attack cost ($2^{467.3}$
     vs.\ $2^{281.7}$) (Section~\ref{sec:discussion}).
 \end{itemize}

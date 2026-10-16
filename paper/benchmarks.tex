@@ -5,14 +5,14 @@ We benchmark the C and Jasmin implementations on three Intel microarchitectures:
 Boost disabled. For the hybrid Raptor Lake processor, we pin the benchmark to a performance core. All \kaiburr code is compiled using \texttt{GCC 12.2.0}
 with the flags \texttt{-O3}, \texttt{-march=native}, and \texttt{-fomit-frame-pointer}.
 
-We compare the \textsc{Kaiburr} variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
-primary comparison baseline, as both FrodoKEM-SHAKE and \textsc{Kaiburr} use SHAKE-based symmetric primitives.
+We compare the \kaiburr variants with FrodoKEM and HQC. We use the SHAKE-based variant of FrodoKEM as the
+primary comparison baseline, as both FrodoKEM-SHAKE and \kaiburr use SHAKE-based symmetric primitives.
 FrodoKEM-AES can take advantage of dedicated AES instructions on our Intel processors, which introduces an 
 implementation-specific hardware advantage unrelated to the lattice-based KEM operations we are looking to compare.\footnote{Additionally,
 we do not report a direct cycle-count comparison with KyFrog~\cite{kyfrog}, another high-security KEM introduced in Section~\ref{sec:introduction}, since no
 public hand-optimized implementation of the scheme exists.}
 We mainly compare against FrodoKEM-640, the smallest FrodoKEM parameter set, since it is already substantially
-more expensive than \textsc{Kaiburr}. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
+more expensive than \kaiburr. On Coffee Lake, we also report FrodoKEM-976 and FrodoKEM-1344, which we use in
 the hybrid comparison of Section~\ref{sec:discussion}. For additional context, we also report ML-KEM-1024 performance on this microarchitecture.
 
 All three KEMs are evaluated using a common benchmark driver in which we first perform $1000$ untimed warm-up iterations, 
@@ -21,7 +21,7 @@ execution time and interquartile range ($Q_1$--$Q_3$). This procedure is repeate
 results from the run whose median is itself the median of the three runs, together with its corresponding quartiles. 
 Each iteration verifies that the decapsulated shared secret matches the encapsulated shared secret.
 
-Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \textsc{Kaiburr} call it within \texttt{keypair} and \texttt{enc}, 
+Randomness comes from Linux \texttt{getrandom}. FrodoKEM and \kaiburr call it within \texttt{keypair} and \texttt{enc}, 
 so that syscall is inside the measured region. HQC instead draws randomness from a SHAKE-256 PRNG that the
 caller must seed; we seed it once from \texttt{getrandom} before timing begins, so HQC's timings exclude the syscall.
 \footnote{Each implementation keeps the
@@ -38,8 +38,8 @@ Intel Core i7-8700K, and Intel Core i9-13900K are given in Tables~\ref{tab:6700k
 \small
 \setlength{\tabcolsep}{3pt}
 \caption{Benchmark results in cycles on an Intel Core i7-6700K. We report only the AVX2 implementations.
-The reference implementations are, on average, 545.7 percent slower for \textsc{Kaiburr} C and 637.8 percent
- slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+The reference implementations are, on average, 545.7 percent slower for \kaiburr C and 637.8 percent
+ slower for \kaiburr Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
 \label{tab:6700k}
 \begin{tabular}{llrrr}
 \toprule
@@ -99,8 +99,8 @@ HQC-5 & \cite{hqc-github} &
 \small
 \setlength{\tabcolsep}{3pt}
 \caption{Benchmark results in cycles on an Intel Core i7-8700K. We report only the AVX2 implementations. 
-The reference implementations are, on average, 540.8 percent slower for \textsc{Kaiburr} C and 653.8 percent
- slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
+The reference implementations are, on average, 540.8 percent slower for \kaiburr C and 653.8 percent
+ slower for \kaiburr Jasmin, measured using the geometric mean. Values are reported as median (Q1--Q3).}
 \label{tab:8700k}
 \begin{tabular}{llrrr}
 \toprule
@@ -176,7 +176,7 @@ HQC-5 & \cite{hqc-github} &
 \small
 \setlength{\tabcolsep}{3pt}
 \caption{Benchmark results in cycles on an Intel Core i9-13900K. We report only the AVX2 implementations. The reference implementations are, 
-on average, 498.2 percent slower for \textsc{Kaiburr} C and 557.8 percent slower for \textsc{Kaiburr} Jasmin, measured using the geometric mean.
+on average, 498.2 percent slower for \kaiburr C and 557.8 percent slower for \kaiburr Jasmin, measured using the geometric mean.
 Values are reported as median (Q1--Q3).}
 \label{tab:13900k}
 \begin{tabular}{llrrr}
@@ -231,12 +231,12 @@ HQC-5 & \cite{hqc-github} &
 \end{tabular}
 \end{table*}
 
-Our benchmarks show that \textsc{Kaiburr} is faster than FrodoKEM-640 across every
+Our benchmarks show that \kaiburr is faster than FrodoKEM-640 across every
 \textbf{operation}, \textbf{parameter set}, \textbf{implementation}, and \textbf{machine}.
  \kaiburr-1792 is $21.5$--$28.0\times$ faster, \kaiburr-4608 is $4.2$--$5.3\times$ faster, and \kaiburr-6144 is
 $2.4$--$3.1\times$ faster than FrodoKEM-640.
 
-Which \textsc{Kaiburr} implementation is faster depends on the microarchitecture: Jasmin beats C/asm in every
+Which \kaiburr implementation is faster depends on the microarchitecture: Jasmin beats C/asm in every
 operation on Skylake and Coffee Lake (by 3.6--13.1\%), while C/asm beats Jasmin in every operation on
 Raptor Lake (by 9.2--14.0\%).
 

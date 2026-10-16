@@ -65,7 +65,7 @@ The hybrid is smaller than FrodoKEM-1344, by 14.7\% in public-key size and 13.0\
 
 A hybrid KEM is as hard to break as the stronger component. Against improvements to lattice attacks in general, this is \kaiburr-1792: its
 cheapest known lattice attack costs $2^{467.3}$ compared with $2^{281.7}$ for FrodoKEM-1344. Against an attack that exploits the module structure of
-\textsc{Kaiburr} but does not apply to plain LWE, the hybrid retains a structural hedge, but at the level of FrodoKEM-976 ($2^{225.2}$) rather than
+\kaiburr but does not apply to plain LWE, the hybrid retains a structural hedge, but at the level of FrodoKEM-976 ($2^{225.2}$) rather than
 FrodoKEM-1344 ($2^{281.7}$). The hybrid is therefore preferable to FrodoKEM-1344 when this level of protection against structural attacks is
 considered sufficient. A deployment that wants no reduction in structural margin can instead add \kaiburr-1792 to FrodoKEM-1344; by the same component
 measurements, this costs about 1\% more cycles before the combiner and 13--14\%

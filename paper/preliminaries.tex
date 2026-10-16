@@ -1,7 +1,7 @@
 \section{Preliminaries}
 \label{sec:preliminaries}
 
-ML-KEM\footnote{We use \textsc{Kyber} and ML-KEM
+ML-KEM\footnote{We use \kyber and ML-KEM
 interchangeably, except when separating the NIST submission from the standardized version.}~\cite{fips203} is built in two layers. 
 At its core is an IND-CPA-secure public-key encryption scheme, K-PKE, whose security reduces to module-learning-with-errors (MLWE). ML-KEM uses a variant
 of the Fujisaki--Okamoto (FO) transform to lift K-PKE to an IND-CCA2-secure KEM where decapsulation decrypts, re-encrypts the recovered message with the derived
@@ -9,7 +9,7 @@ randomness, and returns a pseudorandom key if the result differs from the receiv
 FO transform and the symmetric primitives unchanged, so all of our changes are confined to K-PKE, which we briefly review in this section. 
 We refer to~\cite{fips203} for the full specification.
 
-\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $\Rq=\mathbb{Z}_q[X]/(X^n+1)$ be \textsc{Kyber}'s
+\paragraph{Ring and module setup.} Let $n=256$ and $q=3329$, and let $\Rq=\mathbb{Z}_q[X]/(X^n+1)$ be \kyber's
 base ring, with coefficients centered in $(-q/2,q/2]$. The modulus satisfies $n \mid (q-1)$, which enables the number-theoretic
 transform (NTT) used for multiplication in $\Rq$. A module rank $k$ determines
 the dimensions of the public matrix $\mathbf{A}\in \Rq^{k\times k}$ and of the secret and error vectors in $\Rq^k$.
@@ -34,7 +34,7 @@ $\mathrm{CBD}_\eta$, which draws $2\eta$ uniform bits $a_1,\dots,a_\eta,b_1,\dot
 $\sum_{i=1}^\eta a_i - \sum_{i=1}^\eta b_i$, a value in $\{-\eta,\ldots,\eta\}$ with variance $\eta/2$. ML-KEM uses $\eta_1$ for
 $\mathbf{s},\mathbf{e}$, and $\mathbf{r}$, and $\eta_2$ for $\mathbf{e}_1$ and $e_2$; ML-KEM-768 and -1024 use $\eta_1=\eta_2=2$,
 and ML-KEM-512 uses $\eta_1=3$ and $\eta_2=2$. $\mathrm{CBD}_\eta$ is especially desirable because it can be sampled from raw PRF
-output in constant time without rejection, using only bit-counting and a subtraction. \textsc{Kaiburr} replaces it with the noise
+output in constant time without rejection, using only bit-counting and a subtraction. \kaiburr replaces it with the noise
 family of Section~\ref{sec:distribution}.
 
 \paragraph{Decryption failure.} Decryption is correct as long as every coefficient of $\tilde{n}$ is smaller than $q/4$ in absolute value.
@@ -42,7 +42,7 @@ We refer to the decryption-failure probability $\delta$ as the probability, over
 encryption, that at least one of the $n$ coefficients of $\tilde{n}$ exceeds this threshold\footnote{It is well established that once
 an attacker finds a single failure, they can use it as a compass to drastically accelerate finding more failures. This type of attack
 is known as ``directional failure-boosting''~\cite{EC:DAnRosVir20}.}.
-To compute $\delta$, we adapt the \textsc{Kyber} team's scripts~\cite{kyber-scripts}. Each coefficient of
+To compute $\delta$, we adapt the \kyber team's scripts~\cite{kyber-scripts}. Each coefficient of
 $\mathbf{e}^T\mathbf{r}$ and of $\mathbf{s}^T\mathbf{e}_1$ is a signed sum of $kn$ products of two independent noise coefficients.
 The scripts compute the distribution of a single coefficient of $\tilde{n}$ by convolution, take its tail mass beyond $q/4$,
 and multiply by $n$ (a union bound over the coefficients).
@@ -60,10 +60,10 @@ to distinguish $(\mathbf{A}, \mathbf{A}\mathbf{s}+\mathbf{e})$, where $\mathbf{A
 $\mathbf{s}\leftarrow \chi^k$, $\mathbf{e}\leftarrow \chi^\ell$, from a uniformly random pair in $\Rq^{\ell\times k}\times \Rq^\ell$.
 The IND-CPA security of K-PKE reduces to MLWE with $\chi$. The public key is an instance with $\ell=k$, and, with $\mathbf{t}$ replaced
 by a uniform vector, the ciphertext is an instance with $\ell=k+1$. Increasing $k$ increases the dimension $kn$ of the underlying lattice
-problem and is the main lever \textsc{Kyber} uses to raise its claimed security level~\cite{kyberround1}.
+problem and is the main lever \kyber uses to raise its claimed security level~\cite{kyberround1}.
 
 \paragraph{Core-SVP hardness estimates.} We estimate MLWE hardness with the standard Core-SVP methodology~\cite{USENIX:ADPS16}
-used throughout the \textsc{Kyber} submission documents and implemented in the \textsc{Kyber} team's public estimator
+used throughout the \kyber submission documents and implemented in the \kyber team's public estimator
 scripts~\cite{kyber-scripts}. The adversary runs BKZ with block size $b$ in either the primal or the dual attack, and the cost of
 BKZ-$b$ is approximated by a single SVP call in dimension $b$, estimated as $2^{cb}$ operations with $c\approx 0.292$ for classical
 sieving~\cite{SODA:BDGL16} and $c\approx 0.265$ for quantum sieving~\cite{laarhoven-thesis}. For each parameter set, the scripts
@@ -72,7 +72,7 @@ the \emph{classical} and \emph{quantum} Core-SVP security level. They depend on 
 deviation. For reference, the same scripts give classical/quantum levels of $117/106$, $181/164$, and $253/230$ for ML-KEM-512,
 -768, and -1024, respectively.
 
-\paragraph{Lattice estimator.} We cross-check the numbers from the \textsc{Kyber} Core-SVP scripts with the lattice estimator~\cite{estimator}, which aims to
+\paragraph{Lattice estimator.} We cross-check the numbers from the \kyber Core-SVP scripts with the lattice estimator~\cite{estimator}, which aims to
 provide tighter estimates and evaluates a wider range of attacks.\footnote{Forked from
 \url{https://github.com/malb/lattice-estimator}, commit \texttt{53da598}.} Its
 full estimate costs lattice reduction with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP.

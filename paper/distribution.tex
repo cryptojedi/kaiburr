@@ -2,16 +2,16 @@
 \label{sec:distribution}
 Even though the resulting public key and ciphertext sizes at $k=7$ remain relatively small, 
 increasing $k$ further is not possible without affecting correctness. Instead, one could reduce the failure probability at large $k$ by increasing the modulus $q$.
-We note that all variants of \textsc{Kyber} fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
+We note that all variants of \kyber fix $q=3329$, which is explicitly justified in the submission documentation to NIST. The modulus
 $q=3329$ is a suitable small prime satisfying the NTT-enabling condition $n \mid (q-1)$, notably weaker than the $2n \mid (q-1)$ one might expect, 
-which \textsc{Kyber} deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
+which \kyber deliberately does not require~\cite{kyberround2}. It was reduced from the round-1 value $7681$ to recover the
 bandwidth spent by dropping public-key compression and co-tuned to balance ciphertext size, failure probability, and security. 
 
 Since ML-KEM's standardization, highly optimized and high-assurance implementations have emerged across software and hardware platforms~\cite{mlkem-native,TCHES:ABBGLL23,SP:AOPPSS25}.
 Changing $q$ would mean not being able to reuse any existing optimized routines in software or hardware, which sacrifices an important engineering advantage 
 and results in a different scheme altogether. We choose not to change $q$ for this reason.
 
-This is not to say that $k$ is the only parameter that can be modified. We focus on changes that preserve the \emph{essence} of \textsc{Kyber}:
+This is not to say that $k$ is the only parameter that can be modified. We focus on changes that preserve the \emph{essence} of \kyber:
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
 constants, and the existing analysis framework. The module
 rank $k$ qualifies trivially. So does the error distribution. 
@@ -20,7 +20,7 @@ it can be replaced without altering the core implementation. What it changes are
 decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
 
 To scale past $k=7$, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving 
-\textsc{Kyber}'s \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \textsc{Kyber}'s use of a 
+\kyber's \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \kyber's use of a 
 centered binomial in the first place. This requirement rules out simply using a discrete Gaussian, as in FrodoKEM.
 
 \subsection{A parameterized noise distribution}
@@ -53,7 +53,7 @@ $\sqrt{0.5}$ as $t$ grows.
   \Return{$x$}\;
 \end{algorithm}
 
-We note that $f(t)$ generalizes \textsc{Kyber}'s own noise distribution. At $t=4$, the probabilities become
+We note that $f(t)$ generalizes \kyber's own noise distribution. At $t=4$, the probabilities become
 $$
   \Pr[\pm 2] = \frac{1}{16}, \qquad
   \Pr[\pm 1] = \frac14, \qquad
@@ -85,7 +85,7 @@ FrodoKEM-640.
 We use FrodoKEM-640 as our baseline for parameter selection and comparison throughout the paper because it is the 
 smallest FrodoKEM parameter set (NIST Level 1) and hence imposes the tightest communication budget of 9,616 public-key 
 bytes and 9,720 ciphertext bytes. This gives us 
-a restrictive baseline for asking how much security margin \textsc{Kaiburr} can achieve within the communication cost 
+a restrictive baseline for asking how much security margin \kaiburr can achieve within the communication cost 
 of an unstructured lattice-based KEM.
 
 Table~\ref{tab:kaiburr-params} lists, for every $t$ from $2$ to $8$, the largest $k$ that
@@ -96,10 +96,10 @@ $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
   \centering
   \caption{Largest module rank $k$ for each noise parameter $t$ under the $2^{-128}$ failure
   bound and FrodoKEM-640's communication budget. Each name gives the lattice dimension
-  $256k$. \colorbox{kaiburrbg}{Shaded} rows are the selected \textsc{Kaiburr} parameter sets.
+  $256k$. \colorbox{kaiburrbg}{Shaded} rows are the selected \kaiburr parameter sets.
   For $t=8$, $k=25$ would give a 9,632-byte public key, just over the budget.
   Classical/quantum security (Core-SVP) and failure probability computed with the
-  \textsc{Kyber} team's scripts; other parameters as in ML-KEM, compression removed.}
+  \kyber team's scripts; other parameters as in ML-KEM, compression removed.}
   \label{tab:kaiburr-params}
   \begin{tabular}{lccccccc}
     \toprule
@@ -122,7 +122,7 @@ $f(8)$, at $k=7$, $18$, and $24$ respectively, which follow from these choices.
 To get tighter estimates, we also run all eight attacks of the lattice estimator (Section~\ref{sec:preliminaries}) on the three
 selected parameter sets. Table~\ref{tab:estimator} summarizes the results. For
 \kaiburr-1792, the cheapest attack is the dual-hybrid attack at $2^{467.3}$, below the
-$479$ bits from the \textsc{Kyber} scripts, which do not model hybrid attacks. For \kaiburr-4608 and \kaiburr-6144, the cheapest
+$479$ bits from the \kyber scripts, which do not model hybrid attacks. For \kaiburr-4608 and \kaiburr-6144, the cheapest
 attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits below their Core-SVP estimates.
 
 \begin{table}[h]
@@ -150,18 +150,18 @@ attack is BDD, at $2^{1268.9}$ and $2^{1694.3}$, which is $12$ and $23$ bits bel
 \end{table}
 
 \subsection{Sizes}
-Table~\ref{tab:size-comparison} places the three \textsc{Kaiburr} parameter
+Table~\ref{tab:size-comparison} places the three \kaiburr parameter
 sets alongside all FrodoKEM and HQC parameter sets. \kaiburr-1792 is smaller in
 combined pk+ct size than HQC-1 (5,792 vs.\ 6,674 bytes), and less than
 a third the size of HQC-5 (21,658 bytes).
 
 \begin{table}[h]
 \centering
-\caption[Public-key and ciphertext sizes across \textsc{Kaiburr}, FrodoKEM, and HQC.]{Public-key and ciphertext sizes across \textsc{Kaiburr},
-FrodoKEM, and HQC. \textsc{Kaiburr}'s classical/quantum Core-SVP security is as computed with
-the \textsc{Kyber} scripts (Table~\ref{tab:kaiburr-params}); Core-SVP is not computed for FrodoKEM (--). The lattice estimator
+\caption[Public-key and ciphertext sizes across \kaiburr, FrodoKEM, and HQC.]{Public-key and ciphertext sizes across \kaiburr,
+FrodoKEM, and HQC. \kaiburr's classical/quantum Core-SVP security is as computed with
+the \kyber scripts (Table~\ref{tab:kaiburr-params}); Core-SVP is not computed for FrodoKEM (--). The lattice estimator
 column gives the $\log_2$ cost of the cheapest attack found by the lattice estimator for
-\textsc{Kaiburr} and FrodoKEM, both evaluated with max block
+\kaiburr and FrodoKEM, both evaluated with max block
 size set to $16384$.}
 \label{tab:size-comparison}
 \begin{tabular}{lccccc}
