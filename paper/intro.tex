@@ -65,7 +65,7 @@ takes over, and what it costs to push past it. We therefore ask:
 provide a better hedge than FrodoKEM-1344?}
 \end{quote}
 
-\paragraph{Our approach.}We answer both parts affirmatively through \kaiburr,\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}} which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
+\paragraph{Our approach.}We answer both parts affirmatively through \kaiburr\footnote{\url{https://starwars.fandom.com/wiki/Kaiburr_crystal}}, which increases the module rank $k$ in ML-KEM, replaces its centered binomial distribution with a
 generalized one-parameter family that remains easy to sample, and removes ciphertext compression. The ring,
 NTT arithmetic, symmetric primitives, and FO transform are unchanged, so existing optimized ML-KEM software and hardware can largely be
 reused. We instantiate \kaiburr up to lattice dimension $6144$, reaching $1717$ bits of classical Core-SVP security within

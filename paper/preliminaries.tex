@@ -73,8 +73,8 @@ deviation. For reference, the same scripts give classical/quantum levels of $117
 -768, and -1024, respectively.
 
 \paragraph{Lattice estimator.} We cross-check the numbers from the \kyber Core-SVP scripts with the lattice estimator~\cite{estimator}, which aims to
-provide tighter estimates and evaluates a wider range of attacks.\footnote{Forked from
-\url{https://github.com/malb/lattice-estimator}, commit \texttt{53da598}.} Its
+provide tighter estimates and evaluates a wider range of attacks\footnote{Forked from
+\url{https://github.com/malb/lattice-estimator}, commit \texttt{53da598}.}. Its
 full estimate costs lattice reduction with the MATZOV model~\cite{matzov2022lwe} by default, rather than with Core-SVP.
 We model each \kaiburr parameter set as an LWE instance of dimension $256k$ with $256k$ samples, $q=3329$, and secret and error
 coefficients of standard deviation $\sigma(t)$ (\cref{sec:distribution}). For FrodoKEM, we use the estimator's built-in
