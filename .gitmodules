@@ -16,6 +16,6 @@
 [submodule "kaiburr-lattice-estimator"]
 	path = kaiburr-lattice-estimator
 	url = https://github.com/swechchhaad/kaiburr-lattice-estimator
-[submodule "src/kyber-upstream"]
-	path = src/kyber-upstream
+[submodule "src/kyber-c"]
+	path = src/kyber-c
 	url = https://github.com/pq-crystals/kyber

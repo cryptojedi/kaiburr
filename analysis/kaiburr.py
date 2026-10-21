@@ -54,78 +54,43 @@ def summarize(ps):
     F, f = p2_cyclotomic_error_probability(ps)
     print ("failure: %.1f = 2^%.1f"%(f, log(f + 2.**(-300))/log(2)))
 
+
+def failure_exp(ps):
+    F, f = p2_cyclotomic_error_probability(ps)
+    return log(f + 2.**(-300))/log(2)
+
+
 if __name__ == "__main__":
-#     params = [
-#         # (label,         n,   m, ks, ke,   q,     rqk,   rqc,   rq2)
-#         ("256*24, f(8)",  256,  24,  8,  8, 3329, 2**12, 2**12, 2**12),
-#     ]
-    params = [
-        # (label,                      n,   m, ks, ke,   q,    rqk,   rqc,   rq2)
-        ("k=7, f(4),  q=3329", 256, 7,  4,  4, 3329, 2**12, 2**12, 2**12),
-        # ("k=22, f(4),  q=7681", 256, 22,  4,  4, 7681, 2**13, 2**13, 2**13),
-    ]
-    
-    # checking how security estimates change with n rn
+    import io, contextlib
 
-#     params = [
-#     ("256*24, f(8),  rq2=2^12", 256, 24,  8,  8, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(9),  rq2=2^12", 256, 24,  9,  9, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(10), rq2=2^12", 256, 24, 10, 10, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(11), rq2=2^12", 256, 24, 11, 11, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(12), rq2=2^12", 256, 24, 12, 12, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(15), rq2=2^12", 256, 24, 15, 15, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(20), rq2=2^12", 256, 24, 20, 20, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(24), rq2=2^12", 256, 24, 24, 24, 3329, 2**12, 2**12, 2**12),
-#     ("256*24, f(30), rq2=2^12", 256, 24, 30, 30, 3329, 2**12, 2**12, 2**12),
-# ]
+    # n = 256, q = 3329, no ciphertext compression (rqk = rqc = rq2 = 2^12)
 
-
-#     params = [
-#     # m=25, vary rq2 compression
-#     ("256*25, f(8), rq2=2^12", 256, 25, 8, 8, 3329, 2**12, 2**12, 2**12),
-#     ("256*25, f(8), rq2=2^11", 256, 25, 8, 8, 3329, 2**12, 2**12, 2**11),
-#     ("256*25, f(8), rq2=2^10", 256, 25, 8, 8, 3329, 2**12, 2**12, 2**10),
-#     ("256*25, f(8), rq2=2^9",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**9),
-#     ("256*25, f(8), rq2=2^8",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**8),
-#     ("256*25, f(8), rq2=2^7",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**7),
-#     ("256*25, f(8), rq2=2^6",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**6),
-#     ("256*25, f(8), rq2=2^5",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**5),
-#     ("256*25, f(8), rq2=2^4",  256, 25, 8, 8, 3329, 2**12, 2**12, 2**4),
-# ]
-
-# pk size is fixed at 9632 regardless of compression, so m = 25 is not acceptable within the budget
-#     params = [
-#     ("256*24, f(8), rq2=2^6", 256, 24, 8, 8, 3329, 2**12, 2**12, 2**6),
-#     ("256*24, f(8), rq2=2^5", 256, 24, 8, 8, 3329, 2**12, 2**12, 2**5),
-#     ("256*24, f(8), rq2=2^4", 256, 24, 8, 8, 3329, 2**12, 2**12, 2**4),
-#     ("256*25, f(8), rq2=2^6", 256, 25, 8, 8, 3329, 2**12, 2**12, 2**6),
-# ]
-
-# 9616, 9752
-
-# sizes at m = 25 will be always be higher regardless of which f(n) you use
-
-    # regenerate the warmup table: baseline ML-KEM noise
-    # CBD2, fixed base
-    # ring, modulus q=3329, no ciphertext compression (rqk=rqc=rq2=2^12);
-    # vary only the module rank k.
-    print("Warmup: decryption failure vs module rank k (CBD2, q=3329, no compression)")
-    print("k  | failure")
+    # warmup table
+    print("Warmup: decryption failure vs module rank k")
+    print("k  | failure  | pk   | ct")
     for k in range(3, 9):
         ps = KyberParameterSet(256, k, 2, 2, 3329, 2**12, 2**12, 2**12, cbd=2)
-        F, f = p2_cyclotomic_error_probability(ps)
-        print("%d  | 2^%.1f" % (k, log(f + 2.**(-300))/log(2)))
+        pk, ct = communication_costs(ps)
+        print("%d  | 2^%.1f | %.0f | %.0f" % (k, failure_exp(ps), pk, ct))
+    print()
 
-    # --- security estimates disabled for now ---
-    # for label, n, m, ks, ke, q, rqk, rqc, rq2 in params:
-    #     ps = KyberParameterSet(n, m, ks, ke, q, rqk, rqc, rq2)
-    #     print(f"{label}:")
-    #     print("--------------------")
-    #     print("security:")
-    #     MLWE_summarize_attacks(Kyber_to_MLWE(ps))
-    #     F, f = p2_cyclotomic_error_probability(ps)
-    #     pk, ct = communication_costs(ps)
-    #     print("failure:  2^%.1f" % (log(f + 2.**(-300))/log(2)))
-    #     print("pk size:  %.0f bytes" % pk)
-    #     print("ct size:  %.0f bytes" % ct)
-    #     print()
+    # parameter selection table
+    # bound and FrodoKEM-640's budget (pk <= 9616, ct <= 9720 bytes)
+    print("Parameter selection")
+    print("scheme       | k  | noise | failure  | class. | quant. | pk   | ct")
+    for t, k in [(2, 1), (3, 3), (4, 7), (5, 13), (6, 18), (7, 23), (8, 24)]:
+        ps = KyberParameterSet(256, k, t, t, 3329, 2**12, 2**12, 2**12)
+        with contextlib.redirect_stdout(io.StringIO()):
+            b_pq, c_pc, c_pq, c_pp = MLWE_summarize_attacks(Kyber_to_MLWE(ps))
+        pk, ct = communication_costs(ps)
+        print("Kaiburr-%-4d | %-2d | f(%d)  | 2^%.1f | %-6d | %-6d | %.0f | %.0f"
+              % (256*k, k, t, failure_exp(ps), c_pc, c_pq, pk, ct))
+    print()
+
+    # ceiling table
+    print("Ceiling")
+    print("k  | failure  | pk    | ct")
+    for k in [24, 26, 28, 29, 30]:
+        ps = KyberParameterSet(256, k, 999, 999, 3329, 2**12, 2**12, 2**12)
+        pk, ct = communication_costs(ps)
+        print("%d | 2^%.1f | %.0f | %.0f" % (k, failure_exp(ps), pk, ct))

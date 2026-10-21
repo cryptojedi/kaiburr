@@ -20,12 +20,12 @@ KAIBURR_C      := ../kaiburr-c
 KAIBURR_JASMIN := ../kaiburr-jasmin
 FRODO          := ../PQCrypto-LWEKE
 HQC            := ../hqc-next-release
-MLKEM          := ../kyber-upstream
+MLKEM          := ../kyber-c
 
 JASMINC ?= jasminc
 KECCAK  := $(KAIBURR_JASMIN)/formosa-keccak/src/amd64
 
-KAIBURR_VARIANTS := kaiburr4:7 kaiburr6:18 kaiburr8:24
+KAIBURR_VARIANTS := kaiburr1792:7 kaiburr4608:18 kaiburr6144:24
 MLKEM_VARIANTS   := mlkem512:2 mlkem768:3 mlkem1024:4
 MLKEM_JASMIN_VARIANTS := 768 1024
 HQC_VARIANTS     := hqc-1 hqc-3 hqc-5
@@ -278,9 +278,9 @@ help:
 	@echo ""
 	@echo "  make run                  build and run everything, one table"
 	@echo "  make smoke                same with TIMINGS=101 RUNS=1 (build check)"
-	@echo "  make run-kaiburr          kaiburr4/6/8, C and Jasmin, ref and avx2"
-	@echo "  make run-kaiburr-c        kaiburr4/6/8, C only"
-	@echo "  make run-kaiburr-jasmin   kaiburr4/6/8, Jasmin only"
+	@echo "  make run-kaiburr          Kaiburr-1792/4608/6144, C and Jasmin, ref and avx2"
+	@echo "  make run-kaiburr-c        Kaiburr-1792/4608/6144, C only"
+	@echo "  make run-kaiburr-jasmin   Kaiburr-1792/4608/6144, Jasmin only"
 	@echo "  make run-mlkem            ML-KEM-512/768/1024 (unmodified upstream C), ref and avx2"
 	@echo "  make run-mlkem-jasmin     ML-KEM-768/1024 (unmodified upstream Jasmin), ref and avx2"
 	@echo "  make run-hqc              hqc-1/3/5, ref and avx2"

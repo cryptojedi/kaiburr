@@ -16,7 +16,7 @@ class MLWEParameterSet:
         self.n = n  # Ring Dimension
         self.d = d  # MLWE Dimension (over the ring)
         self.m = m  # Number of Ring-Samples
-        self.k = k  # n in f(n) for vadim distribution
+        self.k = k  # n in f(n)
         self.q = q  # Modulus
 
 
