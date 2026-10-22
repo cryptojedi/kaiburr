@@ -2,8 +2,15 @@
 
 This repository contains all code and supplementary materials for our paper "Kaiburr: ML-KEM at (much) higher
 security." We include the parameter analysis scripts, verified decryption-failure bounds, lattice estimates, C, Jasmin
-and ACC implementations, benchmarks, and paper source. Each directory has its own `README.md` with
-details, so please see them for more details on each section!
+and ACC implementations, benchmarks, and paper source.
+
+## Platform
+
+The analysis scripts, the lattice estimator, the C reference implementation and the paper run on any
+platform. The Jasmin implementation compiles to x86-64 assembly, so it needs an x86-64 CPU, and its AVX2
+builds, the C AVX2 implementation and the Intel benchmarks also need AVX2. The benchmarks also need Linux.
+The toolchain setup for the formally verified bounds downloads Linux x86-64 binaries (opam, Z3, CVC4), it needs Linux on x86-64. For the ACC, see Pavona's toolchain guide linked from
+[src/README.md](src/README.md#kaiburr-on-pavonas-acc).
 
 ## Cloning
 
@@ -64,28 +71,6 @@ python3 kaiburr.py
 This first prints the Script column and sizes of Table 1, then Table 2 (its Kaiburr rows are also the Core-SVP
 and size columns of Table 4), then Table 5.
 
-### Formally verified bounds (Tables 1, 6)
-
-See [kaiburr-bounds/README.md](kaiburr-bounds/README.md) for details on how to build this. Then
-
-```bash
-cd kaiburr-bounds
-make check
-```
-
-checks the proofs, runs the bound calculator, and compares each bound admitted in the proofs with the
-calculator output.
-
-### Lattice estimates (Tables 3, 4)
-
-This requires SageMath. See [kaiburr-lattice-estimator/README.md](kaiburr-lattice-estimator/README.md) for details.
-
-```bash
-cd kaiburr-lattice-estimator
-sage kaiburr.py    # Kaiburr-1792, -4608, -6144 (Tables 3 and 4)
-sage frodo.py      # FrodoKEM-640, -976, -1344 (Table 4)
-```
-
 ### C implementation (Section 6.4)
 
 Round-trip tests:
@@ -97,6 +82,16 @@ make test/test_kaiburr1792 test/test_kaiburr4608 test/test_kaiburr6144
 ```
 
 and likewise in `src/kaiburr-c/avx2`.
+
+### Lattice estimates (Tables 3, 4)
+
+This requires SageMath. See [kaiburr-lattice-estimator/README.md](https://github.com/swechchhaad/kaiburr-lattice-estimator/blob/main/README.md) for details.
+
+```bash
+cd kaiburr-lattice-estimator
+sage kaiburr.py    # Kaiburr-1792, -4608, -6144 (Tables 3 and 4)
+sage frodo.py      # FrodoKEM-640, -976, -1344 (Table 4)
+```
 
 ### Jasmin implementation (Section 6.4)
 
@@ -135,6 +130,18 @@ and Hyper-Threading and Turbo Boost disabled, on an Intel Core i7-6700K (Skylake
 Lake, Table 9) and i9-13900K (Raptor Lake, Table 10). On the Raptor Lake, we pinned the benchmark to a
 performance core. If GCC 12.2.0 is not your default compiler, select it with, e.g., `make CC=gcc-12 run`.
 Cycle counts will differ on other CPUs and configurations.
+
+### Formally verified bounds (Tables 1, 6)
+
+See [kaiburr-bounds/README.md](https://github.com/swechchhaad/kaiburr-bounds/blob/main/README.md) for details on how to build this. Then
+
+```bash
+cd kaiburr-bounds
+make check
+```
+
+checks the proofs, runs the bound calculator, and compares each bound admitted in the proofs with the
+calculator output.
 
 ### ACC (Tables 11, 12)
 
