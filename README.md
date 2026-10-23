@@ -229,6 +229,20 @@ set to the directory that contains them. Please see the
 to install the Jasmin compiler. We recommend using nix. It also needs an x86-64 CPU, with AVX2 for the `avx2`
 builds.
 
+**Please note that you need release `v2026.03.1` or newer to run these tests; older releases will not work.** Installing through nixpkgs
+(`nix-env -iA nixpkgs.jasmin-compiler.bin`) may give you an older release, so we recommend building the release
+from its tarball instead:
+
+```bash
+mkdir -p ~/tools && cd ~/tools
+curl -LO https://github.com/jasmin-lang/jasmin/releases/download/v2026.03.1/jasmin-compiler-v2026.03.1.tar.bz2
+tar xjf jasmin-compiler-v2026.03.1.tar.bz2
+cd jasmin-compiler-v2026.03.1
+nix-shell compiler/ --run 'make -C compiler'
+export JASMIN=$HOME/tools/jasmin-compiler-v2026.03.1/compiler
+$JASMIN/jasminc -version    # should print 2026.03.1
+```
+
 #### Constant-time checks
 
 **Goal.** `jasmin-ct` checks that each of the six builds (three parameter sets, `ref` and `avx2`) is constant
@@ -240,15 +254,26 @@ From the repository root:
 ```bash
 cd src/kaiburr-jasmin/code/jasmin
 for p in kaiburr1792 kaiburr4608 kaiburr6144; do
-  for i in ref avx2; do echo "== CT: $p/$i =="; make -C $p/$i ct; done
-  echo "== SCT: $p/avx2 =="; make -C $p/avx2 sct
+  for i in ref avx2; do make -s -C $p/$i ct  >/dev/null 2>&1 && echo "CT  $p/$i: PASS" || echo "CT  $p/$i: FAIL"; done
+  make -s -C $p/avx2 sct >/dev/null 2>&1 && echo "SCT $p/avx2: PASS" || echo "SCT $p/avx2: FAIL"
 done
 ```
 
-**Expected output.** Each `== ... ==` line is followed by the `jasmin-ct` command make runs. A check passes if
-it finishes without an error. If a function is not constant time, `jasmin-ct` reports an error and make stops.
+**Expected output.**
 
-**Running time.** TODO
+```
+CT  kaiburr1792/ref: PASS
+CT  kaiburr1792/avx2: PASS
+SCT kaiburr1792/avx2: PASS
+CT  kaiburr4608/ref: PASS
+CT  kaiburr4608/avx2: PASS
+SCT kaiburr4608/avx2: PASS
+CT  kaiburr6144/ref: PASS
+CT  kaiburr6144/avx2: PASS
+SCT kaiburr6144/avx2: PASS
+```
+
+**Running time.** A few seconds for all nine checks on the Threadripper.
 
 #### Cross-check against the C implementation
 
@@ -278,7 +303,7 @@ Progress: 10000/10000 (100.0%)
 The cross-check passes if all six reach `10000/10000` and make finishes without an error. On a mismatch, the
 test prints which output differs (e.g. `crypto_kem_enc ct mismatch at byte 17`) and stops.
 
-**Running time.** TODO
+**Running time.** About 18 minutes on the Threadripper. The six tests run one after another on a single core.
 
 ### Intel benchmarks (Tables 8–10)
 
@@ -307,7 +332,7 @@ implementation. Each cell gives the median cycle count and the quartiles, as `me
 `keypair`, `enc` and `dec` columns are the KeyGen, Enc and Dec columns of Tables 8–10. Cycle counts will differ on
 other CPUs and configurations, so compare the relative order of the schemes rather than the absolute numbers.
 
-**Running time.** TODO
+**Running time.** Several hours, depending on the machine.
 
 ### Formally verified bounds (Tables 1, 6)
 
@@ -343,7 +368,8 @@ all admitted bounds are backed by the calculator
 The *admitted* column is the *Machine-checked* column of Table 1 and the *Verified bound* column of Table 6. The
 full expected output is in [kaiburr-bounds/README.md](https://github.com/swechchhaad/kaiburr-bounds/blob/main/README.md#running).
 
-**Running time.** TODO
+**Running time.** About 3 minutes on the Threadripper with the default `JOBS=4`: under 2 minutes for the
+proofs, the rest for building and running the calculator.
 
 ### ACC (Tables 11, 12)
 
