@@ -8,16 +8,16 @@ diversity beyond lattice-based assumptions. Among lattice-based designs, the Rou
 structure, from unstructured LWE (FrodoKEM~\cite{takeofffrodo}), through cyclotomic modules (\kyber~\cite{kyberoriginal} and
 Saber~\cite{AFRICACRYPT:DKRV18}), to prime-degree number fields (NTRU LPRime~\cite{ntruprime}), reflecting a trade-off between efficiency
 and conservatism. ML-KEM's module structure gives small keys and fast NTT arithmetic, but is also seen as a potential attack surface,
-which other designs avoid entirely; FrodoKEM, for example, rests on plain LWE, one reason it was recommended by BSI, ENISA, and
+which some other designs avoid; FrodoKEM, for example, rests on plain LWE, which is the reason that it was recommended by BSI, ENISA, and
 NLNCSA~\cite{frodokem-news} and recently standardized by ISO~\cite{frodoiso}.
 
-\paragraph{Structure, margin, and diversity.}The efficiency-vs.-conservatism framing bundles together two notions of conservatism that concern different classes of attack.
-The first arises from the choice of hardness assumption: FrodoKEM is grounded on unstructured LWE to avoid
+\paragraph{Structure, margin, and diversity.}The efficiency-vs.-conservatism framing bundles together two notions of conservatism that concern different classes of attacks.
+The first arises from the choice of the hardness assumption: FrodoKEM is based on unstructured LWE to avoid
 a hypothetical attack that would exploit the algebraic structure of ring/module LWE but not apply directly to plain LWE.
 The second is the security margin a scheme carries above its target level, which protects against advances in the best known attacks,
 such as improved lattice reduction, dual attacks, or sharper cost models. Such advances would affect the concrete security of every
 lattice scheme at its current parameters, including FrodoKEM.
-A third, orthogonal hedge is to change the hardness 
+A third, orthogonal, hedge is to change the hardness 
 assumption, as HQC does by relying on QCSD instead of LWE. This provides diversity, and at first glance, some additional assurance
 since a break of LWE could still leave HQC secure. However, it is not entirely certain that the two hardness assumptions are cryptanalytically independent.
 Recent work has shown connections between lattice and code-based cryptanalysis, 
@@ -41,7 +41,7 @@ a natural response is also to combine schemes.
 Hybrid key exchange, which combines two KEMs so that an attacker has to break both~\cite{PKC:GiaHeuPoe18,PQCRYPTO:BBFGS19},
 is already standard practice in the post-quantum transition, where it typically pairs a post-quantum KEM with a classical one,
 as in the X25519+ML-KEM combinations now deployed in TLS~\cite{tls-hybrid}. There, the classical component is a safety net, as
-post-quantum schemes are young and have received far less cryptanalytic scrutiny than their classical counterparts.
+post-quantum schemes are younger and have received less cryptanalytic scrutiny than their classical counterparts.
 Against a quantum adversary, however, the classical component offers no protection, so for long-term confidentiality the combination
 is only as strong as its post-quantum half. This same principle extends naturally to combining two post-quantum KEMs, each covering
 a different failure mode.
@@ -75,14 +75,14 @@ and improvements to lattice attacks at lower cost than FrodoKEM-1344.
 \paragraph{Our contributions.}
 We make several contributions in this work, summarized below.
 \begin{itemize}
-  \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising $k$ alone, with \kyber's noise and
+  \item \emph{A generalized noise distribution that lifts the correctness limit.} Raising the module rank $k$ alone, with \kyber's noise and
     modulus fixed, keeps decryption failure below $2^{-128}$ only up to $k=7$ (\cref{sec:warmup}). We therefore introduce
     $f(t)$, a one-parameter family that generalizes \kyber's centered binomial distribution and 
     retains simple constant-time sampling. Tuning $t$ against
     $k$ keeps decryption failure below $2^{-128}$ as $k$ grows (\cref{sec:distribution}).
-  \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We obtain three parameter sets,
+  \item \emph{Concrete parameter sets with large margins within FrodoKEM-640's communication budget.} We define three parameter sets,
     \kaiburr-1792, -4608, and -6144, at $k=7,18,24$, whose classical/quantum Core-SVP security climbs from $479/434$ to $1717/1557$
-    bits, while their public keys and ciphertexts remain smaller than FrodoKEM-640's (\cref{sec:distribution}).
+    bits, while their public keys and ciphertexts remain smaller than even those of FrodoKEM-640, the instantiation of FrodoKEM with around $160$ bits of claimed security (\cref{sec:distribution}).
   \item \emph{A formally verified bound on decryption failure.} Building on the EasyCrypt framework of~\cite{CCS:BKLSS25}, we show
     that removing ciphertext compression makes this bound provable, closing the gap between provable and heuristic bounds that
     compression causes for ML-KEM (\cref{sec:verification}).
@@ -91,7 +91,7 @@ We make several contributions in this work, summarized below.
     machine-checked constant-time verification, and as an ACC variant targeting the Pavona hardware root of trust, and describe the
     engineering consequences of scaling $k$ and removing ciphertext compression (\cref{sec:implementation}).
   \item \emph{Benchmarks against FrodoKEM and HQC.} Across three Intel microarchitectures, our C and Jasmin AVX2 implementations run
-    substantially faster than FrodoKEM-640 and hence the larger FrodoKEM parameter sets. \kaiburr-1792 outperforms HQC-5 in every operation. Against HQC-1/3/5 at matching
+    substantially faster than FrodoKEM-640 and hence also the larger FrodoKEM parameter sets. \kaiburr-1792 outperforms HQC-5 in every operation. Against HQC-1/3/5 at matching
     indices, HQC is faster in key generation, and in encapsulation for the two larger parameter sets, while decapsulation, HQC's
     most expensive operation, favors \kaiburr (\cref{sec:benchmarks}).
   \item \emph{\kaiburr--FrodoKEM hybrids instead of high-security FrodoKEM parameter sets.} Our results call into question

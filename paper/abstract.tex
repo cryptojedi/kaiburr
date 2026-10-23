@@ -13,13 +13,13 @@
 
   In this paper we add a data point to this discussion by investigating
   how to scale ML-KEM to (much) higher security levels of the underlying
-  MLWE problem. We first show that increasing security 
+  MLWE problem. We first observe that increasing security 
   simply by increasing the module rank $k$ 
   quickly reaches a limit imposed by decryption failure probability.
   We then propose a generalization of the noise distribution, which enables scaling
   to much larger module rank and MLWE hardness, while preserving the essence
   of ML-KEM, most notably arithmetic in the ring $\Z_{3329}[X]/(X^{256}+1)$ 
-  and a simple and constant-time noise generation.
+  and a simple and constant-time secret / noise generation.
 
   We select three concrete parameter sets of this high-security variant
   of ML-KEM, which we call \kaiburr. We present benchmarking results

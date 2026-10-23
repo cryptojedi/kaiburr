@@ -13,11 +13,11 @@ and results in a different scheme altogether. We choose not to change $q$ for th
 
 This is not to say that $k$ is the only parameter that can be modified. We focus on changes that preserve the \emph{essence} of \kyber:
 the ring $\mathbb{Z}_q[X]/(X^{256}+1)$, the NTT implementation and its
-constants, and the existing analysis framework. The module
-rank $k$ qualifies trivially. So does the error distribution. 
-Since the noise only affects the secret and error terms and does not interact with the arithmetic structure or the NTT, 
-it can be replaced without altering the core implementation. What it changes are only the MLWE hardness estimate and the 
-decryption-failure probability, both of which can be recomputed through the same scripts, over the same ring. 
+constants, and the existing analysis framework. 
+%The module rank $k$ qualifies trivially. So does the error distribution. 
+The noise, however, only affects the secret and error terms and does not interact with the arithmetic structure or the NTT, and so 
+it can be replaced without altering the core implementation. The noise affects only the MLWE hardness estimates and the 
+decryption-failure probability, both of which can be recomputed through the same scripts. 
 
 To scale past $k=7$, we need a noise knob that pushes the failure-driving part of the error back down as $k$ grows, while preserving 
 \kyber's \emph{essence}. Equally important, it should retain the cheap, branchless, constant-time sampling that motivates \kyber's use of a 

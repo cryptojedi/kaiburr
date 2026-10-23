@@ -8,17 +8,19 @@ Throughout we use the centered binomial noise $\mathrm{CBD}_2$
 The ranks $k=3$ and $4$ recover the uncompressed analogues of the standardized sets ML-KEM-768 and -1024,
 while $k \geq 5$ is an extrapolation.
 
+
 We will see that increasing $k$ also increases the decryption-failure
-probability. This is a problem for IND-CCA security. In fact, the failure
-probability is part of the attacker's advantage in the security proofs of
+probability. This is a problem for IND-CCA security, where the failure
+probability shows up as part of the attacker's advantage in the security proofs of
 (variants of) the FO transform; for details see~\cite{TCC:HofHovKil17}.
-Those proofs require a notion of correctness based on a game in which
-the adversary chooses a message and wins if decryption fails. 
-In this game, the adversary knows both the public and the secret key. 
-However, for ML-KEM and FrodoKEM, it was shown in~\cite{CCS:BKLSS25} that
-an attacker can only minimally improve its chances of success by choosing
-a message and that it is possible to move to a purely statistical 
-(information-theoretic) notion. Throughout the paper we require this
+%Those proofs require a notion of correctness based on a game in which
+%the adversary chooses a message and wins if decryption fails. 
+%In this game, the adversary knows both the public and the secret key. 
+%However, for ML-KEM and FrodoKEM, it was shown in~\cite{CCS:BKLSS25} that
+%an attacker can only minimally improve its chances of success by choosing
+%a message and that it is possible to move to a purely statistical 
+%(information-theoretic) notion. 
+Throughout the paper we require this
 failure probability $\delta$ to be smaller than $2^{-128}$; this is also
 in line with the standardized parameter sets of ML-KEM, which reach the
 highest value for ML-KEM-512 at $\delta = 2^{-138.8}$~\cite[Table~1]{fips203}.
