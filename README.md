@@ -74,8 +74,10 @@ The FrodoKEM and HQC sizes and the HQC security categories in Table 4 are taken 
 
 ## Running
 
-Unless stated otherwise, the running times below were measured on an Apple M1 (8 cores, 8 GB RAM) with
-Python 3.13.7.
+We measured the running times below on two machines:
+
+- **Apple M1** (8 cores, 8 GB RAM), macOS, Python 3.13.7: analysis and C implementation.
+- **AMD Ryzen Threadripper PRO 7995WX** (96 cores, 191 GiB RAM), Debian 12 (kernel 6.1): all other sections.
 
 ### Analysis (Tables 1, 2, 4, 5)
 
@@ -186,25 +188,38 @@ sage kaiburr.py    # Kaiburr-1792, -4608, -6144 (Tables 3 and 4)
 sage frodo.py      # FrodoKEM-640, -976, -1344 (Table 4)
 ```
 
-**Expected output.** For each parameter set, the script prints the parameter set and then one line per attack,
-with the $\log_2$ of its cost as `rop: ≈2^...`. These should match Table 3 of the paper:
+**Expected output.** For each parameter set, the script prints the parameters (`LWEParameters(...)`) and then
+one line per attack, such as
+
+```
+usvp                 :: rop: ≈2^494.0, red: ≈2^494.0, δ: 1.001388, β: 1651, d: 3168, tag: usvp
+```
+
+where `rop` is the $\log_2$ cost of the attack in Table 3. The estimator prints only attacks with a finite
+cost, and prints `bdd_hybrid` and `bdd_mitm_hybrid` only if they are cheaper than `bdd` and `bdd_hybrid`
+respectively. So for each set you will see lines for `usvp`, `bdd`, `dual` (except Kaiburr-6144) and
+`dual_hybrid`, but not for `bdd_hybrid`, `bdd_mitm_hybrid` or `arora-gb`. Attacks that crash are reported as
+`Algorithm ... failed with ...`. This is expected for `CodedBKW` (`bkw`) on all three sets (`Calling ceil() on
+infinity or NaN`) and for `dual` on Kaiburr-6144 (`Numerical result out of range`).
+
+The printed costs should match Table 3 of the paper:
 
 | Attack | Kaiburr-1792 | Kaiburr-4608 | Kaiburr-6144 |
 |---|---|---|---|
 | `usvp`            | 494.0     | 1275.5     | 1701.0     |
 | `bdd`             | 488.7     | **1268.9** | **1694.3** |
-| `bdd_hybrid`      | 488.7     | 1268.9     | 1694.3     |
-| `bdd_mitm_hybrid` | 883.0     | 2411.1     | 3265.2     |
-| `dual`            | 519.8     | 1400.8     | no result  |
+| `bdd_hybrid`      | 488.7 (not printed) | 1268.9 (not printed) | 1694.3 (not printed) |
+| `bdd_mitm_hybrid` | 883.0 (not printed) | 2411.1 (not printed) | 3265.2 (not printed) |
+| `dual`            | 519.8     | 1400.8     | fails      |
 | `dual_hybrid`     | **467.3** | 1458.3     | 2120.4     |
-| `bkw`             | no result | no result  | no result  |
-| `arora-gb`        | ∞         | ∞          | ∞          |
+| `bkw`             | fails     | fails      | fails      |
+| `arora-gb`        | ∞ (not printed) | ∞ (not printed) | ∞ (not printed) |
 
-Bold marks the cheapest attack for each set. "No result" means the estimator crashed for that attack and
-printed an error instead of a cost; this is expected. For `frodo.py`, the cheapest attacks cost $2^{162.9}$
+Bold marks the cheapest attack for each set. For `frodo.py`, the cheapest attacks cost $2^{162.9}$
 (FrodoKEM-640), $2^{225.2}$ (FrodoKEM-976) and $2^{281.7}$ (FrodoKEM-1344).
 
-**Running time.** TODO
+**Running time.** About 2 minutes for `kaiburr.py` and under 1 minute for `frodo.py` on the
+Threadripper. Both use at most 8 cores, so a machine with 8 cores should take about as long.
 
 ### Jasmin implementation (Section 6.4)
 
