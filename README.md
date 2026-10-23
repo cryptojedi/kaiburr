@@ -133,9 +133,9 @@ The rows in bold are the selected Kaiburr parameter sets.
 | 29 | 2^-130.6 | 11168 | 11520 |
 | 30 | 2^-126.1 | 11552 | 11904 |
 
-**Running time.** `Warmup` appears within seconds. `Parameter selection` is slow, because it runs the Core-SVP
-attack search for every row; its rows are printed one at a time as they finish. The whole script took
-TODO on our machine.
+**Running time.** `Warmup` and `Ceiling` take seconds. `Parameter selection` takes several hours, because it
+runs the Core-SVP attack search for every row, and the larger rows take longest. Its rows are printed one at a
+time as they finish.
 
 ### C implementation (Section 6.4)
 
