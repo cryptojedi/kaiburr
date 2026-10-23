@@ -3,7 +3,7 @@ from math import log, ceil, erf, sqrt
 
 
 def gaussian_center_weight(sigma, t):
-    """ Weight of the gaussian of std deviation s, on the interval [-t, t]
+    r""" Weight of the gaussian of std deviation s, on the interval [-t, t]
     :param x: (float)
     :param y: (float)
     :returns: erf( t / (sigma*\sqrt 2) )
