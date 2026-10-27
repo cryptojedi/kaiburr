@@ -8,11 +8,14 @@ existing work avoids with a comparison technique~\cite{TCHES:BGRSV21}. We do not
 \paragraph{Why compression is the obstruction.}
 In the noise expression for ML-KEM,
 $\tilde{n} = \mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1 - \mathbf{s}^T\mathbf{c}_u + e_2 + c_v$ (\cref{sec:preliminaries}),
-the rounding errors $\mathbf{c}_u$ and $c_v$ are the only source of difficulty~\cite{CCS:BKLSS25}. Because the correctness adversary
-holds the secret key, no direct MLWE reduction is available, which forces a worst-case elimination of $c_v$ and a split into two
-sub-bounds. For ML-KEM-768, the fully provable bound is therefore $2^{-80}$, while the heuristic bound that just assumes
-rounding-of-uniform is $2^{-164}$, a gap of roughly 84 bits~\cite{CCS:BKLSS25}. FrodoKEM, which admits no ciphertext compression,
-has no such gap.
+every term except the rounding errors $\mathbf{c}_u$ and $c_v$ has a coefficient distribution that can be computed exactly.
+The rounding errors depend on the ciphertext $(\mathbf{u}, v)$, which is correlated with the other noise, so the ML-KEM
+analysis assumes $\mathbf{u}$ and $v$ are uniform and independent~\cite{CCS:BKLSS25}. MLWE cannot justify this, because
+the correctness adversary holds the secret key, and deciding whether decryption failed requires that key and all the noise.
+The provable alternative of~\cite{CCS:BKLSS25} bounds $c_v$ by its worst case and uses MLWE only for a separately
+thresholded $\mathbf{s}^T\mathbf{c}_u$ term. Because this ignores cancellation between the two parts, the provable bound
+for ML-KEM-768 is $2^{-80}$ (plus an MLWE term), against $2^{-164}$ under the heuristic, a gap of about 84 bits. FrodoKEM does not compress
+ciphertexts and has no such gap.
 
 \paragraph{What we prove.}
 We adapt the EasyCrypt framework of~\cite{CCS:BKLSS25}, including its theory of distributions over the ring and its OCaml
