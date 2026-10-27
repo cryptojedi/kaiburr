@@ -266,8 +266,8 @@ deterministic, so repeated runs on the same input are cycle-identical. We theref
 fixed input (all-zero randomness) rather than reporting a median and interquartile range. To obtain per-operation costs, 
 we build the keypair--encapsulate--decapsulate round trip three times, terminating after KeyGen, after Enc, 
 and after Dec, giving total cycle counts $M_1$, $M_2$, $M_3$; then $\mathrm{KeyGen}=M_1$, $\mathrm{Enc}=M_2-M_1$, 
-and $\mathrm{Dec}=M_3-M_2$. Results are shown in \cref{tab:acc}.
-
+and $\mathrm{Dec}=M_3-M_2$. Results are shown in \cref{tab:acc}%
+\footnote{To the best of our knowledge, there is no publicly available implementation of FrodoKEM on ACC, so we omit this comparison.}.
 \begin{table}[h]
 \centering
 \caption{Benchmark results in cycles for the ACC implementation on Pavona's cycle-accurate RTL
